@@ -5,6 +5,7 @@ import TargetList from './TargetList'
 import TargetDetailDrawer from './TargetDetailDrawer'
 import RemoveTargetModal from './RemoveTargetModal'
 import AddTargetSheet from './AddTargetSheet'
+import LiveActivityCard from './LiveActivityCard'
 
 export default function TargetsPage() {
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -22,6 +23,7 @@ export default function TargetsPage() {
         </p>
       </header>
 
+      <LiveActivityCard onOpenTarget={(t) => setDetailTarget(t)} />
       <SlotsCard onAddTarget={() => setSheetOpen(true)} />
       <FilterRow />
       <TargetList onOpen={(t) => setDetailTarget(t)} />
