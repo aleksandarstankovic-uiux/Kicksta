@@ -5,6 +5,56 @@
 
 ---
 
+## 2026-04-23 — Targets page v2
+
+### Changed — Targets page
+- **Live Activity card** (new) — compact strip between header and slots card: radar-ping dot + phase label (`Analyzing targets` / `Following` / `Unfollowing` / `Pausing between actions` / `Warming up` / `Setup needed` / `Paused`) + rotating target handle + data chips (`Today N actions`, fuzzy `next in ~N min`). Monitor-only; no pause control. Target handle is clickable when it maps to a stored target → opens that row's detail drawer
+- **`useSystemStatus` shared hook** — single source of truth for the live automation status. Advances through a state machine (`analyzing → following → waiting → unfollowing → waiting …`) on a randomized 6–10s timer. Consumed by the Targets Live Activity card AND the Overview's `StatusPill` so both surfaces advance in lockstep. No countdown timers — fuzzy copy only
+- **Overview `StatusPill` refactor** — now reads live phase + rotating target from `useSystemStatus` instead of a local state tick. Pause/resume local logic + popover content unchanged; only the data source switched
+- **Target row redesign** — dot replaced by 36×36 avatar (initial fallback) for accounts and a circular `Hash` icon for hashtags; name gets a subline (`128K followers` or `12.4M posts`); follow-backs column shows `count · rate%` with the `%` colored by health (green ≥10%, muted 5–10%, yellow <5%); kebab replaced with a `ChevronRight` affordance. Min-height 64px
+- **Slots card** inline header on desktop — `Target slots` label + count + `+ Add target` button share the top row; progress bar and trust line below. Mobile stays stacked (count + button, then bar, then trust line)
+- **Target Detail Drawer** (replaces KebabMenu) — 48px avatar, status pill, subline, **HealthPill** (size-based match quality), 3 data chips (`Followed · Follow-backs · Rate`), two 48px tinted action buttons (`Pause`/`Resume` blue-tint + `Remove` red-tint), ghost `Open on Instagram ↗` link (new tab, goes to `instagram.com/{user}` or `.../explore/tags/{tag}`)
+- **Add Target sheet refinements**:
+  - Compact segmented toggle (`h-9`, natural-width, left-aligned under a `TARGETING` label) — no longer a full-width 44px bar
+  - **Typeahead dropdown** over an expanded fixture pool (20 accounts + 10 hashtags). 200ms debounce, 2+ chars, startsWith-preferred. Each row: avatar/hash + handle + follower/post count + `HealthPill`
+  - Suggestions always visible (account OR hashtag chips swap with the mode); hidden only while typeahead has matches
+  - **HealthPill** on the preview card and on every typeahead row — thresholds: `<1K` Small audience · `1K–100K` Good fit · `100K–1M` Slower — large audience · `>1M` Very large — much slower
+- **Target row · FOLLOW-BACKS column** header renamed to `FOLLOW-BACKS · %`
+- **Empty-state copy** now sets expectations: `Add an account or hashtag for Kicksta to follow users from. Expect first results within 24–72 hours.`
+- **Mock data** — every target row now carries `followers` (accounts) or `posts` (hashtags); follow-back counts tuned so rates land across healthy (≥10%), average (5–10%), and needs-attention (<5%) bands for visual variety
+
+### Created
+- `src/hooks/useSystemStatus.js` — shared live-status hook
+- `src/pages/targets/LiveActivityCard.jsx`
+- `src/pages/targets/TargetDetailDrawer.jsx` (replaces KebabMenu)
+- `src/pages/targets/HealthPill.jsx` — shared size-based match pill (+ `evaluateHealth` helper)
+- `src/utils/formatCount.js` — shared `128400 → "128K"` / `12400000 → "12.4M"` abbreviator
+- `src/mocks/targetSearch.js` (renamed from `resolveAccount.js`) — expanded to 20 accounts + 10 hashtags; exports `searchTargets(query, type)` + compat `mockResolveAccount(username)`
+- `src/mocks/suggestedHashtags.js`
+- `docs/superpowers/specs/2026-04-23-targets-page-v2-design.md`
+- `docs/superpowers/plans/2026-04-23-targets-page-v2.md`
+
+### Removed
+- `src/pages/targets/KebabMenu.jsx`
+- `src/mocks/resolveAccount.js` (replaced by `targetSearch.js`)
+
+### Decisions — Targets v2
+- **Shared hook over parallel simulations** — both Targets Live Activity card and Overview StatusPill read from the same cycling source to guarantee they never drift
+- **Live Activity card is monitor-only** — pause/resume control stays in the Overview StatusPill popover; not duplicated here. Keeps the Targets card a pure status surface
+- **Avatar/hashtag-icon fully replaces status dot** — status is now carried solely by the pill (bumped to `text-[11px]` for scan weight). Avoids double-signal
+- **Kebab removed in favor of a `ChevronRight` affordance** — row tap already opens the drawer; the chevron communicates "row opens something" without implying a menu
+- **Typeahead hides static suggestions while it has matches** — avoids two parallel discovery surfaces at once; suggestions return when the user clears the input or has no matches
+- **HealthPill uses green for "Good fit" and yellow for everything else** — red stays off-limits (PRODUCT.md: red for connection errors only)
+- **Fuzzy "next in" copy, no countdowns** — matches PRODUCT.md ban on countdown timers
+
+### Flagged for follow-up — Targets v2
+- Live Activity card action counter persists across reloads only by resetting to the baseline — real persistence needs backend
+- Typeahead dropdown inside the Add Target sheet can clip extra rows behind the sheet's internal scroll; consider `max-h-[240px] overflow-y-auto` on the dropdown or making it portaled
+- Mobile row name truncation is aggressive (`@fit…`) when avatar + star + pill crowd the row; could trim pill text or hide star below a breakpoint
+- Slots card button sits **above** the progress bar on mobile (because it shares the inline flex container that stacks vertically); v1 had it at the bottom. Cosmetic; may revisit
+
+---
+
 ## 2026-04-23
 
 ### Changed — Dashboard AccountCard + metrics
