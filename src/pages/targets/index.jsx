@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import SlotsCard from './SlotsCard'
+import FilterRow from './FilterRow'
 
 export default function TargetsPage() {
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -16,8 +17,8 @@ export default function TargetsPage() {
       </header>
 
       <SlotsCard onAddTarget={() => setSheetOpen(true)} />
+      <FilterRow />
 
-      {/* Dev-only visual confirmation until the sheet lands in Task 9. */}
       {sheetOpen && (
         <div className="mt-4 text-xs text-text-muted">
           [Add Target sheet would open here — wired in Task 9]
