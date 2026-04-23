@@ -5,6 +5,45 @@
 
 ---
 
+## 2026-04-23 — Targets page v3 (refinement pass)
+
+### Changed — Targets page
+- **`SlotsCard` → `TargetsHeroCard`** — the top CTA card is now a proper page hero. Crosshair icon in a blue-tint square, `Targets` headline, one-sentence explanation (*"Accounts and hashtags Kicksta follows to grow your audience. Each one feeds new followers into your growth queue."*), large `10 / 30` + `SLOTS USED` label on the right, prominent Add target button. **Progress bar removed** — the count carries the limit signal on its own
+- **Live Activity card** now reads as a status component at a glance: colored **eyebrow pill** (`LIVE` green-tint when running, `WARMING UP` blue, `SETUP` yellow, `PAUSED` muted grey) + left accent strip in the phase's color + **key-bound crossfade** on the phase label and rotating target handle (each phase change fades the new text in)
+- **Overview `StatusPill`** gets the same `LIVE` / `PAUSED` / `WARMING UP` / `SETUP` eyebrow pill inside its existing chip, so both surfaces use the same status vocabulary
+- **Target row**:
+  - Mobile now shows a small **status dot** to the left of the name instead of the full pill (pill stays on `md:+` for wider rooms). Avoids cramping on narrow widths
+  - Column header `FOLLOW-BACKS · %` gets `pr-11` so it aligns exactly above the `{count · rate}` cluster (the 44×44 chevron slot is accounted for)
+- **Filter pills** now **wrap to multiple rows** on mobile (`flex-wrap gap-2`) — no more horizontal scroll, all 5 states visible at once. On desktop they remain single-line. Sort control moves to its own row on mobile
+- **Add Target sheet**:
+  - **Must-pick rule** — `Add target` is disabled until the user selects a result from the typeahead dropdown OR a suggestion chip. Typing alone never enables submit, so we never queue unknown handles. Helper copy: *"Select a result to continue."*
+  - **Fixed-size popup** — typeahead dropdown gets `max-h-[240px] overflow-y-auto` so it scrolls internally and never pushes sheet dimensions
+  - **Wider segmented toggle** — `flex` with `flex-1` segments, matches the input's visual weight
+  - **Ease-in open animation** — backdrop fades + sheet slides up with `translate-y-4 → translate-y-0` on mount
+- **Detail drawer** — same ease-in open animation pattern as the Add Target sheet
+- **Vertical rhythm** normalized — first card under the page header uses `mt-6`, subsequent cards `mt-4`. Consistent spacing across LiveActivityCard → TargetsHeroCard → FilterRow → TargetList
+
+### Created
+- `src/pages/targets/TargetsHeroCard.jsx` (replaces SlotsCard)
+- `docs/superpowers/plans/2026-04-23-targets-page-v3.md`
+
+### Removed
+- `src/pages/targets/SlotsCard.jsx` (replaced by TargetsHeroCard)
+- Progress bar from the slots card (no longer rendered)
+- Horizontal-scroll filter-pills container (replaced by wrap)
+
+### Decisions — Targets v3
+- **Hero card, not utility card** — the top card on the Targets page is the page's identity marker, not just a slot tracker. Icon + explanation make the page self-explanatory on first visit
+- **Status component vocabulary shared across pages** — the `LIVE` / `PAUSED` / `WARMING UP` / `SETUP` eyebrow pill is the canonical status surface, used by both the Targets `LiveActivityCard` and the Overview `StatusPill`
+- **Must-pick in Add Target** — a typed-but-unknown handle can't be queued. The trade-off (no freeform entry) is acceptable for V1 because we only have fixture data, and gating on selection prevents users from adding accounts we can't preview or validate
+- **Pill replaces dot on desktop, dot replaces pill on mobile** — same status signal, different density. Keeps rows scanable at every width
+
+### Flagged for follow-up — Targets v3
+- The `animate-in fade-in duration-300` class used for the LiveActivityCard phase crossfade relies on Tailwind 4 entry animations. If the resolved CSS doesn't produce a visible fade in this project's Tailwind setup, swap to an explicit CSS keyframe as a polish task
+- Typeahead dropdown still anchors to the input; if the sheet ever grows tall enough that the dropdown + scrolling inside it feels cramped, consider portaling it to the document root
+
+---
+
 ## 2026-04-23 — Targets page v2
 
 ### Changed — Targets page

@@ -68,22 +68,22 @@ Top Targets sorts `active → queued → paused → depleted` then by follow-bac
 
 ---
 
-## Targets page (`src/pages/targets/`) — v2
+## Targets page (`src/pages/targets/`) — v3
 
 Composed from small focused files. `useTargetsStore` (Zustand) is the single state source for target CRUD; `useSystemStatus` (new shared hook) is the single state source for the live-activity strip and the Overview `StatusPill`. Job on this page: **add + manage** targets + surface live automation status.
 
-### File layout (v2)
+### File layout (v3)
 ```
 src/pages/targets/
   index.jsx                page shell + state wiring (3 overlays)
-  LiveActivityCard.jsx     top strip — cycles through phases from useSystemStatus
-  SlotsCard.jsx            slots count + progress bar + trust line + sole Add CTA (inline on lg:+)
-  FilterRow.jsx            segmented filter pills + sort dropdown
+  LiveActivityCard.jsx     status strip — LIVE eyebrow + accent strip + cycled phase text
+  TargetsHeroCard.jsx      hero — Crosshair icon + Targets headline + explanation + slots + Add CTA
+  FilterRow.jsx            filter pills (wrap on mobile) + sort dropdown
   TargetList.jsx           column header + rows + empty states
-  TargetRow.jsx            avatar/hash-icon / name+subline / star / pill / count·% / chevron
-  TargetDetailDrawer.jsx   row-tap drawer (replaces v1 KebabMenu)
+  TargetRow.jsx            avatar/hash / dot-on-mobile / name+sub / star / pill-on-desktop / count·% / chevron
+  TargetDetailDrawer.jsx   ease-in drawer with avatar, stats, tinted actions, IG link
   RemoveTargetModal.jsx    destructive-action confirmation
-  AddTargetSheet.jsx       add flow — compact toggle + typeahead + always-visible suggestions + HealthPill
+  AddTargetSheet.jsx       add flow — wider toggle + must-pick typeahead + pinned-size popup + suggestions
   HealthPill.jsx           size-based match quality pill (+ `evaluateHealth` helper)
 src/hooks/useSystemStatus.js      shared live-status hook (phase state machine, 6–10s tick)
 src/stores/useTargetsStore.js     target state + filter/sort helpers
@@ -96,15 +96,19 @@ src/mocks/suggestedHashtags.js    5 hashtag suggestion chips
 
 ### Page anatomy (top to bottom)
 1. **Header** — `h1 Targets` + sub `Manage the accounts and hashtags Kicksta targets for your growth.`
-2. **LiveActivityCard** — radar-ping dot + phase label + rotating `@handle` / `#tag` + right-zone chips `Today N actions` and `next in ~N min` (desktop). Mobile collapses right zone into a muted subline. Handle click opens the target's detail drawer when matched. Monitor-only — no pause control
-3. **SlotsCard** — desktop: `Target slots` + `N / maxSlots` + `+ Add target` button share one row; progress bar + `Lock` trust line below. Mobile: stacked (count · button · bar · trust line)
-4. **FilterRow** — `All · Active · Queued · Paused · Depleted` pills with live counts, sort dropdown on right (`Priority / Follow-backs / Most recent / A–Z`)
-5. **TargetList** — column header `NAME` / `FOLLOW-BACKS · %`. Top performer star lands on the highest-follow-back active row, independent of current filter/sort
-6. **Overlays** — TargetDetailDrawer (row tap) → RemoveTargetModal (when Remove tapped) · AddTargetSheet (from slots-card button)
+2. **LiveActivityCard** — left accent strip in phase color + `LIVE`/`WARMING UP`/`SETUP`/`PAUSED` eyebrow pill + radar dot + phase label + rotating `@handle` / `#tag` (key-bound crossfade on phase/target change) + right-zone chips `Today N actions` and `next in ~N min` (desktop). Mobile collapses right zone to a bordered subline. Handle click opens the target's detail drawer when matched. Monitor-only
+3. **TargetsHeroCard** — `Crosshair` icon (blue-tint square) + `Targets` headline + one-sentence explanation + `N / maxSlots` big number with `SLOTS USED` label + blue `+ Add target` button. No progress bar (v3 removed it)
+4. **FilterRow** — `All · Active · Queued · Paused · Depleted` pills with live counts. **Wrap to multiple rows on mobile**; single-line on `lg:+`. Sort dropdown on a new row on mobile / right-aligned on desktop. Selected pill: `bg-surface shadow-sm ring-1 ring-border`. Unselected: `bg-bg`
+5. **TargetList** — column header `NAME` / `FOLLOW-BACKS · %` with `pr-11` on the right label so it aligns with the count·rate cluster. Top performer star lands on the highest-follow-back active row, independent of current filter/sort
+6. **Overlays** — TargetDetailDrawer (row tap, ease-in animation) → RemoveTargetModal (when Remove tapped) · AddTargetSheet (from hero CTA, ease-in animation)
 
-### Row anatomy (v2)
+### Row anatomy (v3)
 - **Avatar/icon** — 36×36 rounded. Account: `profilePic` or initial-letter fallback (`bg-bg text-text-secondary`). Hashtag: `Hash` Lucide icon in same neutral circle. Depleted: `opacity-60` on the avatar
-- **Name zone** — value (truncate) + top-performer `Star` + status pill (`text-[11px] uppercase`, tint bg + text per status — active green-tint, queued blue-tint, paused neutral-grey, depleted yellow-tint). Subline `text-xs text-text-muted`: `{formatCount(followers)} followers` (accounts) or `{formatCount(posts)} posts` (hashtags)
+- **Name zone**:
+  - **Mobile (`< md:`):** small status dot (8×8, colored per status) left of the name. No pill.
+  - **Desktop (`md:+`):** status pill (`text-[11px] uppercase`, tint bg + text per status). No dot.
+  - Name value (truncate) + top-performer `Star` always present on both.
+  - Subline `text-xs text-text-muted`: `{formatCount(followers)} followers` (accounts) or `{formatCount(posts)} posts` (hashtags)
 - **Count · rate** — `{followBackCount} · {rate}%`. Rate color by health: green ≥10%, text-secondary 5–10%, yellow <5%. Depleted overrides everything to muted
 - **Chevron** — `ChevronRight` decorative-only affordance (44×44 wrapper). Entire row is the tap target
 
@@ -116,15 +120,17 @@ src/mocks/suggestedHashtags.js    5 hashtag suggestion chips
 - Ghost `Open on Instagram ↗` link: account → `https://instagram.com/{handle}`; hashtag → `https://www.instagram.com/explore/tags/{tag}`; new tab, `rel="noopener noreferrer"`
 - `Remove` opens `RemoveTargetModal` (action-name button `Remove target`, not `Confirm`)
 
-### Add Target sheet
-- **One CTA, one flow** — the slots-card button is the sole entry point (no button on the empty state)
-- Compact segmented toggle under a `TARGETING` eyebrow: `h-9`, natural-width, left-aligned. Selected: `bg-surface shadow-sm` inside a `bg-bg p-1` container
+### Add Target sheet (v3)
+- **One CTA, one flow** — the hero card's button is the sole entry point (no button on the empty state)
+- **Wider segmented toggle** under a `TARGETING` eyebrow: `flex` with `flex-1` segments, `h-9`. Selected: `bg-surface shadow-sm` inside a `bg-bg p-1` container
 - Input with `@`/`#` prefix (swaps with mode), `h-12` height
-- **Typeahead dropdown**: 2+ chars + 200ms debounce → up to 5 matches from `searchTargets(query, type)`. Prefers startsWith, falls back to includes. Each row: avatar/hash + handle + `{count}` subline + `HealthPill`. Tap fills input and locks in as the "picked" match
-- **Preview card** when the current input matches a fixture exactly — avatar + handle + count + `HealthPill`
-- **Suggestions** always visible (account chips from `mockSuggestedTargets` or hashtag chips from `mockSuggestedHashtags`); hidden only while typeahead has results
+- **Typeahead dropdown**: 2+ chars + 200ms debounce → up to 5 matches from `searchTargets(query, type)`. Dropdown uses `max-h-[240px] overflow-y-auto` so it **never changes the sheet's outer dimensions**. Each row: avatar/hash + handle + `{count}` subline + `HealthPill`
+- **Must-pick rule** — `Add target` button stays disabled until the user taps a typeahead row or a suggestion chip. Typing alone never enables submit. Helper: *"Select a result to continue."*
+- **Preview card** appears only after a match is picked — shows avatar + handle + count + `HealthPill`
+- **Suggestions** always visible (account chips or hashtag chips per mode); hidden only while typeahead has results
 - Duplicate detection (case-insensitive on stored value) → red helper. If duplicate is paused → inline `Resume it` link that resumes the row and closes
 - Invalid format → inline red helper, never a toast
+- **Open animation** — backdrop fades, sheet slides up with `translate-y-4 → translate-y-0` via a mounted-state toggle
 - Submit: new targets enter with status `queued`, prepended to the list
 
 ### HealthPill thresholds
@@ -186,8 +192,9 @@ Helpers: `filterTargets(targets, filter)` · `sortTargets(targets, sort)`. Defau
 ### Spec + plan
 - v1 spec: `docs/superpowers/specs/2026-04-23-targets-page-design.md`
 - v1 plan: `docs/superpowers/plans/2026-04-23-targets-page.md`
-- **v2 spec: `docs/superpowers/specs/2026-04-23-targets-page-v2-design.md`**
-- **v2 plan: `docs/superpowers/plans/2026-04-23-targets-page-v2.md`**
+- v2 spec: `docs/superpowers/specs/2026-04-23-targets-page-v2-design.md`
+- v2 plan: `docs/superpowers/plans/2026-04-23-targets-page-v2.md`
+- **v3 plan: `docs/superpowers/plans/2026-04-23-targets-page-v3.md`** (delta-only; no new spec — applies on top of v2)
 
 ---
 
@@ -250,3 +257,4 @@ Mobile preset `375×812`, desktop `1280×900`.
 - **2026-04-23** — initial CONTEXT.md written at end of long session covering: chart redesign (trial rail → bracket → ReferenceLine → blue "Trial ends" marker), summary strip iteration (vertical → segmented → filter-pill), trial-yellow → trial-blue swap, account switcher + plan pills + status dots + disconnected alert.
 - **2026-04-23 (cont.)** — Targets page shipped. Brainstormed (4 clarifying questions → "add + manage" job, single Add sheet, kebab actions, filter+sort with Queued kept separate), spec + plan written, 9 implementation tasks dispatched via subagents and committed individually. Visual verification passed on desktop, mobile (375), and dark mode; no new console errors. Repo now under git; work lives on local `main`.
 - **2026-04-23 (v2)** — Targets page v2 iteration. Row redesign (avatar/hash-icon, subline, rate-by-health color, chevron replacing kebab), detail drawer replacing the old kebab menu, compact Add Target sheet with typeahead + always-visible hashtag suggestions + HealthPill, slots card inlined on desktop, empty-state copy updated. New Live Activity card atop the page cycles through phases via a shared `useSystemStatus` hook; Overview's `StatusPill` refactored to consume the same hook so both surfaces stay in lockstep. 11 impl tasks + docs, all committed individually on local `main`.
+- **2026-04-23 (v3)** — Targets page refinement pass. `SlotsCard` becomes `TargetsHeroCard` (Crosshair icon + explanation + no progress bar). LiveActivityCard + Overview StatusPill both gain `LIVE`/`PAUSED`/`WARMING UP`/`SETUP` eyebrow pills for clearer status framing; LiveActivityCard adds a left accent strip + key-bound crossfade animation on phase changes. Row mobile shows a small status dot instead of the pill; column header aligned with rate cluster. Add Target sheet: wider toggle, pinned popup size (internal scroll on dropdown), must-pick rule. Detail drawer + Add Target sheet both get ease-in open animations. Filter pills wrap to multiple rows on mobile. 7 impl tasks + docs commit on local `main`.
