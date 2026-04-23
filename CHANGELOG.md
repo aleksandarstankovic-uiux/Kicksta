@@ -5,6 +5,44 @@
 
 ---
 
+## 2026-04-24 — Targets page v3.2 (polish)
+
+### Changed — Status surfaces
+- **LiveActivityCard** — phase now shown with a **Lucide icon** (replaces the colored dot for recognizable phases): `UserPlus` (following), `UserMinus` (unfollowing), `Flame` (warming up), `Search` (searching for targets — renamed from "analyzing"), `Settings` (setup), `Pause` (paused). `waiting` phase keeps the colored dot. Transition between phases is now a combined **fade + slide-in-from-bottom-1** using Tailwind 4 `animate-in` utilities so the change is visibly motioned. Removed the `Today N actions` chip from the right zone — only the `next in …` label remains, centered vertically
+- **Overview `StatusPill`** matches — phase icon replaces the radar-ping dot inside the pill. `Actions today` row removed from the popover's `<dl>`. `Next action` and `Started` rows unchanged
+- **`analyzing` phase copy** changed from *"Analyzing your targets"* → *"Searching for targets"* in both surfaces
+
+### Changed — Targets card
+- Headline copy tightened to one short sentence (dropped the *"Each one feeds new followers into your growth queue"* clause)
+- Inline slot count dropped from headline size to `text-sm font-normal text-text-muted` — reads as secondary metadata on the title baseline
+- Parentheses around the slot count removed: reads as `Targets 10/30` now (not `Targets (10/30)`)
+- Internal padding on desktop tightened to `p-5` (was `p-6`)
+
+### Changed — Add Target sheet
+- Removed the `TARGETING` eyebrow above the toggle (toggle stands on its own)
+- Removed the default `Start typing…` helper below the input — helper now renders **only** when there's something to say (duplicate / invalid format / select-prompt)
+- Scrollable body wrapped in `<div className="min-h-[360px]">` so the sheet doesn't flicker as suggestions / typeahead toggle on and off
+
+### Changed — HealthPill labels
+- Shortened to terse size categories — `Small` · `Good fit` · `Large` · `Very large`. Dropped the *"Slower — "* / *"much slower"* suffixes so the pill stays narrow next to target names in the typeahead and the detail drawer
+
+### Changed — Toast positioning + accent
+- Moved to **top-right** on desktop, **top-center** on mobile (was bottom-right). More visible
+- Tone-colored **left accent bar** (`w-1` green for success, red for error, etc.) + `shadow-lg` so it lifts off the page clearly
+- Mount animation slides down from top (matches the new origin)
+
+### Changed — Targets table + filter row
+- **Chevron wrapper shrunk** from `h-11 w-11` to `h-7 w-7`; icon from `h-5 w-5` to `h-4 w-4`. Row padding switched from `px-4` to `pl-4 pr-3`. Reclaims visual weight on the right so the `count · rate` cluster sits close to the chevron, not adrift in whitespace
+- Column header padding updated to `pr-12` to realign over the new `count · rate` cluster
+- **Filter pills + sort live in one flex-wrap container** — on mobile the sort icon wraps with the pills (no more orphaned sort row below). On desktop sort is pushed right via `lg:ml-auto`. Sort button height reduced to `h-8` to match pill heights
+
+### Decisions
+- **Icon over dot in the status pill** — a recognizable verb icon (UserPlus, UserMinus, etc.) communicates what the system is doing faster than a colored dot. The dot remains only for the `waiting` phase (there's no single "verb" icon for "paused between actions")
+- **Short health labels** — full explainers bloated the pill and crowded target names. Users who need more detail can infer from the color + size category
+- **Inline sort on mobile** — wrapping sort with the pills eliminates the awkward dead row that appeared between the filter bar and the table
+
+---
+
 ## 2026-04-24 — Targets page v3.1 (polish pass)
 
 ### Changed
