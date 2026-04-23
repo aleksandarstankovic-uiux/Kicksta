@@ -1,12 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ExternalLink, Hash, Pause, Play, Trash2, X } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { formatCount } from '@/utils/formatCount'
 import HealthPill from './HealthPill'
-
-// Richer replacement for the v1 KebabMenu. Opens on row tap and shows
-// target identity, health, a stat strip, tinted action buttons, and
-// an external link to Instagram.
 
 const statusPillClass = {
   active: 'bg-green-tint text-green-text',
@@ -25,6 +21,15 @@ const statusLabel = {
 export default function TargetDetailDrawer({ target, onClose, onRequestRemove }) {
   const pauseTarget = useTargetsStore((s) => s.pauseTarget)
   const resumeTarget = useTargetsStore((s) => s.resumeTarget)
+
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(false)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setMounted(true))
+    })
+  }, [target])
 
   useEffect(() => {
     function onKey(e) {
@@ -72,14 +77,17 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
       role="dialog"
       aria-modal="true"
       aria-label={`Target details for ${target.value}`}
-      className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 lg:items-center"
+      className={`fixed inset-0 z-40 flex items-end justify-center bg-black/40 transition-opacity duration-200 lg:items-center ${
+        mounted ? 'opacity-100' : 'opacity-0'
+      }`}
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full overflow-hidden rounded-t-xl bg-surface shadow-xl lg:max-w-md lg:rounded-xl"
+        className={`w-full overflow-hidden rounded-t-xl bg-surface shadow-xl transition-all duration-200 ease-out lg:max-w-md lg:rounded-xl ${
+          mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+        }`}
       >
-        {/* Header */}
         <div className="flex items-start gap-3 px-5 pt-5">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-base font-semibold text-text-secondary">
             {isHashtag ? (
@@ -117,21 +125,18 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
           </button>
         </div>
 
-        {/* Health pill */}
         {sizeCount != null && (
           <div className="mt-3 px-5">
             <HealthPill count={sizeCount} />
           </div>
         )}
 
-        {/* Stat strip — 3 data chips in Growth-Settings recipe. */}
         <div className="mt-4 flex gap-2 overflow-x-auto px-5">
           <StatChip label="Followed" value={target.followedCount} />
           <StatChip label="Follow-backs" value={target.followBackCount} />
           <StatChip label="Rate" value={rate == null ? '—' : `${rate}%`} />
         </div>
 
-        {/* Actions */}
         <div className="mt-5 flex gap-3 px-5">
           {canPauseOrResume ? (
             <>
@@ -173,7 +178,6 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
           )}
         </div>
 
-        {/* External link */}
         <div className="mt-4 px-5 pb-5">
           <a
             href={instagramUrl}
