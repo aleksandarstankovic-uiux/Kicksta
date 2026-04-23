@@ -276,6 +276,14 @@ function StatusPill({ status, onPauseToggle }) {
   const isWarming = status.state === 'warming_up'
   const isSetup = status.state === 'setup'
 
+  const eyebrowTheme = isPaused
+    ? { label: 'PAUSED', cls: 'bg-bg text-text-muted' }
+    : isWarming
+      ? { label: 'WARMING UP', cls: 'bg-blue-tint text-blue-text' }
+      : isSetup
+        ? { label: 'SETUP', cls: 'bg-yellow-tint text-yellow-text' }
+        : { label: 'LIVE', cls: 'bg-green-tint text-green-text' }
+
   // State color for the live indicator dot — green for actively running,
   // blue for warming, yellow for setup, muted grey when paused.
   const dotColor = isPaused
@@ -330,6 +338,11 @@ function StatusPill({ status, onPauseToggle }) {
         onClick={() => setOpen((v) => !v)}
         className="group inline-flex items-center gap-2.5 rounded-md bg-bg px-3 py-1.5 text-left text-sm font-medium text-text-primary transition-colors hover:bg-border/40"
       >
+        <span
+          className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${eyebrowTheme.cls}`}
+        >
+          {eyebrowTheme.label}
+        </span>
         {isPaused ? (
           <Pause className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
         ) : (
