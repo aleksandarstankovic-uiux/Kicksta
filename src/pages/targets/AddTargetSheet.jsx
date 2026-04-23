@@ -7,12 +7,14 @@ import { searchTargets } from '@/mocks/targetSearch'
 import { formatCount } from '@/utils/formatCount'
 import HealthPill from './HealthPill'
 
-// Single-path Add Target sheet. v2 refinements:
-// - Compact segmented toggle (h-9, left-aligned, not full-width).
-// - Typeahead dropdown over an expanded fixture pool.
-// - Suggestions always visible — account OR hashtag chips depending on mode.
-// - Health pill on the preview card and on each typeahead row.
-// - Duplicate detection + paused-row resume shortcut preserved.
+// v3 behavior:
+// - Must-pick: Add target is disabled until the user selects a result
+//   from the typeahead dropdown (or a suggestion chip). Typing alone
+//   never enables submit.
+// - Fixed-size popup: typeahead dropdown scrolls internally and never
+//   changes the sheet's outer dimensions.
+// - Wider segmented toggle, matches the input's visual weight.
+// - Open/close animation: fade + slide on mount.
 export default function AddTargetSheet({ open, onClose }) {
   const targets = useTargetsStore((s) => s.targets)
   const addTarget = useTargetsStore((s) => s.addTarget)
@@ -21,16 +23,24 @@ export default function AddTargetSheet({ open, onClose }) {
   const [type, setType] = useState('account')
   const [input, setInput] = useState('')
   const [matches, setMatches] = useState([])
+  const [pickedMatch, setPickedMatch] = useState(null)
   const [resolving, setResolving] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const inputRef = useRef(null)
 
+  // Reset on open; trigger mount-in animation after the dialog paints.
   useEffect(() => {
     if (open) {
       setType('account')
       setInput('')
       setMatches([])
+      setPickedMatch(null)
       setResolving(false)
-      setTimeout(() => inputRef.current?.focus(), 50)
+      setMounted(false)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setMounted(true))
+      })
+      setTimeout(() => inputRef.current?.focus(), 80)
     }
   }, [open])
 
@@ -55,10 +65,20 @@ export default function AddTargetSheet({ open, onClose }) {
     return targets.find((t) => t.value.toLowerCase() === displayValue)
   }, [targets, displayValue, clean])
 
-  // Typeahead search — debounced 200ms. Only runs for 2+ chars and
-  // when the input isn't a duplicate.
+  // Clear the picked match whenever the user types again — a picked
+  // match only holds for the exact value that was selected.
   useEffect(() => {
-    if (!clean || clean.length < 2 || duplicate) {
+    if (!pickedMatch) return
+    const field = type === 'account' ? 'username' : 'hashtag'
+    if (pickedMatch[field] !== clean.toLowerCase()) {
+      setPickedMatch(null)
+    }
+  }, [clean, type, pickedMatch])
+
+  // Typeahead search — debounced 200ms. Only runs for 2+ chars and
+  // when the input isn't a duplicate and we haven't already picked.
+  useEffect(() => {
+    if (!clean || clean.length < 2 || duplicate || pickedMatch) {
       setMatches([])
       setResolving(false)
       return
@@ -76,19 +96,11 @@ export default function AddTargetSheet({ open, onClose }) {
       alive = false
       clearTimeout(id)
     }
-  }, [clean, type, duplicate])
-
-  // Exact match of the current input within the pool — used for the
-  // preview card (and to decide if we can surface a health pill).
-  const exactMatch = useMemo(() => {
-    if (!matches.length) return null
-    const keyField = type === 'account' ? 'username' : 'hashtag'
-    return matches.find((m) => m[keyField] === clean.toLowerCase()) || null
-  }, [matches, clean, type])
+  }, [clean, type, duplicate, pickedMatch])
 
   if (!open) return null
 
-  const canSubmit = formatValid && !duplicate
+  const canSubmit = Boolean(pickedMatch) && !duplicate
 
   const handleSubmit = () => {
     if (!canSubmit) return
@@ -106,19 +118,22 @@ export default function AddTargetSheet({ open, onClose }) {
   const handlePickMatch = (m) => {
     const val = type === 'account' ? m.username : m.hashtag
     setInput(val)
-    // Eagerly show the picked match as both the exact + the preview.
-    setMatches([m])
+    setPickedMatch(m)
+    setMatches([])
   }
 
   const handlePickSuggestion = (s) => {
     const val = type === 'account' ? s.username : s.hashtag
     setInput(val)
+    setPickedMatch(s)
   }
 
   const helperCopy =
     type === 'account'
-      ? "We'll find users who follow this account and target them."
-      : "We'll find users posting with this hashtag and target them."
+      ? "Start typing — pick an account from the results to continue."
+      : "Start typing — pick a hashtag from the results to continue."
+
+  const selectPromptCopy = 'Select a result to continue.'
 
   const suggestions = type === 'account' ? mockSuggestedTargets : mockSuggestedHashtags
   const suggestionsHidden = matches.length > 0
@@ -128,12 +143,16 @@ export default function AddTargetSheet({ open, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label="Add a target"
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 lg:items-center"
+      className={`fixed inset-0 z-50 flex items-end justify-center bg-black/40 transition-opacity duration-200 lg:items-center ${
+        mounted ? 'opacity-100' : 'opacity-0'
+      }`}
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex w-full max-h-[85vh] flex-col overflow-hidden rounded-t-xl bg-surface shadow-xl lg:max-w-md lg:rounded-xl"
+        className={`flex w-full max-h-[85vh] flex-col overflow-hidden rounded-t-xl bg-surface shadow-xl transition-all duration-200 ease-out lg:max-w-md lg:rounded-xl ${
+          mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+        }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
@@ -149,12 +168,12 @@ export default function AddTargetSheet({ open, onClose }) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
-          {/* Targeting label + compact segmented toggle */}
+          {/* Targeting label + wider segmented toggle */}
           <div>
             <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-muted">
               Targeting
             </p>
-            <div className="inline-flex rounded-full bg-bg p-1">
+            <div className="flex rounded-full bg-bg p-1">
               {['account', 'hashtag'].map((t) => {
                 const selected = type === t
                 return (
@@ -165,8 +184,9 @@ export default function AddTargetSheet({ open, onClose }) {
                       setType(t)
                       setInput('')
                       setMatches([])
+                      setPickedMatch(null)
                     }}
-                    className={`inline-flex h-9 items-center justify-center rounded-full px-4 text-xs font-medium capitalize transition-colors ${
+                    className={`inline-flex h-9 flex-1 items-center justify-center rounded-full px-4 text-xs font-medium capitalize transition-colors ${
                       selected
                         ? 'bg-surface text-text-primary shadow-sm'
                         : 'text-text-secondary'
@@ -200,9 +220,9 @@ export default function AddTargetSheet({ open, onClose }) {
               />
             </div>
 
-            {/* Typeahead dropdown */}
-            {!duplicate && formatValid && matches.length > 0 && (
-              <div className="absolute left-0 right-0 z-10 mt-1 overflow-hidden rounded-lg border border-border bg-surface shadow-md">
+            {/* Typeahead dropdown — internal scroll keeps outer dims stable. */}
+            {!duplicate && formatValid && !pickedMatch && matches.length > 0 && (
+              <div className="absolute left-0 right-0 z-10 mt-1 max-h-[240px] overflow-y-auto rounded-lg border border-border bg-surface shadow-md">
                 {matches.map((m) => {
                   const isHashtag = type === 'hashtag'
                   const label = isHashtag ? `#${m.hashtag}` : `@${m.username}`
@@ -232,7 +252,7 @@ export default function AddTargetSheet({ open, onClose }) {
               </div>
             )}
 
-            {/* Helper / error line */}
+            {/* Helper / error line. */}
             {duplicate ? (
               <p className="mt-1.5 text-xs text-red-text">
                 You already have this target.
@@ -251,36 +271,38 @@ export default function AddTargetSheet({ open, onClose }) {
                   ? 'Usernames use letters, numbers, dots, and underscores.'
                   : 'Hashtags use letters, numbers, and underscores.'}
               </p>
+            ) : clean.length >= 2 && !pickedMatch ? (
+              <p className="mt-1.5 text-xs text-text-secondary">{selectPromptCopy}</p>
             ) : (
               <p className="mt-1.5 text-xs text-text-secondary">{helperCopy}</p>
             )}
           </div>
 
-          {/* Preview card — shown when we have an exact fixture match. */}
-          {exactMatch && !duplicate && (
+          {/* Preview card — only after a match is picked. */}
+          {pickedMatch && !duplicate && (
             <div className="mt-3 flex items-center gap-3 rounded-lg border border-border bg-bg p-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-sm font-semibold text-text-secondary">
                 {type === 'hashtag' ? (
                   <Hash className="h-4 w-4" aria-hidden="true" />
                 ) : (
-                  (exactMatch.username?.[0] || '?').toUpperCase()
+                  (pickedMatch.username?.[0] || '?').toUpperCase()
                 )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium text-text-primary">
-                  {type === 'hashtag' ? `#${exactMatch.hashtag}` : `@${exactMatch.username}`}
+                  {type === 'hashtag' ? `#${pickedMatch.hashtag}` : `@${pickedMatch.username}`}
                 </div>
                 <div className="truncate text-xs text-text-secondary">
                   {type === 'hashtag'
-                    ? `${formatCount(exactMatch.posts)} posts`
-                    : `${formatCount(exactMatch.followers)} followers`}
+                    ? `${formatCount(pickedMatch.posts)} posts`
+                    : `${formatCount(pickedMatch.followers)} followers`}
                 </div>
               </div>
-              <HealthPill count={type === 'hashtag' ? exactMatch.posts : exactMatch.followers} />
+              <HealthPill count={type === 'hashtag' ? pickedMatch.posts : pickedMatch.followers} />
             </div>
           )}
 
-          {/* Suggestions — always rendered, hidden only while typeahead is showing results. */}
+          {/* Suggestions — hidden while typeahead is showing results. */}
           {!suggestionsHidden && (
             <div className="mt-5">
               <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
