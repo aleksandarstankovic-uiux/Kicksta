@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+
+  --color-green-tint: var(--color-green-tint-val);
+  --color-green-base: var(--color-green-base-val);
+  --color-green-text: var(--color-green-text-val);
+
+  --color-blue-tint: var(--color-blue-tint-val);
+  --color-blue-base: var(--color-blue-base-val);
+  --color-blue-text: var(--color-blue-text-val);
+
+  --color-red-tint: var(--color-red-tint-val);
+  --color-red-base: var(--color-red-base-val);
+  --color-red-text: var(--color-red-text-val);
+
+  --color-yellow-tint: var(--color-yellow-tint-val);
+  --color-yellow-base: var(--color-yellow-base-val);
+  --color-yellow-text: var(--color-yellow-text-val);
+
+  --color-purple-tint: var(--color-purple-tint-val);
+  --color-purple-base: var(--color-purple-base-val);
+  --color-purple-text: var(--color-purple-text-val);
+
+  --color-bg: var(--color-bg-val);
+  --color-surface: var(--color-surface-val);
+  --color-surface-raised: var(--color-surface-raised-val);
+  --color-border: var(--color-border-val);
+  --color-border-strong: var(--color-border-strong-val);
+
+  --color-text-primary: var(--color-text-primary-val);
+  --color-text-secondary: var(--color-text-secondary-val);
+  --color-text-muted: var(--color-text-muted-val);
+}
+
+:root {
+  --color-green-tint-val: #E6FFF5;
+  --color-green-base-val: #00DD83;
+  --color-green-text-val: #007A48;
+
+  --color-blue-tint-val: #E6F0FF;
+  --color-blue-base-val: #0068FF;
+  --color-blue-text-val: #0047B3;
+
+  --color-red-tint-val: #FFF0F5;
+  --color-red-base-val: #FF005A;
+  --color-red-text-val: #CC0048;
+
+  --color-yellow-tint-val: #FFF8E6;
+  --color-yellow-base-val: #FFB600;
+  --color-yellow-text-val: #8C6400;
+
+  --color-purple-tint-val: #F3EEFF;
+  --color-purple-base-val: #7C3AED;
+  --color-purple-text-val: #5B21B6;
+
+  --color-bg-val: #F7F8FA;
+  --color-surface-val: #FFFFFF;
+  --color-surface-raised-val: #FFFFFF;
+  --color-border-val: #E4E7ED;
+  --color-border-strong-val: #CDD1DB;
+
+  --color-text-primary-val: #0F1117;
+  --color-text-secondary-val: #6B7280;
+  --color-text-muted-val: #9CA3AF;
+}
+
+.dark {
+  --color-green-tint-val: #003D22;
+  --color-green-base-val: #00DD83;
+  --color-green-text-val: #3DFFA8;
+
+  --color-blue-tint-val: #00224D;
+  --color-blue-base-val: #0068FF;
+  --color-blue-text-val: #6AA8FF;
+
+  --color-red-tint-val: #3D0018;
+  --color-red-base-val: #FF005A;
+  --color-red-text-val: #FF6699;
+
+  --color-yellow-tint-val: #3D2B00;
+  --color-yellow-base-val: #FFB600;
+  --color-yellow-text-val: #FFD166;
+
+  --color-purple-tint-val: #1E0A3C;
+  --color-purple-base-val: #7C3AED;
+  --color-purple-text-val: #B794F6;
+
+  --color-bg-val: #0C0E14;
+  --color-surface-val: #161820;
+  --color-surface-raised-val: #1E2028;
+  --color-border-val: #2A2D3A;
+  --color-border-strong-val: #3D4152;
+
+  --color-text-primary-val: #F0F2F8;
+  --color-text-secondary-val: #8B90A4;
+  --color-text-muted-val: #545870;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--color-bg-val);
+  color: var(--color-text-primary-val);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* View transitions */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Price update animation */
+@keyframes priceUpdate {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-price-update {
+  animation: priceUpdate 0.2s ease-out;
+}
+
+/* Fade in (no slide) for overlays */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Bottom drawer slide-up for mobile */
+@keyframes drawerSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
