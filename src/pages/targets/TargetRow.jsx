@@ -1,8 +1,13 @@
 import { ChevronRight, Hash, Star } from 'lucide-react'
 import { formatCount } from '@/utils/formatCount'
 
-// Status → dot/pill colors kept in one place for consistency with the
-// Overview page's TargetsOverview snapshot.
+const statusDotClass = {
+  active: 'bg-green-base',
+  queued: 'bg-blue-base',
+  paused: 'bg-text-muted',
+  depleted: 'bg-yellow-base',
+}
+
 const statusPillClass = {
   active: 'bg-green-tint text-green-text',
   queued: 'bg-blue-tint text-blue-text',
@@ -17,8 +22,6 @@ const statusLabel = {
   depleted: 'Depleted',
 }
 
-// Color the follow-back % based on PRODUCT.md's healthy-growth
-// benchmarks. Depleted rows bypass this and go muted.
 function rateToneClass(rate, depleted) {
   if (depleted) return 'text-text-muted'
   if (rate >= 10) return 'text-green-text'
@@ -69,11 +72,7 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
         {isHashtag ? (
           <Hash className="h-4 w-4" aria-hidden="true" />
         ) : target.profilePic ? (
-          <img
-            src={target.profilePic}
-            alt=""
-            className="h-full w-full object-cover"
-          />
+          <img src={target.profilePic} alt="" className="h-full w-full object-cover" />
         ) : (
           avatarLetter
         )}
@@ -82,6 +81,12 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
       {/* Name + subline */}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex min-w-0 items-center gap-2">
+          {/* Mobile-only status dot */}
+          <span
+            aria-label={statusLabel[target.status]}
+            className={`inline-block h-2 w-2 shrink-0 rounded-full md:hidden ${statusDotClass[target.status]}`}
+          />
+
           <span
             className={`truncate text-sm font-medium ${
               depleted ? 'text-text-muted line-through' : 'text-text-primary'
@@ -89,14 +94,17 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
           >
             {target.value}
           </span>
+
           {isTop && (
             <Star
               className="h-3.5 w-3.5 shrink-0 fill-yellow-base text-yellow-base"
               aria-label="Top performer"
             />
           )}
+
+          {/* Full pill on md:+ */}
           <span
-            className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
+            className={`hidden shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide md:inline ${
               statusPillClass[target.status]
             }`}
           >
@@ -123,7 +131,7 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
         </span>
       </div>
 
-      {/* Affordance: row opens the detail drawer. Decorative only. */}
+      {/* Affordance */}
       <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center">
         <ChevronRight
           className="h-5 w-5 text-text-muted transition-colors group-hover:text-text-primary"
