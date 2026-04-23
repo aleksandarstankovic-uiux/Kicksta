@@ -2,13 +2,13 @@ import { useState } from 'react'
 import SlotsCard from './SlotsCard'
 import FilterRow from './FilterRow'
 import TargetList from './TargetList'
-import KebabMenu from './KebabMenu'
+import TargetDetailDrawer from './TargetDetailDrawer'
 import RemoveTargetModal from './RemoveTargetModal'
 import AddTargetSheet from './AddTargetSheet'
 
 export default function TargetsPage() {
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [menuTarget, setMenuTarget] = useState(null)
+  const [detailTarget, setDetailTarget] = useState(null)
   const [removeTarget, setRemoveTarget] = useState(null)
 
   return (
@@ -24,19 +24,16 @@ export default function TargetsPage() {
 
       <SlotsCard onAddTarget={() => setSheetOpen(true)} />
       <FilterRow />
-      <TargetList onOpenMenu={(t) => setMenuTarget(t)} />
+      <TargetList onOpen={(t) => setDetailTarget(t)} />
 
-      <AddTargetSheet
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-      />
+      <AddTargetSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
 
-      {menuTarget && (
-        <KebabMenu
-          target={menuTarget}
-          onClose={() => setMenuTarget(null)}
+      {detailTarget && (
+        <TargetDetailDrawer
+          target={detailTarget}
+          onClose={() => setDetailTarget(null)}
           onRequestRemove={(t) => {
-            setMenuTarget(null)
+            setDetailTarget(null)
             setRemoveTarget(t)
           }}
         />
