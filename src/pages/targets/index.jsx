@@ -1,13 +1,11 @@
-// Targets page — slot tracker, filter/sort controls, list of target
-// rows, and a single Add-Target sheet. The page is composed from small
-// focused components under this folder; the store (`useTargetsStore`)
-// is the only state source.
+import { useState } from 'react'
+import SlotsCard from './SlotsCard'
 
 export default function TargetsPage() {
+  const [sheetOpen, setSheetOpen] = useState(false)
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
-      {/* Page header — sets context; no secondary CTA lives up here.
-          The sole "Add target" button lives inside the slots card. */}
       <header>
         <h1 className="text-2xl font-semibold leading-snug text-text-primary">
           Targets
@@ -17,7 +15,14 @@ export default function TargetsPage() {
         </p>
       </header>
 
-      {/* Slots card, filter row, and list wire in across Tasks 4, 5, 7. */}
+      <SlotsCard onAddTarget={() => setSheetOpen(true)} />
+
+      {/* Dev-only visual confirmation until the sheet lands in Task 9. */}
+      {sheetOpen && (
+        <div className="mt-4 text-xs text-text-muted">
+          [Add Target sheet would open here — wired in Task 9]
+        </div>
+      )}
     </div>
   )
 }
