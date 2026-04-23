@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { X } from 'lucide-react'
+import { Hash, X } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { mockSuggestedTargets } from '@/mocks/suggestedTargets'
-import { mockResolveAccount } from '@/mocks/resolveAccount'
+import { mockSuggestedHashtags } from '@/mocks/suggestedHashtags'
+import { searchTargets } from '@/mocks/targetSearch'
+import { formatCount } from '@/utils/formatCount'
+import HealthPill from './HealthPill'
 
-// Single-path Add Target sheet. Opens as a bottom sheet on mobile and a
-// centered modal on desktop. Type toggle swaps the input prefix, helper
-// text, preview behavior, and suggestions visibility. Validation is
-// silent-until-needed — invalid format shows inline red-text helper; a
-// duplicate of an existing target blocks submission with a specific
-// message and, when the existing row is paused, offers a Resume shortcut.
+// Single-path Add Target sheet. v2 refinements:
+// - Compact segmented toggle (h-9, left-aligned, not full-width).
+// - Typeahead dropdown over an expanded fixture pool.
+// - Suggestions always visible — account OR hashtag chips depending on mode.
+// - Health pill on the preview card and on each typeahead row.
+// - Duplicate detection + paused-row resume shortcut preserved.
 export default function AddTargetSheet({ open, onClose }) {
   const targets = useTargetsStore((s) => s.targets)
   const addTarget = useTargetsStore((s) => s.addTarget)
@@ -17,22 +20,20 @@ export default function AddTargetSheet({ open, onClose }) {
 
   const [type, setType] = useState('account')
   const [input, setInput] = useState('')
-  const [preview, setPreview] = useState(null)
+  const [matches, setMatches] = useState([])
   const [resolving, setResolving] = useState(false)
   const inputRef = useRef(null)
 
-  // Reset state each time the sheet is opened.
   useEffect(() => {
     if (open) {
       setType('account')
       setInput('')
-      setPreview(null)
+      setMatches([])
       setResolving(false)
       setTimeout(() => inputRef.current?.focus(), 50)
     }
   }, [open])
 
-  // Close on Escape.
   useEffect(() => {
     if (!open) return
     function onKey(e) {
@@ -48,34 +49,42 @@ export default function AddTargetSheet({ open, onClose }) {
       ? /^[a-zA-Z0-9._]{1,30}$/.test(clean)
       : /^[a-zA-Z0-9_]{1,30}$/.test(clean)
 
-  // Duplicate detection — lower-cased comparison on the stored value.
   const displayValue = type === 'account' ? `@${clean.toLowerCase()}` : `#${clean.toLowerCase()}`
   const duplicate = useMemo(() => {
     if (!clean) return null
     return targets.find((t) => t.value.toLowerCase() === displayValue)
   }, [targets, displayValue, clean])
 
-  // Resolve preview for account mode with a debounce.
+  // Typeahead search — debounced 200ms. Only runs for 2+ chars and
+  // when the input isn't a duplicate.
   useEffect(() => {
-    if (type !== 'account' || !formatValid || duplicate) {
-      setPreview(null)
+    if (!clean || clean.length < 2 || duplicate) {
+      setMatches([])
       setResolving(false)
       return
     }
     let alive = true
     setResolving(true)
     const id = setTimeout(async () => {
-      const result = await mockResolveAccount(clean)
+      const results = await searchTargets(clean, type)
       if (alive) {
-        setPreview(result)
+        setMatches(results)
         setResolving(false)
       }
-    }, 300)
+    }, 200)
     return () => {
       alive = false
       clearTimeout(id)
     }
-  }, [clean, type, formatValid, duplicate])
+  }, [clean, type, duplicate])
+
+  // Exact match of the current input within the pool — used for the
+  // preview card (and to decide if we can surface a health pill).
+  const exactMatch = useMemo(() => {
+    if (!matches.length) return null
+    const keyField = type === 'account' ? 'username' : 'hashtag'
+    return matches.find((m) => m[keyField] === clean.toLowerCase()) || null
+  }, [matches, clean, type])
 
   if (!open) return null
 
@@ -94,10 +103,25 @@ export default function AddTargetSheet({ open, onClose }) {
     }
   }
 
+  const handlePickMatch = (m) => {
+    const val = type === 'account' ? m.username : m.hashtag
+    setInput(val)
+    // Eagerly show the picked match as both the exact + the preview.
+    setMatches([m])
+  }
+
+  const handlePickSuggestion = (s) => {
+    const val = type === 'account' ? s.username : s.hashtag
+    setInput(val)
+  }
+
   const helperCopy =
     type === 'account'
       ? "We'll find users who follow this account and target them."
       : "We'll find users posting with this hashtag and target them."
+
+  const suggestions = type === 'account' ? mockSuggestedTargets : mockSuggestedHashtags
+  const suggestionsHidden = matches.length > 0
 
   return (
     <div
@@ -113,9 +137,7 @@ export default function AddTargetSheet({ open, onClose }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="text-base font-semibold text-text-primary">
-            Add a target
-          </h2>
+          <h2 className="text-base font-semibold text-text-primary">Add a target</h2>
           <button
             type="button"
             aria-label="Close"
@@ -127,33 +149,39 @@ export default function AddTargetSheet({ open, onClose }) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
-          {/* Type toggle */}
-          <div className="flex rounded-full bg-bg p-1">
-            {['account', 'hashtag'].map((t) => {
-              const selected = type === t
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setType(t)}
-                  className={`inline-flex h-11 flex-1 items-center justify-center rounded-full text-sm font-medium capitalize transition-colors ${
-                    selected
-                      ? 'bg-surface text-text-primary shadow-sm'
-                      : 'text-text-secondary'
-                  }`}
-                >
-                  {t}
-                </button>
-              )
-            })}
+          {/* Targeting label + compact segmented toggle */}
+          <div>
+            <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-muted">
+              Targeting
+            </p>
+            <div className="inline-flex rounded-full bg-bg p-1">
+              {['account', 'hashtag'].map((t) => {
+                const selected = type === t
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => {
+                      setType(t)
+                      setInput('')
+                      setMatches([])
+                    }}
+                    className={`inline-flex h-9 items-center justify-center rounded-full px-4 text-xs font-medium capitalize transition-colors ${
+                      selected
+                        ? 'bg-surface text-text-primary shadow-sm'
+                        : 'text-text-secondary'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Input */}
-          <div className="mt-4">
-            <label
-              htmlFor="target-input"
-              className="text-sm font-medium text-text-primary"
-            >
+          <div className="relative mt-4">
+            <label htmlFor="target-input" className="text-sm font-medium text-text-primary">
               {type === 'account' ? 'Username' : 'Hashtag'}
             </label>
             <div className="mt-1.5 flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface px-3">
@@ -168,24 +196,50 @@ export default function AddTargetSheet({ open, onClose }) {
                 onChange={(e) => setInput(e.target.value)}
                 className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
                 placeholder={type === 'account' ? 'username' : 'hashtag'}
+                autoComplete="off"
               />
             </div>
 
-            {/* Helper / error line. Three states:
-                1. Duplicate — red, with optional Resume link for paused.
-                2. Invalid format (only shown once user has typed) — red.
-                3. Default — neutral helper copy. */}
+            {/* Typeahead dropdown */}
+            {!duplicate && formatValid && matches.length > 0 && (
+              <div className="absolute left-0 right-0 z-10 mt-1 overflow-hidden rounded-lg border border-border bg-surface shadow-md">
+                {matches.map((m) => {
+                  const isHashtag = type === 'hashtag'
+                  const label = isHashtag ? `#${m.hashtag}` : `@${m.username}`
+                  const count = isHashtag ? m.posts : m.followers
+                  const sub = isHashtag
+                    ? `${formatCount(m.posts)} posts`
+                    : `${formatCount(m.followers)} followers`
+                  const letter = (isHashtag ? m.hashtag : m.username).charAt(0).toUpperCase()
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => handlePickMatch(m)}
+                      className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-bg"
+                    >
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-xs font-semibold text-text-secondary">
+                        {isHashtag ? <Hash className="h-4 w-4" aria-hidden="true" /> : letter}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-text-primary">{label}</div>
+                        <div className="truncate text-xs text-text-muted">{sub}</div>
+                      </div>
+                      <HealthPill count={count} />
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Helper / error line */}
             {duplicate ? (
               <p className="mt-1.5 text-xs text-red-text">
                 You already have this target.
                 {duplicate.status === 'paused' && (
                   <>
                     {' '}
-                    <button
-                      type="button"
-                      onClick={handleResumeDuplicate}
-                      className="underline hover:opacity-80"
-                    >
+                    <button type="button" onClick={handleResumeDuplicate} className="underline hover:opacity-80">
                       Resume it
                     </button>
                   </>
@@ -202,44 +256,50 @@ export default function AddTargetSheet({ open, onClose }) {
             )}
           </div>
 
-          {/* Preview (account only, render whenever we have one) */}
-          {type === 'account' && (preview || resolving) && (
+          {/* Preview card — shown when we have an exact fixture match. */}
+          {exactMatch && !duplicate && (
             <div className="mt-3 flex items-center gap-3 rounded-lg border border-border bg-bg p-3">
-              <div className="h-10 w-10 shrink-0 rounded-full bg-surface text-sm font-semibold text-text-muted">
-                <div className="flex h-full w-full items-center justify-center">
-                  {(preview?.username?.[0] || '?').toUpperCase()}
-                </div>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-sm font-semibold text-text-secondary">
+                {type === 'hashtag' ? (
+                  <Hash className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  (exactMatch.username?.[0] || '?').toUpperCase()
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium text-text-primary">
-                  {preview ? `@${preview.username}` : 'Looking up…'}
+                  {type === 'hashtag' ? `#${exactMatch.hashtag}` : `@${exactMatch.username}`}
                 </div>
                 <div className="truncate text-xs text-text-secondary">
-                  {preview
-                    ? `${preview.followers.toLocaleString()} followers`
-                    : ''}
+                  {type === 'hashtag'
+                    ? `${formatCount(exactMatch.posts)} posts`
+                    : `${formatCount(exactMatch.followers)} followers`}
                 </div>
               </div>
+              <HealthPill count={type === 'hashtag' ? exactMatch.posts : exactMatch.followers} />
             </div>
           )}
 
-          {/* Suggestions (account only) */}
-          {type === 'account' && (
+          {/* Suggestions — always rendered, hidden only while typeahead is showing results. */}
+          {!suggestionsHidden && (
             <div className="mt-5">
               <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
                 Suggestions
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {mockSuggestedTargets.map((s) => (
-                  <button
-                    key={s.username}
-                    type="button"
-                    onClick={() => setInput(s.username)}
-                    className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs text-text-secondary hover:border-border-strong hover:text-text-primary"
-                  >
-                    @{s.username}
-                  </button>
-                ))}
+                {suggestions.map((s) => {
+                  const label = type === 'account' ? `@${s.username}` : `#${s.hashtag}`
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => handlePickSuggestion(s)}
+                      className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs text-text-secondary hover:border-border-strong hover:text-text-primary"
+                    >
+                      {label}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
