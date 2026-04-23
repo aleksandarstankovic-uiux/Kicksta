@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-04-24 — Targets page v3.1 (polish pass)
+
+### Changed
+- **`TargetsHeroCard` rebalanced** — headline drops from `text-xl` to `text-lg`; slot count folds inline as `Targets (10/30)` with the count in muted secondary weight. Removed the big right-zone `10/30` + `SLOTS USED` block. Right zone is now just the `+ Add target` CTA. Lighter visual hierarchy; clear headline → explanation → single CTA reading order
+- **`LiveActivityCard` reframed as a proper status component** — adds a `SYSTEM ACTIVITY` eyebrow label on its own line above the phase content. Phase copy rewrites lead with "Currently" for active phases (`Currently analyzing your targets`, `Currently following @fitness.inspo`, `Currently unfollowing #homeworkouts`). Dropped the old `LIVE` / `PAUSED` status pill — the eyebrow + colored dot + accent strip already carry that signal together; removing the pill clears visual noise. Keyed cross-fade on phase/target changes preserved
+- **Add Target sheet**:
+  - Added a short **explainer paragraph** above the Targeting toggle: *"Pick any Instagram account or hashtag. Kicksta will follow its audience — those are the users most likely to follow you back."* Orients first-time users
+  - **Suggestion chips are now avatar-style** — 28×28 circle (initial letter for accounts, `Hash` icon for hashtags) + handle. Same layout for both modes; feels like "picker cards" rather than plain text chips
+  - **Success toast on add** — firing `useToasts.getState().addToast({ message: "@handle added as a target.", tone: "success" })` on submit. Same toast when a paused duplicate is resumed via the `Resume it` shortcut
+
+### Created
+- **`useToasts` Zustand store** (`src/stores/useToasts.js`) — global toast state with `addToast({message, tone, duration})` and `dismissToast(id)`. Auto-dismiss after 2500ms by default
+- **`ToastContainer` component** (`src/components/Toast.jsx`) — fixed bottom-center on mobile, bottom-right on desktop. Slide-in animation per toast. Tone-aware icon + accent (success/info/warning/error). Manual dismiss via X button. Mounted once in `DashboardLayout` so any page can fire a toast
+
+### Decisions — Targets v3.1
+- **Eyebrow over pill** on the status card — a dedicated framing line reads as "this is a monitor" more clearly than an inline pill. Keeps the card scannable at a glance
+- **"Currently" prefix** for active phases — converts the phase label from a noun ("Following @x") into an active statement ("Currently following @x"), which removes ambiguity about what the system is doing *right now*
+- **Global toast store** rather than per-page toast state — toasts will be needed on Growth + Account pages too; centralizing now avoids future duplication
+
+---
+
 ## 2026-04-23 — Targets page v3 (refinement pass)
 
 ### Changed — Targets page
