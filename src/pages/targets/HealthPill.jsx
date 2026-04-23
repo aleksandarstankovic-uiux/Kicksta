@@ -2,13 +2,16 @@
 // based on follower count for accounts and post count for hashtags.
 // Red is intentionally avoided (PRODUCT.md reserves it for connection
 // errors) — "needs attention" states use yellow instead.
+//
+// Labels are terse (v3.2) so the pill stays narrow next to target
+// names. Longer tooltips can explain the nuance later if needed.
 
 export function evaluateHealth(count) {
   if (count == null) return null
-  if (count < 1_000) return { label: 'Small audience', tone: 'warn' }
+  if (count < 1_000) return { label: 'Small', tone: 'warn' }
   if (count < 100_000) return { label: 'Good fit', tone: 'good' }
-  if (count < 1_000_000) return { label: 'Slower — large audience', tone: 'warn' }
-  return { label: 'Very large — much slower', tone: 'warn' }
+  if (count < 1_000_000) return { label: 'Large', tone: 'warn' }
+  return { label: 'Very large', tone: 'warn' }
 }
 
 export default function HealthPill({ count, className = '' }) {
