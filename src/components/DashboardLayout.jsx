@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { mockNotifications } from '@/mocks/notifications'
 import { mockAccounts, defaultActiveAccountId } from '@/mocks/accounts'
 import { SystemStatusRow, SystemStatusIconButton } from '@/components/SystemStatus'
+import ToastContainer from '@/components/Toast'
 import kickstaLogo from '@/assets/kicksta-logo.svg'
 import kickstaFullLogo from '@/assets/kicksta-full-logo.svg'
 
@@ -470,6 +471,8 @@ export default function DashboardLayout() {
           )
         })}
       </nav>
+
+      <ToastContainer />
     </div>
   )
 }
