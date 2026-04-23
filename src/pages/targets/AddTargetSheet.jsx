@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Hash, X } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
+import { useToasts } from '@/stores/useToasts'
 import { mockSuggestedTargets } from '@/mocks/suggestedTargets'
 import { mockSuggestedHashtags } from '@/mocks/suggestedHashtags'
 import { searchTargets } from '@/mocks/targetSearch'
 import { formatCount } from '@/utils/formatCount'
 import HealthPill from './HealthPill'
 
-// v3 behavior:
-// - Must-pick: Add target is disabled until the user selects a result
-//   from the typeahead dropdown (or a suggestion chip). Typing alone
-//   never enables submit.
-// - Fixed-size popup: typeahead dropdown scrolls internally and never
-//   changes the sheet's outer dimensions.
-// - Wider segmented toggle, matches the input's visual weight.
-// - Open/close animation: fade + slide on mount.
+// v3.1 additions:
+// - Short explainer paragraph above the Targeting toggle so first-time
+//   users understand what "target" means and why they're picking one.
+// - Suggestions rendered as avatar-style chips (28×28 circle with
+//   initial/Hash + handle). Same layout for both modes — only the
+//   avatar fill and identifier change.
+// - Successful add fires a toast.
 export default function AddTargetSheet({ open, onClose }) {
   const targets = useTargetsStore((s) => s.targets)
   const addTarget = useTargetsStore((s) => s.addTarget)
@@ -105,12 +105,20 @@ export default function AddTargetSheet({ open, onClose }) {
   const handleSubmit = () => {
     if (!canSubmit) return
     addTarget({ type, value: displayValue })
+    useToasts.getState().addToast({
+      message: `${displayValue} added as a target.`,
+      tone: 'success',
+    })
     onClose()
   }
 
   const handleResumeDuplicate = () => {
     if (duplicate) {
       resumeTarget(duplicate.id)
+      useToasts.getState().addToast({
+        message: `${duplicate.value} resumed.`,
+        tone: 'success',
+      })
       onClose()
     }
   }
@@ -168,8 +176,14 @@ export default function AddTargetSheet({ open, onClose }) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
+          {/* Explainer — orients first-time users before they pick. */}
+          <p className="text-xs leading-relaxed text-text-secondary">
+            Pick any Instagram account or hashtag. Kicksta will follow its
+            audience — those are the users most likely to follow you back.
+          </p>
+
           {/* Targeting label + wider segmented toggle */}
-          <div>
+          <div className="mt-4">
             <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-muted">
               Targeting
             </p>
@@ -302,7 +316,7 @@ export default function AddTargetSheet({ open, onClose }) {
             </div>
           )}
 
-          {/* Suggestions — hidden while typeahead is showing results. */}
+          {/* Suggestions — avatar-style chips, same layout for both modes. */}
           {!suggestionsHidden && (
             <div className="mt-5">
               <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
@@ -310,15 +324,20 @@ export default function AddTargetSheet({ open, onClose }) {
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {suggestions.map((s) => {
-                  const label = type === 'account' ? `@${s.username}` : `#${s.hashtag}`
+                  const isHashtag = type === 'hashtag'
+                  const label = isHashtag ? `#${s.hashtag}` : `@${s.username}`
+                  const letter = (isHashtag ? s.hashtag : s.username).charAt(0).toUpperCase()
                   return (
                     <button
                       key={label}
                       type="button"
                       onClick={() => handlePickSuggestion(s)}
-                      className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs text-text-secondary hover:border-border-strong hover:text-text-primary"
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-surface py-1 pl-1 pr-3 text-xs text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
                     >
-                      {label}
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-[11px] font-semibold text-text-secondary">
+                        {isHashtag ? <Hash className="h-3.5 w-3.5" aria-hidden="true" /> : letter}
+                      </span>
+                      <span className="truncate">{label}</span>
                     </button>
                   )
                 })}
