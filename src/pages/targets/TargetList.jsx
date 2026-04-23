@@ -29,7 +29,7 @@ export default function TargetList({ onOpen }) {
     <section className="mt-4 overflow-hidden rounded-xl border border-border bg-surface">
       <div className="flex items-center justify-between px-4 pt-4 pb-2 text-[11px] font-medium uppercase tracking-wide text-text-muted">
         <span>Name</span>
-        <span className="pr-11">Follow-backs · %</span>
+        <span className="pr-12">Follow-backs · %</span>
       </div>
 
       {!hasAnyTarget && <EmptyNoTargets />}

@@ -59,7 +59,7 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
           onOpen(target)
         }
       }}
-      className={`group flex min-h-[64px] cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-bg focus:bg-bg focus:outline-none ${
+      className={`group flex min-h-[64px] cursor-pointer items-center gap-3 py-3 pl-4 pr-3 transition-colors hover:bg-bg focus:bg-bg focus:outline-none ${
         isFirst ? '' : 'border-t border-border'
       } ${depleted ? 'bg-bg/60' : ''}`}
     >
@@ -131,10 +131,10 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
         </span>
       </div>
 
-      {/* Affordance */}
-      <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center">
+      {/* Affordance: smaller chevron wrapper so the right side isn't too airy. */}
+      <div className="inline-flex h-7 w-7 shrink-0 items-center justify-center">
         <ChevronRight
-          className="h-5 w-5 text-text-muted transition-colors group-hover:text-text-primary"
+          className="h-4 w-4 text-text-muted transition-colors group-hover:text-text-primary"
           aria-hidden="true"
         />
       </div>
