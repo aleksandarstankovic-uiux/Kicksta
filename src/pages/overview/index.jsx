@@ -6,8 +6,12 @@ import {
   AlertTriangle,
   Clock,
   Activity,
+  Flame,
+  Settings,
   Settings2,
   MessageSquare,
+  Search,
+  UserMinus,
   UserPlus,
   Users,
   Heart,
@@ -297,7 +301,7 @@ function StatusPill({ status, onPauseToggle }) {
   // When paused, fall back to the status prop's label so the pill shows
   // "Paused". Otherwise use the hook's live phase + rotating target.
   const PHASE_LABEL = {
-    analyzing: 'Analyzing targets',
+    analyzing: 'Searching for targets',
     following: 'Following',
     unfollowing: 'Unfollowing',
     waiting: 'Pausing',
@@ -305,6 +309,23 @@ function StatusPill({ status, onPauseToggle }) {
     setup: 'Setup needed',
     paused: 'Paused',
   }
+  const PHASE_ICON = {
+    analyzing: Search,
+    following: UserPlus,
+    unfollowing: UserMinus,
+    warming_up: Flame,
+    setup: Settings,
+    paused: Pause,
+    waiting: null,
+  }
+  const PhaseIcon = PHASE_ICON[live.phase] ?? (isPaused ? Pause : null)
+  const phaseIconTone = isWarming
+    ? 'text-blue-base'
+    : isSetup
+      ? 'text-yellow-base'
+      : isPaused
+        ? 'text-text-muted'
+        : 'text-green-base'
   const activeLabel = PHASE_LABEL[live.phase] || status.actionLabel
   const activeTarget =
     live.phase === 'following' || live.phase === 'unfollowing'
@@ -343,17 +364,8 @@ function StatusPill({ status, onPauseToggle }) {
         >
           {eyebrowTheme.label}
         </span>
-        {isPaused ? (
-          <Pause className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden />
-        ) : (
-          // Radar-ping dot: solid core + expanding outer ring that fades —
-          // universal "live / broadcasting" motif. Much more status-like
-          // than the staggered three-dot loader (which reads as work-in-
-          // progress / loading).
-          <span className="relative flex h-2.5 w-2.5 shrink-0" aria-hidden>
-            <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-70 ${dotColor}`} />
-            <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${dotColor}`} />
-          </span>
+        {PhaseIcon && (
+          <PhaseIcon className={`h-3.5 w-3.5 shrink-0 ${phaseIconTone}`} aria-hidden />
         )}
         <span className={`truncate ${isPaused ? 'text-text-secondary' : ''}`}>
           {label}
@@ -388,15 +400,9 @@ function StatusPill({ status, onPauseToggle }) {
             )}
           </div>
 
-          {(status.actionsToday > 0 || nextIn || startedAgo) && (
+          {(nextIn || startedAgo) && (
             <div className="border-t border-border px-4 py-3">
               <dl className="flex flex-col gap-1.5 text-xs">
-                {status.actionsToday > 0 && (
-                  <div className="flex items-center justify-between">
-                    <dt className="text-text-muted">Actions today</dt>
-                    <dd className="font-medium text-text-primary">{status.actionsToday}</dd>
-                  </div>
-                )}
                 {nextIn && (
                   <div className="flex items-center justify-between">
                     <dt className="text-text-muted">Next action</dt>
