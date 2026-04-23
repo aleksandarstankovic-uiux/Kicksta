@@ -68,6 +68,84 @@ Top Targets sorts `active → queued → paused → depleted` then by follow-bac
 
 ---
 
+## Targets page (`src/pages/targets/`)
+
+Composed from small focused files; `useTargetsStore` (Zustand) is the single state source. Job on this page: **add + manage** targets. Monitoring is secondary (no per-row analytics, no detail-view drawer).
+
+### File layout
+```
+src/pages/targets/
+  index.jsx              page shell + state wiring
+  SlotsCard.jsx          count + progress bar + trust line + sole Add CTA
+  FilterRow.jsx          segmented filter pills + sort dropdown
+  TargetList.jsx         column header + rows + empty states
+  TargetRow.jsx          dot / name / star / pill / count / kebab
+  KebabMenu.jsx          status-aware action menu (Pause/Resume/Remove)
+  RemoveTargetModal.jsx  destructive-action confirmation
+  AddTargetSheet.jsx     single-path add sheet
+src/stores/useTargetsStore.js   state + filter/sort helpers
+src/mocks/suggestedTargets.js   5 account-mode suggestion chips
+src/mocks/resolveAccount.js     async preview resolver (11 fixtures)
+```
+
+### Page anatomy (top to bottom)
+1. **Header** — `h1 Targets` + sub `Manage the accounts and hashtags Kicksta targets for your growth.`
+2. **SlotsCard** — `Target slots · X / maxSlots` · green progress bar · lock + trust line · `+ Add target` (blue, 48px, full-width mobile / right-aligned desktop). Max slots derived from `mockUser.plan` (10 Growth / 30 Advanced). All stored targets count — active + queued + paused + depleted
+3. **FilterRow** — `All · Active · Queued · Paused · Depleted` pills with live counts (selected = `bg-surface shadow-sm` inside `bg-bg p-1`). Sort dropdown on right: text label on desktop (`Sort: Priority ▾`), `ArrowUpDown` icon on mobile. Pills scroll horizontally on mobile
+4. **TargetList** — column header (`NAME` / `FOLLOW-BACKS`) inside a bordered card, then rows. Top performer star lands on the highest-follow-back active row, independent of current filter/sort
+5. **Overlays** — KebabMenu (row tap) → RemoveTargetModal (confirm) · AddTargetSheet (bottom sheet mobile / centered modal desktop)
+
+### Conventions reused from Overview's `TargetsOverview`
+- Status → dot color: active=green, queued=blue, paused=grey, depleted=yellow
+- Status tooltip strings (same verbatim copy)
+- Depleted row = `bg-bg/60` wash + `line-through` name + muted count
+- Top-performer star (`fill-yellow-base text-yellow-base`) placed between name and status pill
+- Status pill recipe: `rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide` with tint bg + text color per status (paused is neutral-grey)
+
+### Row interaction
+- Entire row is a tap target (`role="button" tabIndex={0}`) — kebab icon is the visual affordance only
+- Kebab items by status: Active → Pause + Remove · Paused → Resume + Remove · Queued/Depleted → Remove only
+- `Remove` opens `RemoveTargetModal`; primary button labeled `Remove target` (action name, not "Confirm")
+- Pause/Resume apply silently (no toast wired yet — flagged for follow-up)
+
+### Add Target sheet
+- **One CTA, one flow** — the slots-card button is the sole entry point. Empty state has no button; user's eye goes up
+- Segmented `Account` / `Hashtag` toggle swaps `@`/`#` prefix, helper copy, preview, and suggestions visibility
+- Account mode only: live preview card (debounced 300ms via `mockResolveAccount`) + 5 suggestion chips
+- Duplicate detection: matches existing target (case-insensitive), blocks submit with specific copy. If duplicate is `paused`, inline `Resume it` link resumes the row and closes the sheet
+- Invalid format → inline red helper, never a toast
+- New targets enter with status `queued`, prepended to the list
+
+### Store shape (`useTargetsStore`)
+```js
+{
+  targets: Target[],                      // seeded from mockTargets, in-memory
+  filter: 'all'|'active'|'queued'|'paused'|'depleted',
+  sort: 'priority'|'followBacks'|'recent'|'alpha',
+  setFilter, setSort,
+  addTarget({type, value}),               // optimistic; new row is 'queued'
+  pauseTarget(id), resumeTarget(id), removeTarget(id),
+}
+```
+Helpers exported alongside: `filterTargets(targets, filter)` · `sortTargets(targets, sort)`. Default sort `priority` = active → queued → paused → depleted, then by follow-back count desc.
+
+### Deferred / known gaps (Targets-specific)
+1. **At-cap behavior** — Advanced at 30 should disable add button + inline message; Growth at 10 should swap button to upgrade CTA; progress bar should turn yellow at cap. None implemented yet
+2. **Approaching-cap nudge** — soft "N slots left" copy before hitting the cap
+3. **Auto-pause-after-downgrade banner** — blue-tint notice naming paused targets + Upgrade CTA. Mandated by PRODUCT.md but deferred
+4. **Disconnected-IG treatment** — add button should disable, persistent reconnect banner should surface. Currently the page ignores connection state
+5. **Success toasts** on pause/resume/add — actions currently apply silently
+6. **URL-param-backed filter/sort** — currently component-local state only
+7. **Store persistence** — in-memory, resets on reload
+8. **Per-target analytics** (sparkline, follow-back %, followed-count column) — deprioritized per Q1 of the brainstorm
+9. **Bulk actions, search, CSV import, whitelist/blacklist shortcuts** — explicitly out of scope for V1
+
+### Spec + plan
+- Spec: `docs/superpowers/specs/2026-04-23-targets-page-design.md`
+- Plan: `docs/superpowers/plans/2026-04-23-targets-page.md`
+
+---
+
 ## DashboardLayout (`src/components/DashboardLayout.jsx`)
 
 ### Desktop sidebar (lg:+, w-60 or w-16 collapsed)
@@ -125,3 +203,4 @@ Mobile preset `375×812`, desktop `1280×900`.
 ## Update log
 
 - **2026-04-23** — initial CONTEXT.md written at end of long session covering: chart redesign (trial rail → bracket → ReferenceLine → blue "Trial ends" marker), summary strip iteration (vertical → segmented → filter-pill), trial-yellow → trial-blue swap, account switcher + plan pills + status dots + disconnected alert.
+- **2026-04-23 (cont.)** — Targets page shipped. Brainstormed (4 clarifying questions → "add + manage" job, single Add sheet, kebab actions, filter+sort with Queued kept separate), spec + plan written, 9 implementation tasks dispatched via subagents and committed individually. Visual verification passed on desktop, mobile (375), and dark mode; no new console errors. Repo now under git; work lives on local `main`.

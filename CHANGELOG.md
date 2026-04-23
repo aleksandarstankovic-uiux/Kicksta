@@ -89,6 +89,38 @@
 - "Add account" routes to full signup flow — needs a lightweight add-another-account flow
 - Status dots have no hover tooltip
 
+### Created — Targets page (`/targets`)
+- **Page composed from small focused files under `src/pages/targets/`**: `index.jsx` (shell + state wiring), `SlotsCard`, `FilterRow`, `TargetList`, `TargetRow`, `KebabMenu`, `RemoveTargetModal`, `AddTargetSheet`
+- **`SlotsCard`** — single CTA host: label + `X / maxSlots` count + green progress bar + `Lock` icon trust line ("Kicksta follows within Instagram's safe daily limits.") + sole `+ Add target` button (48px, full-width mobile, right-aligned desktop). Max slots derived from `mockUser.plan` (10 Growth / 30 Advanced). All statuses count against slots
+- **`FilterRow`** — segmented pills `All · Active · Queued · Paused · Depleted` with live counts inside each pill; selected pill = `bg-surface shadow-sm` inside a `bg-bg p-1` container. Mobile: pills scroll horizontally, sort collapses to `ArrowUpDown` icon button. Desktop: full row with `Sort: Priority ▾` dropdown (options: Priority / Follow-backs / Most recent / A–Z)
+- **`TargetRow`** — 56px-min row: status dot (+ hover tooltip) · truncated name (depleted = line-through + muted) · top-performer yellow `Star` (highest follow-back active row only) · status pill (Active/Queued/Paused/Depleted, tinted per status; paused is neutral-grey) · follow-back count (`tabular-nums`) · 44×44 kebab. Entire row is a tap target; kebab is the visual affordance
+- **`KebabMenu`** — status-aware action menu (bottom sheet mobile, centered desktop). Active → Pause + Remove · Paused → Resume + Remove · Queued/Depleted → Remove only. Row header names the target. Escape closes
+- **`RemoveTargetModal`** — destructive-action confirmation. Action-name button ("Remove target", not "Confirm") per CLAUDE.md. "Keep it" secondary
+- **`AddTargetSheet`** — single path for adding any target: bottom sheet on mobile, centered modal on desktop. Segmented `Account`/`Hashtag` toggle swaps `@`/`#` prefix + helper text + preview + suggestions visibility. Account mode: live preview card (resolves via `mockResolveAccount` with 300ms debounce) + 5 suggestion chips from `mockSuggestedTargets`. Duplicate detection blocks submit with a specific message; when the duplicate is paused, shows an inline `Resume it` shortcut that resumes the existing row and closes. Invalid format → inline red helper, never a toast
+- **`useTargetsStore` (Zustand)** at `src/stores/useTargetsStore.js` — `{targets, filter, sort, setFilter, setSort, addTarget, pauseTarget, resumeTarget, removeTarget}`. Helpers `filterTargets(targets, filter)` + `sortTargets(targets, sort)` live alongside. Seeded from existing `mockTargets`; in-memory only (no persistence in V1)
+- **New mocks**: `src/mocks/suggestedTargets.js` (5 account suggestions) · `src/mocks/resolveAccount.js` (async preview resolver, 200–400ms delay, 11 fixture usernames)
+- **Spec + plan committed**: `docs/superpowers/specs/2026-04-23-targets-page-design.md` · `docs/superpowers/plans/2026-04-23-targets-page.md`
+
+### Decisions — Targets
+- **Primary page job is add + manage** (monitoring is secondary). No per-row analytics, no detail-view drawer — kebab actions cover management; the Add sheet covers add. Can revisit when per-target stats are real
+- **One CTA, one flow for adding a target** — the `+ Add target` button in the slots card is the sole entry; the empty-state block has no button of its own, the user's eye travels up to the single CTA
+- **Row tap opens the kebab menu** (full row hit target) for mobile thumb ease; kebab icon is the visual affordance
+- **All rows show a status pill** (including Active, green-tint) for row-to-row symmetry and scan consistency — not just the non-active states
+- **Queued stays as its own filter pill** (not folded into Active) because a target can sit in the queue for a while and should be explicitly visible
+- **All stored targets occupy a slot** (active + queued + paused + depleted) — users can remove to free a slot; depleted targets aren't auto-purged
+- **Design-system vocabulary reused verbatim from Overview's `TargetsOverview`** — same dot colors, same status tooltips, same pill recipes, same depleted-wash + line-through treatment. Cross-page consistency confirmed in the preview
+- **Edge-case states deferred to a future spec** — disconnected-IG treatment, at-cap variants (Growth upsell button swap + Advanced disable + bar-color change), approaching-cap upsell nudge, auto-pause-after-downgrade banner. Intentional scope cut to keep this launch focused on happy-path
+
+### Flagged for follow-up — Targets
+- Advanced-at-30 disable + inline message (`You've reached the 30-target limit. Remove one to add another.`)
+- Growth-at-10 upsell button swap (`Upgrade for 20 more slots`)
+- Approaching-cap soft nudge (`2 slots left — Advanced gives you 20 more`)
+- Auto-pause-after-downgrade banner (names auto-paused targets + Upgrade CTA)
+- Disconnected-IG page variant (disabled add button, reconnect banner)
+- Success toast on pause/resume/add (not wired yet — actions apply silently for V1)
+- Sort state / filter state not URL-persisted (component-local only)
+- Store not persisted across reloads (in-memory, resets to mocks)
+
 ---
 
 ## 2026-04-16
