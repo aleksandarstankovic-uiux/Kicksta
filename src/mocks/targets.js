@@ -1,11 +1,16 @@
+// Seeded targets for the dashboard. Each row now carries either
+// `followers` (account) or `posts` (hashtag) for the target-source
+// context. Follow-back counts are tuned so the rate reads cleanly
+// across healthy / average / needs-attention bands.
 export const mockTargets = [
   {
     id: 't_001',
     type: 'account',
     value: '@fitness.inspo',
     status: 'active',
+    followers: 128_400,
     followedCount: 842,
-    followBackCount: 97,
+    followBackCount: 101, // 12%
     addedAt: '2026-03-15T00:00:00Z',
   },
   {
@@ -13,8 +18,9 @@ export const mockTargets = [
     type: 'hashtag',
     value: '#homeworkouts',
     status: 'active',
+    posts: 14_200_000,
     followedCount: 614,
-    followBackCount: 58,
+    followBackCount: 55, // 9%
     addedAt: '2026-03-18T00:00:00Z',
   },
   {
@@ -22,8 +28,9 @@ export const mockTargets = [
     type: 'account',
     value: '@yoga.daily',
     status: 'depleted',
+    followers: 210_000,
     followedCount: 1200,
-    followBackCount: 134,
+    followBackCount: 132, // 11%
     addedAt: '2026-03-10T00:00:00Z',
   },
   {
@@ -31,8 +38,9 @@ export const mockTargets = [
     type: 'account',
     value: '@cleanfoodcrush',
     status: 'paused',
+    followers: 71_000,
     followedCount: 320,
-    followBackCount: 29,
+    followBackCount: 13, // 4%
     addedAt: '2026-03-25T00:00:00Z',
   },
   {
@@ -40,8 +48,9 @@ export const mockTargets = [
     type: 'hashtag',
     value: '#mealprep',
     status: 'active',
+    posts: 18_700_000,
     followedCount: 488,
-    followBackCount: 46,
+    followBackCount: 49, // 10%
     addedAt: '2026-03-22T00:00:00Z',
   },
   {
@@ -49,8 +58,9 @@ export const mockTargets = [
     type: 'account',
     value: '@protein.pete',
     status: 'queued',
-    followedCount: 520,
-    followBackCount: 52,
+    followers: 6_100,
+    followedCount: 0,
+    followBackCount: 0,
     addedAt: '2026-03-20T00:00:00Z',
   },
   {
@@ -58,8 +68,9 @@ export const mockTargets = [
     type: 'hashtag',
     value: '#glutenfree',
     status: 'active',
+    posts: 22_100_000,
     followedCount: 430,
-    followBackCount: 41,
+    followBackCount: 34, // 8%
     addedAt: '2026-03-24T00:00:00Z',
   },
   {
@@ -67,8 +78,9 @@ export const mockTargets = [
     type: 'account',
     value: '@macro.melissa',
     status: 'active',
+    followers: 9_400,
     followedCount: 380,
-    followBackCount: 38,
+    followBackCount: 53, // 14%
     addedAt: '2026-03-26T00:00:00Z',
   },
   {
@@ -76,8 +88,9 @@ export const mockTargets = [
     type: 'hashtag',
     value: '#weightloss',
     status: 'active',
+    posts: 88_900_000,
     followedCount: 710,
-    followBackCount: 68,
+    followBackCount: 64, // 9%
     addedAt: '2026-03-14T00:00:00Z',
   },
   {
@@ -85,8 +98,9 @@ export const mockTargets = [
     type: 'account',
     value: '@keto.kevin',
     status: 'depleted',
+    followers: 48_300,
     followedCount: 980,
-    followBackCount: 88,
+    followBackCount: 78, // 8%
     addedAt: '2026-03-08T00:00:00Z',
   },
 ]
