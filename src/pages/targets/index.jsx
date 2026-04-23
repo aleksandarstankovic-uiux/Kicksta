@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import SlotsCard from './SlotsCard'
+import TargetsHeroCard from './TargetsHeroCard'
 import FilterRow from './FilterRow'
 import TargetList from './TargetList'
 import TargetDetailDrawer from './TargetDetailDrawer'
@@ -24,7 +24,7 @@ export default function TargetsPage() {
       </header>
 
       <LiveActivityCard onOpenTarget={(t) => setDetailTarget(t)} />
-      <SlotsCard onAddTarget={() => setSheetOpen(true)} />
+      <TargetsHeroCard onAddTarget={() => setSheetOpen(true)} />
       <FilterRow />
       <TargetList onOpen={(t) => setDetailTarget(t)} />
 
