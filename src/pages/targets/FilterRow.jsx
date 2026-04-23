@@ -29,32 +29,32 @@ export default function FilterRow() {
   }, [targets])
 
   return (
-    <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-3">
-      {/* Pills wrap on mobile, single-row on lg:+. */}
-      <div className="flex flex-1 flex-wrap gap-2">
-        {FILTERS.map((f) => {
-          const selected = filter === f.value
-          return (
-            <button
-              key={f.value}
-              type="button"
-              onClick={() => setFilter(f.value)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                selected
-                  ? 'bg-surface text-text-primary shadow-sm ring-1 ring-border'
-                  : 'bg-bg text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              <span>{f.label}</span>
-              <span className="tabular-nums text-[11px] text-text-muted">
-                {counts[f.value]}
-              </span>
-            </button>
-          )
-        })}
-      </div>
+    <div className="mt-4 flex flex-wrap items-center gap-2 lg:flex-nowrap lg:gap-3">
+      {FILTERS.map((f) => {
+        const selected = filter === f.value
+        return (
+          <button
+            key={f.value}
+            type="button"
+            onClick={() => setFilter(f.value)}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              selected
+                ? 'bg-surface text-text-primary shadow-sm ring-1 ring-border'
+                : 'bg-bg text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            <span>{f.label}</span>
+            <span className="tabular-nums text-[11px] text-text-muted">
+              {counts[f.value]}
+            </span>
+          </button>
+        )
+      })}
 
-      <div className="flex justify-end lg:shrink-0">
+      {/* Sort sits inline with the filter pills. On mobile it wraps
+          naturally as the last item in the flex-wrap container. On
+          desktop it gets pushed to the right via ml-auto. */}
+      <div className="lg:ml-auto">
         <SortDropdown value={sort} onChange={setSort} />
       </div>
     </div>
@@ -80,9 +80,9 @@ function SortDropdown({ value, onChange }) {
         type="button"
         aria-label="Sort targets"
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bg px-3 text-xs font-medium text-text-secondary hover:text-text-primary"
+        className="inline-flex h-8 items-center gap-1.5 rounded-full bg-bg px-3 text-xs font-medium text-text-secondary hover:text-text-primary"
       >
-        <ArrowUpDown className="h-4 w-4 lg:hidden" aria-hidden="true" />
+        <ArrowUpDown className="h-3.5 w-3.5 lg:hidden" aria-hidden="true" />
         <span className="hidden lg:inline">Sort: {current.label}</span>
         <ChevronDown className="hidden h-3.5 w-3.5 lg:inline" aria-hidden="true" />
       </button>
