@@ -45,6 +45,7 @@ import {
   mockSystemStatusFollowing,
   mockSystemStatusPaused,
 } from '@/mocks/systemStatus'
+import { useSystemStatus } from '@/hooks/useSystemStatus'
 
 // --- Helpers ---
 
@@ -266,6 +267,11 @@ function StatusPill({ status, onPauseToggle }) {
     }
   }, [open])
 
+  // Shared live-status hook — advances through phases in lockstep with
+  // the Targets page's LiveActivityCard. Falls through to the paused
+  // label when the local pause state is on.
+  const live = useSystemStatus()
+
   const isPaused = status.state === 'paused'
   const isWarming = status.state === 'warming_up'
   const isSetup = status.state === 'setup'
@@ -280,9 +286,27 @@ function StatusPill({ status, onPauseToggle }) {
         ? 'bg-yellow-base'
         : 'bg-green-base'
 
-  const label = status.target
-    ? `${status.actionLabel} ${status.target}`
-    : status.actionLabel
+  // When paused, fall back to the status prop's label so the pill shows
+  // "Paused". Otherwise use the hook's live phase + rotating target.
+  const PHASE_LABEL = {
+    analyzing: 'Analyzing targets',
+    following: 'Following',
+    unfollowing: 'Unfollowing',
+    waiting: 'Pausing',
+    warming_up: 'Warming up',
+    setup: 'Setup needed',
+    paused: 'Paused',
+  }
+  const activeLabel = PHASE_LABEL[live.phase] || status.actionLabel
+  const activeTarget =
+    live.phase === 'following' || live.phase === 'unfollowing'
+      ? live.targetHandle
+      : null
+  const label = isPaused
+    ? status.actionLabel
+    : activeTarget
+      ? `${activeLabel} ${activeTarget}`
+      : activeLabel
 
   const nextIn = formatApproxTime(status.nextActionAt)
   const startedAgo = formatApproxTime(status.startedAt)
