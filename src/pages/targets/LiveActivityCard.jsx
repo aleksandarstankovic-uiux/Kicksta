@@ -1,17 +1,32 @@
+import {
+  Flame,
+  Pause,
+  Search,
+  Settings,
+  UserMinus,
+  UserPlus,
+} from 'lucide-react'
 import { useSystemStatus } from '@/hooks/useSystemStatus'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 
-// v3.1 framing: the card now opens with a SYSTEM ACTIVITY eyebrow on
-// its own line so the user reads "this is what the system is doing"
-// before anything else. Phase copy leads with "Currently" for active
-// phases. Accent strip + colored dot still carry the run/warn/pause
-// state.
+// v3.2: phase gets a matching Lucide icon that replaces the colored
+// dot for a more recognizable at-a-glance action. Right zone is just
+// the "next action" label now — the Today counter is out.
 
-// Phase → user-facing copy.
+const PHASE_ICON = {
+  analyzing: Search,
+  following: UserPlus,
+  unfollowing: UserMinus,
+  warming_up: Flame,
+  setup: Settings,
+  paused: Pause,
+  waiting: null, // use colored dot fallback
+}
+
 function phraseForPhase(phase, targetHandle) {
   switch (phase) {
     case 'analyzing':
-      return 'Currently analyzing your targets'
+      return 'Currently searching for targets'
     case 'following':
       return targetHandle ? `Currently following ${targetHandle}` : 'Currently following'
     case 'unfollowing':
@@ -29,10 +44,10 @@ function phraseForPhase(phase, targetHandle) {
   }
 }
 
-function dotToneClass(phase) {
-  if (phase === 'warming_up') return 'bg-blue-base'
-  if (phase === 'setup' || phase === 'paused') return 'bg-text-muted'
-  return 'bg-green-base'
+function iconToneClass(phase) {
+  if (phase === 'warming_up') return 'text-blue-base'
+  if (phase === 'setup' || phase === 'paused') return 'text-text-muted'
+  return 'text-green-base'
 }
 
 function accentStripClass(phase) {
@@ -41,31 +56,20 @@ function accentStripClass(phase) {
   return 'bg-green-base'
 }
 
-function isLivePhase(phase) {
-  return (
-    phase === 'analyzing' ||
-    phase === 'following' ||
-    phase === 'unfollowing' ||
-    phase === 'waiting'
-  )
-}
-
 export default function LiveActivityCard({ onOpenTarget }) {
-  const { phase, targetHandle, actionsToday, nextActionLabel } = useSystemStatus()
+  const { phase, targetHandle, nextActionLabel } = useSystemStatus()
   const targets = useTargetsStore((s) => s.targets)
 
   const matchedTarget = targetHandle
     ? targets.find((t) => t.value.toLowerCase() === targetHandle.toLowerCase())
     : null
 
-  const live = isLivePhase(phase)
-  const dotClass = dotToneClass(phase)
+  const Icon = PHASE_ICON[phase] ?? null
+  const iconCls = iconToneClass(phase)
   const accentClass = accentStripClass(phase)
   const phrase = phraseForPhase(phase, targetHandle)
 
-  // Split the phrase around the handle so the handle can be a
-  // clickable link. If the handle appears in the phrase, render it
-  // as two text segments with a button in between.
+  // Split the phrase around the handle so it can be a clickable link.
   const handlePieces =
     targetHandle && matchedTarget && phrase.includes(targetHandle)
       ? (() => {
@@ -78,94 +82,73 @@ export default function LiveActivityCard({ onOpenTarget }) {
         })()
       : null
 
-  // Key for the crossfade — includes phase and handle so target
-  // rotations animate as well.
   const contentKey = `${phase}|${targetHandle || ''}`
 
   return (
     <section className="mt-6 overflow-hidden rounded-xl border border-border bg-surface">
-      <div className="relative px-4 py-3 lg:px-6 lg:py-4">
-        {/* Left accent strip — phase color. */}
+      <div className="relative flex items-center justify-between gap-3 px-4 py-3 lg:px-6 lg:py-4">
+        {/* Accent strip. */}
         <span
           className={`absolute left-0 top-0 h-full w-1 ${accentClass}`}
           aria-hidden="true"
         />
 
-        <div className="flex items-start justify-between gap-3 pl-1">
-          <div className="min-w-0 flex-1">
-            {/* Eyebrow — makes the "this is status" framing obvious. */}
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-              System activity
-            </p>
+        {/* Left: eyebrow + animated icon/phrase. */}
+        <div className="min-w-0 flex-1 pl-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+            System activity
+          </p>
 
-            {/* Phase line: dot + animated phrase. key-bound for crossfade. */}
-            <div
-              key={contentKey}
-              className="mt-1 flex min-w-0 items-center gap-2 animate-in fade-in duration-300"
-            >
+          <div
+            key={contentKey}
+            className="mt-1 flex min-w-0 items-center gap-2 animate-in fade-in slide-in-from-bottom-1 duration-300"
+          >
+            {Icon ? (
+              <Icon className={`h-4 w-4 shrink-0 ${iconCls}`} aria-hidden="true" />
+            ) : (
               <span className="relative flex h-2 w-2 shrink-0 items-center justify-center">
-                {live && (
-                  <span
-                    className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${dotClass}`}
-                    aria-hidden="true"
-                  />
-                )}
                 <span
-                  className={`relative inline-flex h-2 w-2 rounded-full ${dotClass}`}
+                  className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${accentClass}`}
+                  aria-hidden="true"
+                />
+                <span
+                  className={`relative inline-flex h-2 w-2 rounded-full ${accentClass}`}
                   aria-hidden="true"
                 />
               </span>
-
-              <p className="min-w-0 truncate text-sm font-medium text-text-primary">
-                {handlePieces ? (
-                  <>
-                    {handlePieces.before}
-                    <button
-                      type="button"
-                      onClick={() => onOpenTarget(matchedTarget)}
-                      className="text-text-primary hover:underline"
-                    >
-                      {handlePieces.handle}
-                    </button>
-                    {handlePieces.after}
-                  </>
-                ) : (
-                  phrase
-                )}
-              </p>
-            </div>
-          </div>
-
-          {/* Right zone: data chips on desktop. */}
-          <div className="hidden shrink-0 items-center gap-2 pt-0.5 lg:flex">
-            {phase !== 'setup' && (
-              <span className="rounded-full bg-bg px-2 py-1 text-xs">
-                <span className="text-text-muted">Today </span>
-                <span className="font-medium tabular-nums text-text-primary">
-                  {actionsToday} actions
-                </span>
-              </span>
             )}
-            {nextActionLabel && (
-              <span className="rounded-full bg-bg px-2 py-1 text-xs text-text-muted">
-                {nextActionLabel}
-              </span>
-            )}
+
+            <p className="min-w-0 truncate text-sm font-medium text-text-primary">
+              {handlePieces ? (
+                <>
+                  {handlePieces.before}
+                  <button
+                    type="button"
+                    onClick={() => onOpenTarget(matchedTarget)}
+                    className="text-text-primary hover:underline"
+                  >
+                    {handlePieces.handle}
+                  </button>
+                  {handlePieces.after}
+                </>
+              ) : (
+                phrase
+              )}
+            </p>
           </div>
         </div>
+
+        {/* Right: next action label, centered vertically with the card. */}
+        {nextActionLabel && (
+          <span className="hidden shrink-0 rounded-full bg-bg px-2 py-1 text-xs text-text-muted lg:inline">
+            {nextActionLabel}
+          </span>
+        )}
       </div>
 
-      {/* Mobile secondary line. */}
-      {(phase !== 'setup' || nextActionLabel) && (
+      {/* Mobile secondary line — only the next action label (or nothing). */}
+      {nextActionLabel && (
         <div className="border-t border-border px-4 py-2 text-xs text-text-muted lg:hidden">
-          {phase !== 'setup' && (
-            <>
-              Today{' '}
-              <span className="tabular-nums text-text-secondary">{actionsToday}</span>{' '}
-              actions
-            </>
-          )}
-          {phase !== 'setup' && nextActionLabel && <> · </>}
           {nextActionLabel}
         </div>
       )}
