@@ -20,8 +20,6 @@ const SORTS = [
 export default function FilterRow() {
   const { filter, sort, setFilter, setSort, targets } = useTargetsStore()
 
-  // Counts rendered inside each filter pill. Recomputed when targets
-  // change so add/pause/remove update the badges immediately.
   const counts = useMemo(() => {
     const base = { all: targets.length, active: 0, queued: 0, paused: 0, depleted: 0 }
     for (const t of targets) {
@@ -31,35 +29,34 @@ export default function FilterRow() {
   }, [targets])
 
   return (
-    <div className="mt-6 flex items-center gap-3">
-      {/* Pills: horizontally scrollable on mobile, full row on lg:+. */}
-      <div className="-mx-4 flex-1 overflow-x-auto px-4 lg:mx-0 lg:px-0">
-        <div className="inline-flex gap-1 rounded-full bg-bg p-1">
-          {FILTERS.map((f) => {
-            const selected = filter === f.value
-            return (
-              <button
-                key={f.value}
-                type="button"
-                onClick={() => setFilter(f.value)}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                  selected
-                    ? 'bg-surface text-text-primary shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                <span>{f.label}</span>
-                <span className="tabular-nums text-[11px] text-text-muted">
-                  {counts[f.value]}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+    <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-3">
+      {/* Pills wrap on mobile, single-row on lg:+. */}
+      <div className="flex flex-1 flex-wrap gap-2">
+        {FILTERS.map((f) => {
+          const selected = filter === f.value
+          return (
+            <button
+              key={f.value}
+              type="button"
+              onClick={() => setFilter(f.value)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                selected
+                  ? 'bg-surface text-text-primary shadow-sm ring-1 ring-border'
+                  : 'bg-bg text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              <span>{f.label}</span>
+              <span className="tabular-nums text-[11px] text-text-muted">
+                {counts[f.value]}
+              </span>
+            </button>
+          )
+        })}
       </div>
 
-      {/* Sort dropdown — text on desktop, icon-only on mobile. */}
-      <SortDropdown value={sort} onChange={setSort} />
+      <div className="flex justify-end lg:shrink-0">
+        <SortDropdown value={sort} onChange={setSort} />
+      </div>
     </div>
   )
 }
@@ -83,9 +80,8 @@ function SortDropdown({ value, onChange }) {
         type="button"
         aria-label="Sort targets"
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex h-11 items-center gap-1.5 rounded-full bg-bg px-3 text-xs font-medium text-text-secondary hover:text-text-primary lg:px-3"
+        className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bg px-3 text-xs font-medium text-text-secondary hover:text-text-primary"
       >
-        {/* Mobile: icon-only. Desktop: full label. */}
         <ArrowUpDown className="h-4 w-4 lg:hidden" aria-hidden="true" />
         <span className="hidden lg:inline">Sort: {current.label}</span>
         <ChevronDown className="hidden h-3.5 w-3.5 lg:inline" aria-hidden="true" />
