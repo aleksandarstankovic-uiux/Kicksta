@@ -4,6 +4,7 @@ import FilterRow from './FilterRow'
 import TargetList from './TargetList'
 import KebabMenu from './KebabMenu'
 import RemoveTargetModal from './RemoveTargetModal'
+import AddTargetSheet from './AddTargetSheet'
 
 export default function TargetsPage() {
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -25,6 +26,11 @@ export default function TargetsPage() {
       <FilterRow />
       <TargetList onOpenMenu={(t) => setMenuTarget(t)} />
 
+      <AddTargetSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+      />
+
       {menuTarget && (
         <KebabMenu
           target={menuTarget}
@@ -41,12 +47,6 @@ export default function TargetsPage() {
           target={removeTarget}
           onClose={() => setRemoveTarget(null)}
         />
-      )}
-
-      {sheetOpen && (
-        <div className="mt-4 text-xs text-text-muted">
-          [Add Target sheet — wired in Task 9]
-        </div>
       )}
     </div>
   )
