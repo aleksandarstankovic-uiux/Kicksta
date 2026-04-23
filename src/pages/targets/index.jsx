@@ -2,10 +2,13 @@ import { useState } from 'react'
 import SlotsCard from './SlotsCard'
 import FilterRow from './FilterRow'
 import TargetList from './TargetList'
+import KebabMenu from './KebabMenu'
+import RemoveTargetModal from './RemoveTargetModal'
 
 export default function TargetsPage() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [menuTarget, setMenuTarget] = useState(null)
+  const [removeTarget, setRemoveTarget] = useState(null)
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
@@ -22,22 +25,27 @@ export default function TargetsPage() {
       <FilterRow />
       <TargetList onOpenMenu={(t) => setMenuTarget(t)} />
 
-      {/* Dev placeholders until Tasks 8 and 9 land. */}
+      {menuTarget && (
+        <KebabMenu
+          target={menuTarget}
+          onClose={() => setMenuTarget(null)}
+          onRequestRemove={(t) => {
+            setMenuTarget(null)
+            setRemoveTarget(t)
+          }}
+        />
+      )}
+
+      {removeTarget && (
+        <RemoveTargetModal
+          target={removeTarget}
+          onClose={() => setRemoveTarget(null)}
+        />
+      )}
+
       {sheetOpen && (
         <div className="mt-4 text-xs text-text-muted">
           [Add Target sheet — wired in Task 9]
-        </div>
-      )}
-      {menuTarget && (
-        <div className="mt-4 text-xs text-text-muted">
-          [Kebab menu for {menuTarget.value} — wired in Task 8]
-          <button
-            type="button"
-            className="ml-2 underline"
-            onClick={() => setMenuTarget(null)}
-          >
-            close
-          </button>
         </div>
       )}
     </div>
