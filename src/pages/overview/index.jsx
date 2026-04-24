@@ -280,14 +280,6 @@ function StatusPill({ status, onPauseToggle }) {
   const isWarming = status.state === 'warming_up'
   const isSetup = status.state === 'setup'
 
-  const eyebrowTheme = isPaused
-    ? { label: 'PAUSED', cls: 'bg-bg text-text-muted' }
-    : isWarming
-      ? { label: 'WARMING UP', cls: 'bg-blue-tint text-blue-text' }
-      : isSetup
-        ? { label: 'SETUP', cls: 'bg-yellow-tint text-yellow-text' }
-        : { label: 'LIVE', cls: 'bg-green-tint text-green-text' }
-
   // State color for the live indicator dot — green for actively running,
   // blue for warming, yellow for setup, muted grey when paused.
   const dotColor = isPaused
@@ -300,11 +292,13 @@ function StatusPill({ status, onPauseToggle }) {
 
   // When paused, fall back to the status prop's label so the pill shows
   // "Paused". Otherwise use the hook's live phase + rotating target.
+  // Phrasing matches the Targets page's LiveActivityCard so the two
+  // surfaces read identically when they tick in lockstep.
   const PHASE_LABEL = {
-    analyzing: 'Searching for targets',
-    following: 'Following',
-    unfollowing: 'Unfollowing',
-    waiting: 'Pausing',
+    analyzing: 'Currently searching for targets',
+    following: 'Currently following',
+    unfollowing: 'Currently unfollowing',
+    waiting: 'Pausing between actions',
     warming_up: 'Warming up',
     setup: 'Setup needed',
     paused: 'Paused',
@@ -338,7 +332,6 @@ function StatusPill({ status, onPauseToggle }) {
       : activeLabel
 
   const nextIn = formatApproxTime(status.nextActionAt)
-  const startedAgo = formatApproxTime(status.startedAt)
 
   return (
     // Intrinsic-width wrapper — lets the pill hug its content on both
@@ -357,19 +350,21 @@ function StatusPill({ status, onPauseToggle }) {
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="group inline-flex items-center gap-2.5 rounded-md bg-bg px-3 py-1.5 text-left text-sm font-medium text-text-primary transition-colors hover:bg-border/40"
+        className="group inline-flex items-center rounded-md bg-bg px-3 py-1.5 text-left text-sm font-medium text-text-primary transition-colors hover:bg-border/40"
       >
-        <span
-          className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${eyebrowTheme.cls}`}
+        {/* key-bound wrapper — icon + text crossfade together on phase
+            change, matching the Targets page's LiveActivityCard. */}
+        <div
+          key={`${live.phase}|${live.targetHandle || ''}`}
+          className="flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-1 duration-300"
         >
-          {eyebrowTheme.label}
-        </span>
-        {PhaseIcon && (
-          <PhaseIcon className={`h-3.5 w-3.5 shrink-0 ${phaseIconTone}`} aria-hidden />
-        )}
-        <span className={`truncate ${isPaused ? 'text-text-secondary' : ''}`}>
-          {label}
-        </span>
+          {PhaseIcon && (
+            <PhaseIcon className={`h-3.5 w-3.5 shrink-0 ${phaseIconTone}`} aria-hidden />
+          )}
+          <span className={`truncate ${isPaused ? 'text-text-secondary' : ''}`}>
+            {label}
+          </span>
+        </div>
       </button>
 
       {open && (
@@ -400,21 +395,13 @@ function StatusPill({ status, onPauseToggle }) {
             )}
           </div>
 
-          {(nextIn || startedAgo) && (
+          {nextIn && (
             <div className="border-t border-border px-4 py-3">
               <dl className="flex flex-col gap-1.5 text-xs">
-                {nextIn && (
-                  <div className="flex items-center justify-between">
-                    <dt className="text-text-muted">Next action</dt>
-                    <dd className="font-medium text-text-primary">{nextIn}</dd>
-                  </div>
-                )}
-                {startedAgo && (
-                  <div className="flex items-center justify-between">
-                    <dt className="text-text-muted">Started</dt>
-                    <dd className="font-medium text-text-primary">{startedAgo}</dd>
-                  </div>
-                )}
+                <div className="flex items-center justify-between">
+                  <dt className="text-text-muted">Next action</dt>
+                  <dd className="font-medium text-text-primary">{nextIn}</dd>
+                </div>
               </dl>
             </div>
           )}
