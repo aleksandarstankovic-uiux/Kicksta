@@ -5,6 +5,17 @@
 
 ---
 
+## 2026-04-24 — Targets page v3.3 (micro-polish)
+
+### Changed
+- **TargetsHeroCard** — explanation paragraph bumped back to `text-sm` (14px). 12px was too small relative to the rest of the page
+- **TargetDetailDrawer** — removed the `Open on Instagram ↗` external link at the bottom. Also dropped the unused `instagramUrl` variable and `ExternalLink` import
+- **AddTargetSheet**:
+  - Added a **clear-X button** inside the input (shown only when the input has content). Clicking it clears the input, matches list, and picked match, then refocuses
+  - **Suggestions stay visible** while typeahead is showing results (previously hidden). Users can browse suggestions at any time without losing their typing context
+
+---
+
 ## 2026-04-24 — Targets page v3.2 (polish)
 
 ### Changed — Status surfaces
