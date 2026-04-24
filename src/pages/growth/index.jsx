@@ -2,6 +2,7 @@ import { useState } from 'react'
 import SafetyStrip from './SafetyStrip'
 import ModeCard from './ModeCard'
 import EngagementCard from './EngagementCard'
+import FiltersCard from './FiltersCard'
 import UpgradeBottomSheet from '@/components/UpgradeBottomSheet'
 
 // Growth page — config surface for the Targeted Growth engine and
@@ -30,8 +31,9 @@ export default function GrowthPage() {
 
       <ModeCard />
       <EngagementCard onRequestUpgrade={openUpgrade} />
+      <FiltersCard onRequestUpgrade={openUpgrade} />
 
-      {/* Filters / Lists / Growth+ cards wire in across Tasks 8–10. */}
+      {/* Lists / Growth+ cards wire in across Tasks 10–11. */}
 
       <UpgradeBottomSheet
         open={upgradeFeature !== null}
