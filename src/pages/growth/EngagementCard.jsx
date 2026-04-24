@@ -3,11 +3,25 @@ import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import SettingSwitch from '@/components/SettingSwitch'
 
-// Plan-gating helper — kept local until a second consumer shows up.
 function isLocked(feature, user) {
   if (user.plan === 'advanced') return false
   return feature === 'welcome_dm' || feature === 'close_friends'
 }
+
+const CF_MODES = [
+  {
+    value: 'add',
+    label: 'Add new followers',
+    description:
+      'New followers are automatically added to your Close Friends list.',
+  },
+  {
+    value: 'remove',
+    label: 'Remove unfollowers',
+    description:
+      'Users who unfollow you are removed from your Close Friends list.',
+  },
+]
 
 export default function EngagementCard({ onRequestUpgrade }) {
   const {
@@ -16,15 +30,20 @@ export default function EngagementCard({ onRequestUpgrade }) {
     toggleWelcomeDm,
     setWelcomeDmMessage,
     toggleCloseFriends,
+    setCloseFriendsMode,
   } = useGrowthConfig()
 
   const welcomeLocked = isLocked('welcome_dm', mockUser)
   const closeFriendsLocked = isLocked('close_friends', mockUser)
 
   const showWelcomeEditor = config.welcomeDm.enabled && !welcomeLocked
+  const cfEnabled = config.closeFriendsAdder.enabled
+  const cfMode = config.closeFriendsAdder.mode
+  const showCfMode = cfEnabled && !closeFriendsLocked
+  const cfCurrent = CF_MODES.find((m) => m.value === cfMode) ?? CF_MODES[0]
 
   return (
-    <section className="mt-4 rounded-xl border border-border bg-surface p-4 lg:p-5">
+    <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
       <h2 className="text-base font-semibold text-text-primary">Engagement</h2>
       <p className="mt-1 text-sm text-text-secondary">
         How Kicksta interacts with new followers.
@@ -72,23 +91,48 @@ export default function EngagementCard({ onRequestUpgrade }) {
           )}
         </div>
 
-        <SettingSwitch
-          icon={Star}
-          title="Close Friends Adder"
-          description="Add new followers to your Close Friends list for exclusive content."
-          checked={config.closeFriendsAdder}
-          onChange={() => toggleCloseFriends()}
-          locked={closeFriendsLocked}
-          onLockedTap={() => onRequestUpgrade('close_friends')}
-        />
+        <div>
+          <SettingSwitch
+            icon={Star}
+            title="Close Friends Adder"
+            description="Automatically manage your Close Friends list."
+            checked={cfEnabled}
+            onChange={() => toggleCloseFriends()}
+            locked={closeFriendsLocked}
+            onLockedTap={() => onRequestUpgrade('close_friends')}
+          />
+          {showCfMode && (
+            <div className="pb-3">
+              <div className="inline-flex rounded-full bg-bg p-1">
+                {CF_MODES.map((m) => {
+                  const selected = cfMode === m.value
+                  return (
+                    <button
+                      key={m.value}
+                      type="button"
+                      onClick={() => setCloseFriendsMode(m.value)}
+                      className={`inline-flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium transition-colors ${
+                        selected
+                          ? 'bg-surface text-text-primary shadow-sm'
+                          : 'text-text-secondary hover:text-text-primary'
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="mt-2 text-xs text-text-secondary">
+                {cfCurrent.description}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   )
 }
 
-// Live character counter (re-reads the message from the store so the
-// count stays correct when typing — the textarea itself is uncontrolled,
-// saving only on blur).
 function WelcomeDmCounter() {
   const message = useGrowthConfig((s) => s.config.welcomeDm.message)
   return <span>{message.length}/200</span>
