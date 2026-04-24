@@ -215,229 +215,8 @@ function Sparkline({ data, gradientId }) {
   )
 }
 
-// Formats an ISO timestamp as a compact "in 2 min" / "2h ago" phrase for
-// the StatusPill popover. Past times read as "ago", future as "in X".
-function formatApproxTime(iso) {
-  if (!iso) return null
-  const diffMs = new Date(iso).getTime() - Date.now()
-  const abs = Math.abs(diffMs)
-  const min = Math.round(abs / 60000)
-  const future = diffMs > 0
-  if (min < 60) return future ? `in ${min} min` : `${min}m ago`
-  const hr = Math.round(min / 60)
-  if (hr < 24) return future ? `in ${hr}h` : `${hr}h ago`
-  const d = Math.round(hr / 24)
-  return future ? `in ${d}d` : `${d}d ago`
-}
 
-// Staggered three-dot indicator used inside the StatusPill while work is
-// running. Reads as "thinking / processing" without the loop-y feel of a
-// continuous spinner — dots crossfade with delayed phases so the motion
-// is gentle and doesn't pull the eye on every frame.
-function WorkingDots({ className = '' }) {
-  // Inline delays + Tailwind's 2s `animate-pulse` keyframe give a
-  // staggered opacity wave. `bg-current` inherits the pill's text color
-  // so the dots pick up whatever tone (green/blue/yellow) is in use.
-  const dot = 'inline-block h-1 w-1 rounded-full bg-current animate-pulse'
-  return (
-    <span className={`inline-flex items-center gap-0.5 ${className}`} aria-hidden>
-      <span className={dot} style={{ animationDelay: '0ms' }} />
-      <span className={dot} style={{ animationDelay: '200ms' }} />
-      <span className={dot} style={{ animationDelay: '400ms' }} />
-    </span>
-  )
-}
 
-// Live status pill — shows what the growth engine is doing right now.
-// Per-action messaging ("Following @fitness.inspo", "Warming up",
-// "Analyzing", etc.) keeps the dashboard feeling alive. Click reveals a
-// popover with details + a pause/resume control.
-function StatusPill({ status, onPauseToggle }) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef(null)
-
-  useEffect(() => {
-    if (!open) return
-    function handleClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
-    }
-    function handleKey(e) {
-      if (e.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    document.addEventListener('keydown', handleKey)
-    return () => {
-      document.removeEventListener('mousedown', handleClick)
-      document.removeEventListener('keydown', handleKey)
-    }
-  }, [open])
-
-  // Shared live-status hook — advances through phases in lockstep with
-  // the Targets page's LiveActivityCard. Falls through to the paused
-  // label when the local pause state is on.
-  const live = useSystemStatus()
-
-  const isPaused = status.state === 'paused'
-  const isWarming = status.state === 'warming_up'
-  const isSetup = status.state === 'setup'
-
-  // State color for the live indicator dot — green for actively running,
-  // blue for warming, yellow for setup, muted grey when paused.
-  const dotColor = isPaused
-    ? 'bg-text-muted'
-    : isWarming
-      ? 'bg-blue-base'
-      : isSetup
-        ? 'bg-yellow-base'
-        : 'bg-green-base'
-
-  // When paused, fall back to the status prop's label so the pill shows
-  // "Paused". Otherwise use the hook's live phase + rotating target.
-  // Phrasing matches the Targets page's LiveActivityCard so the two
-  // surfaces read identically when they tick in lockstep.
-  const PHASE_LABEL = {
-    analyzing: 'Currently searching for targets',
-    following: 'Currently following',
-    unfollowing: 'Currently unfollowing',
-    waiting: 'Pausing between actions',
-    warming_up: 'Warming up',
-    setup: 'Setup needed',
-    paused: 'Paused',
-  }
-  const PHASE_ICON = {
-    analyzing: Search,
-    following: UserPlus,
-    unfollowing: UserMinus,
-    warming_up: Flame,
-    setup: Settings,
-    paused: Pause,
-    waiting: null,
-  }
-  const PhaseIcon = PHASE_ICON[live.phase] ?? (isPaused ? Pause : null)
-  const phaseIconTone = isWarming
-    ? 'text-blue-base'
-    : isSetup
-      ? 'text-yellow-base'
-      : isPaused
-        ? 'text-text-muted'
-        : 'text-green-base'
-  const activeLabel = PHASE_LABEL[live.phase] || status.actionLabel
-  const activeTarget =
-    live.phase === 'following' || live.phase === 'unfollowing'
-      ? live.targetHandle
-      : null
-  const label = isPaused
-    ? status.actionLabel
-    : activeTarget
-      ? `${activeLabel} ${activeTarget}`
-      : activeLabel
-
-  const nextIn = formatApproxTime(status.nextActionAt)
-
-  return (
-    // Intrinsic-width wrapper — lets the pill hug its content on both
-    // mobile and desktop (mobile used to stretch full-width, leaving a
-    // lot of empty space on the right of a short status string). The
-    // caller decides how to align it within its row.
-    <div ref={ref} className="relative inline-block">
-      {/* Live-status indicator — ambient treatment, not a CTA button.
-          Flat bg-bg chip (reads as an inset status badge, not a raised
-          control), radar-ping dot on the left that signals "alive right
-          now", and plain body text. Still clickable (opens the details
-          popover) but without border/shadow it feels like state being
-          reported rather than an action to take. */}
-      <button
-        type="button"
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className="group inline-flex items-center rounded-md bg-bg px-3 py-1.5 text-left text-sm font-medium text-text-primary transition-colors hover:bg-border/40"
-      >
-        {/* key-bound wrapper — icon + text crossfade together on phase
-            change, matching the Targets page's LiveActivityCard. */}
-        <div
-          key={`${live.phase}|${live.targetHandle || ''}`}
-          className="flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-1 duration-300"
-        >
-          {PhaseIcon && (
-            <PhaseIcon className={`h-3.5 w-3.5 shrink-0 ${phaseIconTone}`} aria-hidden />
-          )}
-          <span className={`truncate ${isPaused ? 'text-text-secondary' : ''}`}>
-            {label}
-          </span>
-        </div>
-      </button>
-
-      {open && (
-        <div
-          role="dialog"
-          aria-label="System status"
-          className="absolute left-0 top-full z-40 mt-2 w-72 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-surface shadow-xl sm:left-auto sm:right-0"
-        >
-          <div className="px-4 pt-4 pb-3">
-            <div className="flex items-center gap-2">
-              {isPaused ? (
-                <Pause className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden />
-              ) : (
-                <WorkingDots
-                  className={
-                    isWarming
-                      ? 'text-blue-text'
-                      : isSetup
-                        ? 'text-yellow-text'
-                        : 'text-green-text'
-                  }
-                />
-              )}
-              <p className="text-sm font-semibold text-text-primary">{label}</p>
-            </div>
-            {status.hint && (
-              <p className="mt-1 text-xs leading-relaxed text-text-secondary">{status.hint}</p>
-            )}
-          </div>
-
-          {nextIn && (
-            <div className="border-t border-border px-4 py-3">
-              <dl className="flex flex-col gap-1.5 text-xs">
-                <div className="flex items-center justify-between">
-                  <dt className="text-text-muted">Next action</dt>
-                  <dd className="font-medium text-text-primary">{nextIn}</dd>
-                </div>
-              </dl>
-            </div>
-          )}
-
-          <div className="border-t border-border px-4 py-3">
-            <button
-              type="button"
-              onClick={() => {
-                onPauseToggle?.()
-                setOpen(false)
-              }}
-              className={`flex h-10 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors ${
-                isPaused
-                  ? 'bg-green-base text-white hover:opacity-90'
-                  : 'bg-bg text-text-primary hover:bg-border'
-              }`}
-            >
-              {isPaused ? (
-                <>
-                  <Play className="h-4 w-4" />
-                  Resume automation
-                </>
-              ) : (
-                <>
-                  <Pause className="h-4 w-4" />
-                  Pause automation
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
 
 // --- AccountCard live status + pause CTA (v4 replacement for StatusPill) ---
 //
@@ -810,12 +589,8 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
 
   return (
     <div className="rounded-xl border border-border bg-surface p-4 lg:p-6">
-      {/* Identity row — avatar + handle + plan pill on the left, live
-          StatusPill pinned to the right on sm:+. On mobile the StatusPill
-          drops to its own row directly beneath the identity so the
-          account + what-the-engine-is-doing stay visually paired. */}
-      <div className="flex items-center gap-3 sm:justify-between">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
+      <div className="flex items-start gap-3 sm:justify-between">
+        <div className="flex min-w-0 flex-1 items-start gap-3">
           <div className="relative shrink-0">
             {connection.profilePic ? (
               <img
@@ -834,38 +609,39 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
           </div>
 
           <div className="min-w-0 flex-1">
+            {/* Identity row: @handle + plan pill + optional Trial pill. */}
             <div className="flex items-center gap-2">
               <span className="truncate text-sm font-semibold text-text-primary lg:text-base">@{connection.username}</span>
               <span className="shrink-0 rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
                 {planLabel}
               </span>
-              {/* Trial badge — sits next to the plan pill so the user
-                  always knows their "Advanced" (or "Growth") access is
-                  coming from the trial, not a paid subscription. Blue
-                  tint = informational (not action-needed); the last-day
-                  TrialBanner above already carries any urgency. */}
               {user.isOnTrial && (
                 <span className="shrink-0 rounded-full bg-blue-tint px-2 py-0.5 text-xs font-medium text-blue-text">
                   Trial
                 </span>
               )}
             </div>
-            {connection.fullName && (
-              <p className="mt-0.5 truncate text-xs text-text-muted lg:text-sm">{connection.fullName}</p>
-            )}
+
+            {/* Live status slots directly beneath the identity row,
+                aligned with the handle (not the avatar) via the parent
+                flex gap. Full name was removed in v4 — the handle is
+                enough identity and this row carries the live signal. */}
+            <AccountLiveStatus status={systemStatus} />
           </div>
         </div>
 
-        {/* Desktop: StatusPill sits to the right of the identity row. */}
+        {/* Desktop: Pause/Resume CTA sits to the right of the identity
+            block. Replaces the old StatusPill. */}
         <div className="hidden shrink-0 sm:block">
-          <StatusPill status={systemStatus} onPauseToggle={onPauseToggle} />
+          <AccountPauseCTA status={systemStatus} onPauseToggle={onPauseToggle} />
         </div>
       </div>
 
-      {/* Mobile StatusPill — directly beneath the identity row so the
-          user's account and its live activity read as one grouped unit. */}
+      {/* Mobile Pause/Resume — stacks below the identity block as a
+          full-width button. Hidden on sm:+ where it's in the identity
+          row instead. */}
       <div className="mt-3 sm:hidden">
-        <StatusPill status={systemStatus} onPauseToggle={onPauseToggle} />
+        <AccountPauseCTA status={systemStatus} onPauseToggle={onPauseToggle} className="w-full" />
       </div>
     </div>
   )
