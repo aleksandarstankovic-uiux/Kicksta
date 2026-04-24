@@ -49,7 +49,7 @@ export default function PresetRangePills({ presets, value, onChange }) {
               key={p.key}
               type="button"
               onClick={() => handlePresetClick(p)}
-              className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 selected
                   ? 'bg-surface text-text-primary shadow-sm ring-1 ring-border'
                   : 'bg-bg text-text-secondary hover:text-text-primary'
@@ -62,7 +62,7 @@ export default function PresetRangePills({ presets, value, onChange }) {
         <button
           type="button"
           onClick={handleCustomClick}
-          className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors ${
             customOpen
               ? 'bg-surface text-text-primary shadow-sm ring-1 ring-border'
               : 'bg-bg text-text-secondary hover:text-text-primary'
