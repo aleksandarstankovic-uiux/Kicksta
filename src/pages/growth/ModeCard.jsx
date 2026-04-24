@@ -1,21 +1,33 @@
+import { Check, UserMinus, UserPlus, Zap } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
 const MODES = [
   {
     value: 'auto',
     label: 'Auto',
+    icon: Zap,
+    iconCls: 'bg-green-tint text-green-text',
+    recommended: true,
     description:
-      'Follow new users, like their posts, then unfollow after a period.',
+      'Follow new users, like their posts, then unfollow after a period. The complete growth loop — recommended for most users.',
   },
   {
     value: 'follow_only',
     label: 'Follow-only',
-    description: 'Follow new users from your targets. No unfollows.',
+    icon: UserPlus,
+    iconCls: 'bg-blue-tint text-blue-text',
+    recommended: false,
+    description:
+      'Follow new users from your targets. No unfollows. Use when you want to build a following list manually.',
   },
   {
     value: 'unfollow_only',
     label: 'Unfollow-only',
-    description: 'Clean up non-followers. No new follows.',
+    icon: UserMinus,
+    iconCls: 'bg-bg text-text-secondary',
+    recommended: false,
+    description:
+      "Clean up users who didn't follow back. No new follows. Good for trimming a bloated following count.",
   },
 ]
 
@@ -23,28 +35,57 @@ export default function ModeCard() {
   const mode = useGrowthConfig((s) => s.config.mode)
   const setMode = useGrowthConfig((s) => s.setMode)
 
-  const current = MODES.find((m) => m.value === mode) ?? MODES[0]
-
   return (
-    <section className="mt-4 rounded-xl border border-border bg-surface p-4 lg:p-5">
-      <h2 className="text-base font-semibold text-text-primary">Mode</h2>
-      <p className="mt-1 text-sm text-text-secondary">{current.description}</p>
+    <section className="mt-4">
+      <div>
+        <h2 className="text-base font-semibold text-text-primary">Mode</h2>
+        <p className="mt-1 text-sm text-text-secondary">
+          How Kicksta grows your account. You can change this any time.
+        </p>
+      </div>
 
-      <div className="mt-4 inline-flex rounded-full bg-bg p-1">
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
         {MODES.map((m) => {
           const selected = mode === m.value
+          const Icon = m.icon
           return (
             <button
               key={m.value}
               type="button"
               onClick={() => setMode(m.value)}
-              className={`inline-flex h-9 items-center justify-center rounded-full px-4 text-xs font-medium transition-colors ${
+              className={`relative flex flex-col gap-2 rounded-xl border p-4 text-left transition-all lg:p-5 ${
                 selected
-                  ? 'bg-surface text-text-primary shadow-sm'
-                  : 'text-text-secondary hover:text-text-primary'
+                  ? 'border-blue-base bg-blue-tint/40 shadow-sm'
+                  : 'border-border bg-surface hover:border-border-strong'
               }`}
             >
-              {m.label}
+              {selected && (
+                <Check
+                  className="absolute right-3 top-3 h-4 w-4 text-blue-base"
+                  aria-hidden="true"
+                />
+              )}
+
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${m.iconCls}`}
+              >
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </div>
+
+              <div className="mt-1 flex items-center gap-2">
+                <span className="text-sm font-semibold text-text-primary">
+                  {m.label}
+                </span>
+                {m.recommended && (
+                  <span className="rounded-full bg-green-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-green-text">
+                    Recommended
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs leading-relaxed text-text-secondary">
+                {m.description}
+              </p>
             </button>
           )
         })}
