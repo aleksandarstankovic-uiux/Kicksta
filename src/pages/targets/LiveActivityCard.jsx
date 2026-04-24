@@ -1,4 +1,5 @@
 import {
+  Clock,
   Flame,
   Pause,
   Search,
@@ -9,18 +10,24 @@ import {
 import { useSystemStatus } from '@/hooks/useSystemStatus'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 
-// v3.2: phase gets a matching Lucide icon that replaces the colored
-// dot for a more recognizable at-a-glance action. Right zone is just
-// the "next action" label now — the Today counter is out.
+// v4.1: every phase now has a dedicated icon (the old dot fallback for
+// `waiting` is out — it conflicted with other dot-style indicators on
+// the page). Icons pulse as a whole line during running phases.
+//
+// Icon tones are split by phase meaning rather than a blanket green:
+//  - `following`  → green (the one direct-growth action)
+//  - everything else active → blue (informational / support work)
+//  - `setup`      → yellow (action needed from the user)
+//  - `paused`     → muted
 
 const PHASE_ICON = {
   analyzing: Search,
   following: UserPlus,
   unfollowing: UserMinus,
+  waiting: Clock,
   warming_up: Flame,
   setup: Settings,
   paused: Pause,
-  waiting: null, // use colored dot fallback
 }
 
 function phraseForPhase(phase, targetHandle) {
@@ -45,15 +52,25 @@ function phraseForPhase(phase, targetHandle) {
 }
 
 function iconToneClass(phase) {
-  if (phase === 'warming_up') return 'text-blue-base'
-  if (phase === 'setup' || phase === 'paused') return 'text-text-muted'
-  return 'text-green-base'
+  if (phase === 'following') return 'text-green-base'
+  if (phase === 'setup') return 'text-yellow-base'
+  if (phase === 'paused') return 'text-text-muted'
+  return 'text-blue-base'
 }
 
 function accentStripClass(phase) {
   if (phase === 'warming_up') return 'bg-blue-base'
   if (phase === 'setup' || phase === 'paused') return 'bg-text-muted'
   return 'bg-green-base'
+}
+
+function isRunningPhase(phase) {
+  return (
+    phase === 'analyzing' ||
+    phase === 'following' ||
+    phase === 'unfollowing' ||
+    phase === 'waiting'
+  )
 }
 
 export default function LiveActivityCard({ onOpenTarget }) {
@@ -64,10 +81,11 @@ export default function LiveActivityCard({ onOpenTarget }) {
     ? targets.find((t) => t.value.toLowerCase() === targetHandle.toLowerCase())
     : null
 
-  const Icon = PHASE_ICON[phase] ?? null
+  const Icon = PHASE_ICON[phase] ?? Clock
   const iconCls = iconToneClass(phase)
   const accentClass = accentStripClass(phase)
   const phrase = phraseForPhase(phase, targetHandle)
+  const running = isRunningPhase(phase)
 
   // Split the phrase around the handle so it can be a clickable link.
   const handlePieces =
@@ -110,22 +128,11 @@ export default function LiveActivityCard({ onOpenTarget }) {
 
           <div
             key={contentKey}
-            className="mt-1 flex min-w-0 items-center gap-2 animate-in fade-in slide-in-from-bottom-1 duration-300"
+            className={`mt-1 flex min-w-0 items-center gap-2 animate-in fade-in slide-in-from-bottom-1 duration-300 ${
+              running ? 'animate-pulse' : ''
+            }`}
           >
-            {Icon ? (
-              <Icon className={`h-4 w-4 shrink-0 ${iconCls}`} aria-hidden="true" />
-            ) : (
-              <span className="relative flex h-2 w-2 shrink-0 items-center justify-center">
-                <span
-                  className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${accentClass}`}
-                  aria-hidden="true"
-                />
-                <span
-                  className={`relative inline-flex h-2 w-2 rounded-full ${accentClass}`}
-                  aria-hidden="true"
-                />
-              </span>
-            )}
+            <Icon className={`h-4 w-4 shrink-0 ${iconCls}`} aria-hidden="true" />
 
             <p className="min-w-0 truncate text-sm font-medium text-text-primary">
               {handlePieces ? (

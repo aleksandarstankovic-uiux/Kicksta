@@ -228,10 +228,14 @@ function Sparkline({ data, gradientId }) {
 // Animations:
 // - Phase change: fade-in + slide-in-from-bottom via Tailwind's
 //   animate-in utilities on a key-bound wrapper.
-// - Ambient: `animate-pulse` on the phase icon while the system is
-//   running (so motion doesn't stop between phase changes).
-// - Shimmer: a low-contrast gradient sweep across the phase text every
-//   5s during running phases only. Paused / setup states are static.
+// - Pulse: the whole status line (icon + text) pulses together during
+//   running phases via `animate-pulse`. Paused / setup states are
+//   static so "nothing is happening" reads unambiguously.
+//
+// Icon tones (v4.1): varied per phase rather than a blanket green —
+// `following` is the one positive-growth action (green); everything else
+// that's running is `blue` (informational / work-in-progress); `setup`
+// is yellow (action-needed); `paused` is muted.
 
 const ACCOUNT_PHASE_LABEL = {
   analyzing: 'Currently searching for targets',
@@ -247,22 +251,18 @@ const ACCOUNT_PHASE_ICON = {
   analyzing: Search,
   following: UserPlus,
   unfollowing: UserMinus,
+  waiting: Clock,
   warming_up: Flame,
   setup: Settings,
   paused: Pause,
-  waiting: null, // pulsing dot fallback
 }
 
 function iconToneForPhase(phase) {
-  if (phase === 'warming_up') return 'text-blue-base'
-  if (phase === 'setup' || phase === 'paused') return 'text-text-muted'
-  return 'text-green-base'
-}
-
-function dotColorForPhase(phase) {
-  if (phase === 'warming_up') return 'bg-blue-base'
-  if (phase === 'setup' || phase === 'paused') return 'bg-text-muted'
-  return 'bg-green-base'
+  if (phase === 'following') return 'text-green-base'
+  if (phase === 'setup') return 'text-yellow-base'
+  if (phase === 'paused') return 'text-text-muted'
+  // analyzing / unfollowing / waiting / warming_up — informational blue.
+  return 'text-blue-base'
 }
 
 function isRunningPhase(phase) {
@@ -285,9 +285,8 @@ function AccountLiveStatus({ status }) {
   const targetHandle =
     phase === 'following' || phase === 'unfollowing' ? live.targetHandle : null
 
-  const PhaseIcon = ACCOUNT_PHASE_ICON[phase] ?? null
+  const PhaseIcon = ACCOUNT_PHASE_ICON[phase] ?? Clock
   const iconTone = iconToneForPhase(phase)
-  const dotColor = dotColorForPhase(phase)
   const running = isRunningPhase(phase)
 
   const baseText = ACCOUNT_PHASE_LABEL[phase] || 'Idle'
@@ -295,44 +294,19 @@ function AccountLiveStatus({ status }) {
   // Key drives the fade+slide transition on every phase/target change.
   const contentKey = `${phase}|${targetHandle || ''}`
 
-  // Inline shimmer style — applied only to running phases. Safari needs
-  // the -webkit- prefix for background-clip: text.
-  const shimmerStyle = running
-    ? {
-        backgroundImage:
-          'linear-gradient(90deg, var(--color-text-secondary) 0%, var(--color-text-primary) 50%, var(--color-text-secondary) 100%)',
-        backgroundSize: '200% auto',
-        backgroundClip: 'text',
-        WebkitBackgroundClip: 'text',
-        color: 'transparent',
-        animation: 'status-shimmer 5s ease-in-out infinite',
-      }
-    : undefined
-
   return (
     <div
       key={contentKey}
-      className="mt-1 flex min-w-0 items-center gap-2 animate-in fade-in slide-in-from-bottom-1 duration-300"
+      className={`mt-1 flex min-w-0 items-center gap-2 animate-in fade-in slide-in-from-bottom-1 duration-300 ${
+        running ? 'animate-pulse' : ''
+      }`}
     >
-      {PhaseIcon ? (
-        <PhaseIcon
-          className={`h-4 w-4 shrink-0 ${iconTone} ${running ? 'animate-pulse' : ''}`}
-          aria-hidden="true"
-        />
-      ) : (
-        <span className="relative flex h-2 w-2 shrink-0 items-center justify-center">
-          <span
-            className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${dotColor}`}
-            aria-hidden="true"
-          />
-          <span
-            className={`relative inline-flex h-2 w-2 rounded-full ${dotColor}`}
-            aria-hidden="true"
-          />
-        </span>
-      )}
+      <PhaseIcon
+        className={`h-4 w-4 shrink-0 ${iconTone}`}
+        aria-hidden="true"
+      />
 
-      <p className="min-w-0 truncate text-sm text-text-secondary" style={shimmerStyle}>
+      <p className="min-w-0 truncate text-sm text-text-secondary">
         {targetHandle ? (
           <>
             {baseText}{' '}
