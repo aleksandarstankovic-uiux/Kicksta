@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useLists } from '@/stores/useLists'
 import { useToasts } from '@/stores/useToasts'
+import { searchTargets } from '@/mocks/targetSearch'
+import { formatCount } from '@/utils/formatCount'
 
 const TABS = [
   {
@@ -21,7 +23,8 @@ const TABS = [
 export default function ListsCard() {
   const [tab, setTab] = useState('whitelist')
   const [input, setInput] = useState('')
-  const [error, setError] = useState(null)
+  const [matches, setMatches] = useState([])
+  const [pickedMatch, setPickedMatch] = useState(null)
 
   const whitelist = useLists((s) => s.whitelist)
   const blacklist = useLists((s) => s.blacklist)
@@ -31,40 +34,67 @@ export default function ListsCard() {
   const currentTab = TABS.find((t) => t.key === tab)
   const entries = tab === 'whitelist' ? whitelist : blacklist
 
-  const handleAdd = () => {
-    if (!input.trim()) return
-    const result = addEntry(tab, input)
-    if (result === 'invalid') {
-      setError('Usernames use letters, numbers, dots, and underscores.')
+  const clean = input.replace(/^@/, '').trim()
+
+  useEffect(() => {
+    if (!pickedMatch) return
+    if (pickedMatch.username !== clean.toLowerCase()) {
+      setPickedMatch(null)
+    }
+  }, [clean, pickedMatch])
+
+  useEffect(() => {
+    if (!clean || clean.length < 2 || pickedMatch) {
+      setMatches([])
       return
     }
+    let alive = true
+    const id = setTimeout(async () => {
+      const results = await searchTargets(clean, 'account')
+      if (alive) setMatches(results)
+    }, 200)
+    return () => {
+      alive = false
+      clearTimeout(id)
+    }
+  }, [clean, pickedMatch])
+
+  const canSubmit = Boolean(pickedMatch)
+
+  const handlePickMatch = (m) => {
+    setInput(m.username)
+    setPickedMatch(m)
+    setMatches([])
+  }
+
+  const handleAdd = () => {
+    if (!canSubmit) return
+    const result = addEntry(tab, pickedMatch.username)
     if (result === 'duplicate') {
       useToasts.getState().addToast({
         message: 'Already in list.',
         tone: 'warning',
       })
-      setError(null)
       return
     }
     setInput('')
-    setError(null)
+    setPickedMatch(null)
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && canSubmit) {
       e.preventDefault()
       handleAdd()
     }
   }
 
   return (
-    <section className="mt-4 rounded-xl border border-border bg-surface p-4 lg:p-5">
+    <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
       <h2 className="text-base font-semibold text-text-primary">Lists</h2>
       <p className="mt-1 text-sm text-text-secondary">
         Fine-tune who Kicksta does and doesn't interact with.
       </p>
 
-      {/* Tabs */}
       <div className="mt-4 inline-flex rounded-full bg-bg p-1">
         {TABS.map((t) => {
           const selected = tab === t.key
@@ -75,7 +105,8 @@ export default function ListsCard() {
               onClick={() => {
                 setTab(t.key)
                 setInput('')
-                setError(null)
+                setMatches([])
+                setPickedMatch(null)
               }}
               className={`inline-flex h-9 items-center justify-center rounded-full px-4 text-xs font-medium transition-colors ${
                 selected
@@ -89,11 +120,9 @@ export default function ListsCard() {
         })}
       </div>
 
-      {/* Tab sub */}
       <p className="mt-2 text-xs text-text-secondary">{currentTab.sub}</p>
 
-      {/* Quick-add */}
-      <div className="mt-4 flex gap-2">
+      <div className="relative mt-4 flex gap-2">
         <div className="flex h-10 flex-1 items-center overflow-hidden rounded-lg border border-border bg-surface px-3">
           <span className="mr-1 text-text-muted">@</span>
           <input
@@ -101,7 +130,6 @@ export default function ListsCard() {
             value={input.replace(/^@/, '')}
             onChange={(e) => {
               setInput(e.target.value)
-              setError(null)
             }}
             onKeyDown={handleKeyDown}
             placeholder="username"
@@ -112,15 +140,53 @@ export default function ListsCard() {
         <button
           type="button"
           onClick={handleAdd}
-          disabled={!input.trim()}
+          disabled={!canSubmit}
           className="inline-flex h-10 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Add
         </button>
-      </div>
-      {error && <p className="mt-1.5 text-xs text-red-text">{error}</p>}
 
-      {/* Entries */}
+        {!pickedMatch && matches.length > 0 && (
+          <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-[240px] overflow-y-auto rounded-lg border border-border bg-surface shadow-md">
+            {matches.map((m) => {
+              const letter = m.username.charAt(0).toUpperCase()
+              return (
+                <button
+                  key={m.username}
+                  type="button"
+                  onClick={() => handlePickMatch(m)}
+                  className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-bg"
+                >
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-xs font-semibold text-text-secondary">
+                    {letter}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-text-primary">
+                      @{m.username}
+                    </div>
+                    <div className="truncate text-xs text-text-muted">
+                      {formatCount(m.followers)} followers
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {!pickedMatch && clean.length >= 2 && matches.length === 0 && (
+          <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-text-muted shadow-md">
+            No matches.
+          </div>
+        )}
+      </div>
+
+      {clean.length >= 2 && !pickedMatch && (
+        <p className="mt-1.5 text-xs text-text-secondary">
+          Select a result to continue.
+        </p>
+      )}
+
       <div className="mt-4 flex flex-col divide-y divide-border">
         {entries.length === 0 && (
           <p className="py-4 text-center text-sm text-text-muted">
