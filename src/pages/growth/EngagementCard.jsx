@@ -1,7 +1,9 @@
-import { Heart, MessageSquare, Star } from 'lucide-react'
+import { useState } from 'react'
+import { Heart, MessageSquare, Pencil, Star } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import SettingSwitch from '@/components/SettingSwitch'
+import WelcomeDmModal from './WelcomeDmModal'
 
 function isLocked(feature, user) {
   if (user.plan === 'advanced') return false
@@ -28,15 +30,16 @@ export default function EngagementCard({ onRequestUpgrade }) {
     config,
     toggleLikeAfterFollow,
     toggleWelcomeDm,
-    setWelcomeDmMessage,
     toggleCloseFriends,
     setCloseFriendsMode,
   } = useGrowthConfig()
 
+  const [dmModalOpen, setDmModalOpen] = useState(false)
+
   const welcomeLocked = isLocked('welcome_dm', mockUser)
   const closeFriendsLocked = isLocked('close_friends', mockUser)
 
-  const showWelcomeEditor = config.welcomeDm.enabled && !welcomeLocked
+  const showEditLink = config.welcomeDm.enabled && !welcomeLocked
   const cfEnabled = config.closeFriendsAdder.enabled
   const cfMode = config.closeFriendsAdder.mode
   const showCfMode = cfEnabled && !closeFriendsLocked
@@ -68,25 +71,16 @@ export default function EngagementCard({ onRequestUpgrade }) {
             locked={welcomeLocked}
             onLockedTap={() => onRequestUpgrade('welcome_dm')}
           />
-          {showWelcomeEditor && (
-            <div className="pb-3">
-              <label
-                htmlFor="welcome-dm-message"
-                className="text-[11px] font-medium uppercase tracking-wide text-text-muted"
+          {showEditLink && (
+            <div className="pb-3 pl-7">
+              <button
+                type="button"
+                onClick={() => setDmModalOpen(true)}
+                className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary"
               >
-                Message
-              </label>
-              <textarea
-                id="welcome-dm-message"
-                rows={4}
-                maxLength={200}
-                defaultValue={config.welcomeDm.message}
-                onBlur={(e) => setWelcomeDmMessage(e.target.value)}
-                className="mt-1.5 w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted"
-              />
-              <div className="mt-1 text-right text-xs text-text-muted">
-                <WelcomeDmCounter />
-              </div>
+                <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                Edit message
+              </button>
             </div>
           )}
         </div>
@@ -129,11 +123,8 @@ export default function EngagementCard({ onRequestUpgrade }) {
           )}
         </div>
       </div>
+
+      <WelcomeDmModal open={dmModalOpen} onClose={() => setDmModalOpen(false)} />
     </section>
   )
-}
-
-function WelcomeDmCounter() {
-  const message = useGrowthConfig((s) => s.config.welcomeDm.message)
-  return <span>{message.length}/200</span>
 }
