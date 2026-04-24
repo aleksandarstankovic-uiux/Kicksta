@@ -3,18 +3,22 @@ import SafetyStrip from './SafetyStrip'
 import ModeCard from './ModeCard'
 import EngagementCard from './EngagementCard'
 import FiltersCard from './FiltersCard'
+import FiltersDrawer from './FiltersDrawer'
 import ListsCard from './ListsCard'
+import ListsDrawer from './ListsDrawer'
 import GrowthPlusCard from './GrowthPlusCard'
 import UpgradeBottomSheet from '@/components/UpgradeBottomSheet'
 
-// Growth page v2 layout (Grid A):
-// - Safety strip + Mode cards take the full width.
-// - Engagement + Lists (narrower) stack in the left grid column; Filters
-//   (wider) fills the right column. On mobile, everything collapses to
-//   a single column.
-// - Growth+ closes the page as a full-width hero banner.
+// Growth page v3 layout (settings-dashboard):
+// - Safety strip + Mode take the full width.
+// - Engagement (left) beside Filters-summary + Lists-summary (right).
+// - Growth+ closes the page as a compact one-row banner.
+// - Filters drawer and Lists drawer open from their respective summary
+//   cards; Welcome DM editing opens a modal from EngagementCard.
 export default function GrowthPage() {
   const [upgradeFeature, setUpgradeFeature] = useState(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [listsOpen, setListsOpen] = useState(false)
 
   const openUpgrade = (feature) => setUpgradeFeature(feature)
   const closeUpgrade = () => setUpgradeFeature(null)
@@ -34,18 +38,24 @@ export default function GrowthPage() {
 
       <ModeCard />
 
-      {/* 2-col grid (lg:+) — left: narrower (Engagement + Lists); right:
-          Filters. Mobile stacks into a single column via grid-cols-1. */}
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.45fr)]">
+      {/* Equal 2-col grid on lg:+, stacks on mobile. Engagement left;
+          Filters summary + Lists summary stack on the right. */}
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+        <EngagementCard onRequestUpgrade={openUpgrade} />
         <div className="flex flex-col gap-4">
-          <EngagementCard onRequestUpgrade={openUpgrade} />
-          <ListsCard />
+          <FiltersCard onCustomize={() => setFiltersOpen(true)} />
+          <ListsCard onManage={() => setListsOpen(true)} />
         </div>
-        <FiltersCard onRequestUpgrade={openUpgrade} />
       </div>
 
       <GrowthPlusCard />
 
+      <FiltersDrawer
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onRequestUpgrade={openUpgrade}
+      />
+      <ListsDrawer open={listsOpen} onClose={() => setListsOpen(false)} />
       <UpgradeBottomSheet
         open={upgradeFeature !== null}
         onClose={closeUpgrade}
