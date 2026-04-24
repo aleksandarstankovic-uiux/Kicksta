@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-04-24 — Overview AccountCard v4
+
+### Changed
+- **Live status moved under the `@handle`** — replaces the right-side `StatusPill`. Shares phase copy + icon map with the Targeting page's `LiveActivityCard` via the same `useSystemStatus` hook. Ambient `animate-pulse` on the phase icon during running phases + low-contrast shimmer sweep across the phase text (~5s loop) so the status always feels alive
+- **Full name row removed** from the AccountCard. The `@handle` carries enough identity; AccountSwitcher handles multi-account disambiguation
+- **`Pause growth` / `Resume growth` CTA** replaces the old `StatusPill` popover. Outlined ghost when running (calm), filled green primary when paused (asserts "action needed"). Direct toggle — no confirmation modal; fires a success toast (`Growth paused.` / `Growth resumed.`)
+- **Popover killed** — info like "Next action" / "Processing batch…" no longer surfaces on Overview. The Targeting page's `LiveActivityCard` carries the richer view for anyone who wants it
+
+### Created
+- `AccountLiveStatus` + `AccountPauseCTA` — both defined inline in `src/pages/overview/index.jsx` alongside the `AccountCard` they support
+- `@keyframes status-shimmer` in `src/index.css`
+- `docs/superpowers/specs/2026-04-24-overview-account-card-redesign.md` · `docs/superpowers/plans/2026-04-24-overview-account-card-redesign.md`
+
+### Removed
+- `StatusPill` function (and its popover)
+- `WorkingDots` loader (only used by `StatusPill`)
+- `formatApproxTime` helper (only used by `StatusPill`)
+
+### Decisions
+- **Direct pause toggle, no modal.** Pause is reversible; friction is unjustified
+- **Hide CTA during `warming_up` / `setup`.** Pausing something that hasn't started is confusing — the status line copy carries the state message instead
+- **Shimmer over typewriter-style animation.** Shimmer is ambient and ignorable; typewriter would demand attention every phase change
+- **Handle in status line links to `/targets`** (not an inline drawer) — the detail drawer lives on Targeting; Overview's status line is a read-only signal
+
+---
+
 ## 2026-04-24 — Targets page v3.3 (micro-polish)
 
 ### Changed
