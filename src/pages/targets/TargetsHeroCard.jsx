@@ -10,7 +10,7 @@ export default function TargetsHeroCard({ onAddTarget }) {
   const totalCount = targets.length
 
   return (
-    <section className="mt-4 overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+    <section className="overflow-hidden rounded-b-xl border border-border bg-surface">
       <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:gap-6 lg:p-5">
         {/* Left: icon + headline (with inline slot count) + explanation */}
         <div className="flex flex-1 items-start gap-3">

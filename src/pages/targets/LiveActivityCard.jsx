@@ -85,7 +85,7 @@ export default function LiveActivityCard({ onOpenTarget }) {
   const contentKey = `${phase}|${targetHandle || ''}`
 
   return (
-    <section className="mt-6 overflow-hidden rounded-xl border border-border bg-surface">
+    <section className="mt-6 overflow-hidden rounded-t-xl border border-b-0 border-border bg-surface">
       <div className="relative flex items-center justify-between gap-3 px-4 py-3 lg:px-6 lg:py-4">
         {/* Accent strip. */}
         <span
