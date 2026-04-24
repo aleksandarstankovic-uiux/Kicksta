@@ -4,13 +4,9 @@ import ModeCard from './ModeCard'
 import EngagementCard from './EngagementCard'
 import FiltersCard from './FiltersCard'
 import ListsCard from './ListsCard'
+import GrowthPlusCard from './GrowthPlusCard'
 import UpgradeBottomSheet from '@/components/UpgradeBottomSheet'
 
-// Growth page — config surface for the Targeted Growth engine and
-// Growth+ opt-in. Every editable control auto-saves via the stores.
-//
-// The page also hosts a single shared UpgradeBottomSheet that fires
-// from every plan-gated feature. Child cards open it via a callback.
 export default function GrowthPage() {
   const [upgradeFeature, setUpgradeFeature] = useState(null)
 
@@ -34,8 +30,7 @@ export default function GrowthPage() {
       <EngagementCard onRequestUpgrade={openUpgrade} />
       <FiltersCard onRequestUpgrade={openUpgrade} />
       <ListsCard />
-
-      {/* Growth+ card wires in at Task 11. */}
+      <GrowthPlusCard />
 
       <UpgradeBottomSheet
         open={upgradeFeature !== null}
