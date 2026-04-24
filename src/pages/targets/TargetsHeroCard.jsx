@@ -24,7 +24,7 @@ export default function TargetsHeroCard({ onAddTarget }) {
                 {totalCount}/{maxSlots}
               </span>
             </h2>
-            <p className="mt-1 text-xs leading-relaxed text-text-secondary">
+            <p className="mt-1 text-sm leading-relaxed text-text-secondary">
               Accounts and hashtags Kicksta follows to grow your audience.
             </p>
           </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ExternalLink, Hash, Pause, Play, Trash2, X } from 'lucide-react'
+import { Hash, Pause, Play, Trash2, X } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { formatCount } from '@/utils/formatCount'
 import HealthPill from './HealthPill'
@@ -56,10 +56,6 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
     target.followedCount > 0
       ? Math.round((target.followBackCount / target.followedCount) * 100)
       : null
-
-  const instagramUrl = isHashtag
-    ? `https://www.instagram.com/explore/tags/${handleStart}`
-    : `https://instagram.com/${handleStart}`
 
   const handlePauseResume = () => {
     if (target.status === 'active') pauseTarget(target.id)
@@ -178,17 +174,7 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
           )}
         </div>
 
-        <div className="mt-4 px-5 pb-5">
-          <a
-            href={instagramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary"
-          >
-            Open on Instagram
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-          </a>
-        </div>
+        <div className="pb-5" />
       </div>
     </div>
   )

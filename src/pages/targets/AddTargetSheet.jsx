@@ -129,7 +129,6 @@ export default function AddTargetSheet({ open, onClose }) {
   }
 
   const suggestions = type === 'account' ? mockSuggestedTargets : mockSuggestedHashtags
-  const suggestionsHidden = matches.length > 0
 
   // Derived helper message. Duplicate > invalid > select-prompt > null.
   let helper = null
@@ -242,6 +241,22 @@ export default function AddTargetSheet({ open, onClose }) {
                   placeholder={type === 'account' ? 'username' : 'hashtag'}
                   autoComplete="off"
                 />
+                {/* Clear-X — only rendered while there's content to clear. */}
+                {input && (
+                  <button
+                    type="button"
+                    aria-label="Clear input"
+                    onClick={() => {
+                      setInput('')
+                      setMatches([])
+                      setPickedMatch(null)
+                      inputRef.current?.focus()
+                    }}
+                    className="ml-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-bg hover:text-text-primary"
+                  >
+                    <X className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                )}
               </div>
 
               {/* Typeahead dropdown */}
@@ -306,34 +321,33 @@ export default function AddTargetSheet({ open, onClose }) {
               </div>
             )}
 
-            {/* Suggestions — hidden while typeahead is showing results. */}
-            {!suggestionsHidden && (
-              <div className="mt-5">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
-                  Suggestions
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {suggestions.map((s) => {
-                    const isHashtag = type === 'hashtag'
-                    const label = isHashtag ? `#${s.hashtag}` : `@${s.username}`
-                    const letter = (isHashtag ? s.hashtag : s.username).charAt(0).toUpperCase()
-                    return (
-                      <button
-                        key={label}
-                        type="button"
-                        onClick={() => handlePickSuggestion(s)}
-                        className="inline-flex items-center gap-2 rounded-full border border-border bg-surface py-1 pl-1 pr-3 text-xs text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
-                      >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-[11px] font-semibold text-text-secondary">
-                          {isHashtag ? <Hash className="h-3.5 w-3.5" aria-hidden="true" /> : letter}
-                        </span>
-                        <span className="truncate">{label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
+            {/* Suggestions — always visible so the user keeps a browse
+                surface even while typeahead is showing results. */}
+            <div className="mt-5">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
+                Suggestions
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {suggestions.map((s) => {
+                  const isHashtag = type === 'hashtag'
+                  const label = isHashtag ? `#${s.hashtag}` : `@${s.username}`
+                  const letter = (isHashtag ? s.hashtag : s.username).charAt(0).toUpperCase()
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => handlePickSuggestion(s)}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-surface py-1 pl-1 pr-3 text-xs text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
+                    >
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-[11px] font-semibold text-text-secondary">
+                        {isHashtag ? <Hash className="h-3.5 w-3.5" aria-hidden="true" /> : letter}
+                      </span>
+                      <span className="truncate">{label}</span>
+                    </button>
+                  )
+                })}
               </div>
-            )}
+            </div>
           </div>
         </div>
 
