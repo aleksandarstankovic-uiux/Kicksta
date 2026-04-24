@@ -50,6 +50,7 @@ import {
   mockSystemStatusPaused,
 } from '@/mocks/systemStatus'
 import { useSystemStatus } from '@/hooks/useSystemStatus'
+import { useToasts } from '@/stores/useToasts'
 
 // --- Helpers ---
 
@@ -435,6 +436,180 @@ function StatusPill({ status, onPauseToggle }) {
         </div>
       )}
     </div>
+  )
+}
+
+// --- AccountCard live status + pause CTA (v4 replacement for StatusPill) ---
+//
+// AccountLiveStatus renders the live activity line under the @handle:
+// phase icon + human-readable phrase. Matches the Targeting page's
+// LiveActivityCard so both surfaces stay in lockstep through the shared
+// useSystemStatus hook.
+//
+// Animations:
+// - Phase change: fade-in + slide-in-from-bottom via Tailwind's
+//   animate-in utilities on a key-bound wrapper.
+// - Ambient: `animate-pulse` on the phase icon while the system is
+//   running (so motion doesn't stop between phase changes).
+// - Shimmer: a low-contrast gradient sweep across the phase text every
+//   5s during running phases only. Paused / setup states are static.
+
+const ACCOUNT_PHASE_LABEL = {
+  analyzing: 'Currently searching for targets',
+  following: 'Currently following',
+  unfollowing: 'Currently unfollowing',
+  waiting: 'Pausing between actions',
+  warming_up: 'Warming up — growth starts within 72 hours',
+  setup: 'Setup needed — add your first target to start',
+  paused: 'Paused',
+}
+
+const ACCOUNT_PHASE_ICON = {
+  analyzing: Search,
+  following: UserPlus,
+  unfollowing: UserMinus,
+  warming_up: Flame,
+  setup: Settings,
+  paused: Pause,
+  waiting: null, // pulsing dot fallback
+}
+
+function iconToneForPhase(phase) {
+  if (phase === 'warming_up') return 'text-blue-base'
+  if (phase === 'setup' || phase === 'paused') return 'text-text-muted'
+  return 'text-green-base'
+}
+
+function dotColorForPhase(phase) {
+  if (phase === 'warming_up') return 'bg-blue-base'
+  if (phase === 'setup' || phase === 'paused') return 'bg-text-muted'
+  return 'bg-green-base'
+}
+
+function isRunningPhase(phase) {
+  return (
+    phase === 'analyzing' ||
+    phase === 'following' ||
+    phase === 'unfollowing' ||
+    phase === 'waiting'
+  )
+}
+
+function AccountLiveStatus({ status }) {
+  const live = useSystemStatus()
+  const isPaused = status.state === 'paused'
+
+  // When the parent paused state is on, the hook still ticks phases
+  // under the hood but the UI should present the stopped state. Force
+  // phase to 'paused' when the parent says we're paused.
+  const phase = isPaused ? 'paused' : live.phase
+  const targetHandle =
+    phase === 'following' || phase === 'unfollowing' ? live.targetHandle : null
+
+  const PhaseIcon = ACCOUNT_PHASE_ICON[phase] ?? null
+  const iconTone = iconToneForPhase(phase)
+  const dotColor = dotColorForPhase(phase)
+  const running = isRunningPhase(phase)
+
+  const baseText = ACCOUNT_PHASE_LABEL[phase] || 'Idle'
+
+  // Key drives the fade+slide transition on every phase/target change.
+  const contentKey = `${phase}|${targetHandle || ''}`
+
+  // Inline shimmer style — applied only to running phases. Safari needs
+  // the -webkit- prefix for background-clip: text.
+  const shimmerStyle = running
+    ? {
+        backgroundImage:
+          'linear-gradient(90deg, var(--color-text-secondary) 0%, var(--color-text-primary) 50%, var(--color-text-secondary) 100%)',
+        backgroundSize: '200% auto',
+        backgroundClip: 'text',
+        WebkitBackgroundClip: 'text',
+        color: 'transparent',
+        animation: 'status-shimmer 5s ease-in-out infinite',
+      }
+    : undefined
+
+  return (
+    <div
+      key={contentKey}
+      className="mt-1 flex min-w-0 items-center gap-2 animate-in fade-in slide-in-from-bottom-1 duration-300"
+    >
+      {PhaseIcon ? (
+        <PhaseIcon
+          className={`h-4 w-4 shrink-0 ${iconTone} ${running ? 'animate-pulse' : ''}`}
+          aria-hidden="true"
+        />
+      ) : (
+        <span className="relative flex h-2 w-2 shrink-0 items-center justify-center">
+          <span
+            className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${dotColor}`}
+            aria-hidden="true"
+          />
+          <span
+            className={`relative inline-flex h-2 w-2 rounded-full ${dotColor}`}
+            aria-hidden="true"
+          />
+        </span>
+      )}
+
+      <p className="min-w-0 truncate text-sm text-text-secondary" style={shimmerStyle}>
+        {targetHandle ? (
+          <>
+            {baseText}{' '}
+            <Link
+              to="/targets"
+              className="font-medium text-text-primary hover:underline"
+            >
+              {targetHandle}
+            </Link>
+          </>
+        ) : (
+          baseText
+        )}
+      </p>
+    </div>
+  )
+}
+
+// AccountPauseCTA — outlined ghost when running, filled-green primary
+// when paused. Hidden entirely for warming_up / setup states.
+function AccountPauseCTA({ status, onPauseToggle, className = '' }) {
+  const isPaused = status.state === 'paused'
+  const isHidden = status.state === 'warming_up' || status.state === 'setup'
+
+  if (isHidden) return null
+
+  const handleClick = () => {
+    onPauseToggle?.()
+    useToasts.getState().addToast({
+      message: isPaused ? 'Growth resumed.' : 'Growth paused.',
+      tone: 'success',
+    })
+  }
+
+  if (isPaused) {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-green-base px-4 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90 ${className}`}
+      >
+        <Play className="h-4 w-4" aria-hidden="true" />
+        Resume growth
+      </button>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 text-sm font-medium text-text-primary transition-colors hover:bg-bg ${className}`}
+    >
+      <Pause className="h-4 w-4" aria-hidden="true" />
+      Pause growth
+    </button>
   )
 }
 
