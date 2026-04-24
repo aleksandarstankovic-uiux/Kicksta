@@ -3,18 +3,20 @@ import SafetyStrip from './SafetyStrip'
 import ModeCard from './ModeCard'
 import EngagementCard from './EngagementCard'
 import FiltersCard from './FiltersCard'
-import FiltersDrawer from './FiltersDrawer'
+import FiltersModal from './FiltersModal'
 import ListsCard from './ListsCard'
-import ListsDrawer from './ListsDrawer'
+import ListsModal from './ListsModal'
 import GrowthPlusCard from './GrowthPlusCard'
 import UpgradeBottomSheet from '@/components/UpgradeBottomSheet'
 
-// Growth page v3 layout (settings-dashboard):
+// Growth page v4 layout:
 // - Safety strip + Mode take the full width.
-// - Engagement (left) beside Filters-summary + Lists-summary (right).
+// - Engagement (left) beside Filters + Lists read-only cards (right).
+//   Filters + Lists are tall because they show all current state.
 // - Growth+ closes the page as a compact one-row banner.
-// - Filters drawer and Lists drawer open from their respective summary
-//   cards; Welcome DM editing opens a modal from EngagementCard.
+// - Filters modal + Lists modal open from each card's Edit button and
+//   handle the actual editing with a local draft + Save/Cancel.
+// - Welcome DM editing opens a modal from EngagementCard.
 export default function GrowthPage() {
   const [upgradeFeature, setUpgradeFeature] = useState(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -39,23 +41,23 @@ export default function GrowthPage() {
       <ModeCard />
 
       {/* Equal 2-col grid on lg:+, stacks on mobile. Engagement left;
-          Filters summary + Lists summary stack on the right. */}
+          Filters + Lists (visible state) stack on the right. */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         <EngagementCard onRequestUpgrade={openUpgrade} />
         <div className="flex flex-col gap-4">
-          <FiltersCard onCustomize={() => setFiltersOpen(true)} />
-          <ListsCard onManage={() => setListsOpen(true)} />
+          <FiltersCard onEdit={() => setFiltersOpen(true)} />
+          <ListsCard onEdit={() => setListsOpen(true)} />
         </div>
       </div>
 
       <GrowthPlusCard />
 
-      <FiltersDrawer
+      <FiltersModal
         open={filtersOpen}
         onClose={() => setFiltersOpen(false)}
         onRequestUpgrade={openUpgrade}
       />
-      <ListsDrawer open={listsOpen} onClose={() => setListsOpen(false)} />
+      <ListsModal open={listsOpen} onClose={() => setListsOpen(false)} />
       <UpgradeBottomSheet
         open={upgradeFeature !== null}
         onClose={closeUpgrade}
