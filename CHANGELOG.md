@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-04-24 — Growth page
+
+### Created
+- **`/growth` page** — Safety strip, Mode, Engagement, Filters, Lists, Growth+ — in that order, all cards using the same radius/border rhythm as other pages
+- **Shared `SettingSwitch` primitive** (`src/components/SettingSwitch.jsx`) — title + description + switch row, with `locked` prop for plan-gated features (renders subdued + `Advanced` pill + opens the upgrade sheet on tap)
+- **Shared `UpgradeBottomSheet`** (`src/components/UpgradeBottomSheet.jsx`) — per-feature headline + benefit + unlocks list + primary `Upgrade to Advanced` CTA routing to `/signup/plan-selection`. Called from plan-gated rows (Welcome DM, Close Friends Adder, Gender filter)
+- **`useGrowthConfig`** (`src/stores/useGrowthConfig.js`) — config state seeded from `mockGrowthConfig`; every setter fires a debounced "Settings saved." toast (1.5s)
+- **`useLists`** (`src/stores/useLists.js`) — whitelist/blacklist with `addEntry` (returns `ok`/`duplicate`/`invalid`) and `removeEntry`
+- **`PresetRangePills`** — preset-or-custom pill group used for the three numeric range filters
+- `docs/superpowers/specs/2026-04-24-growth-page-design.md` · `docs/superpowers/plans/2026-04-24-growth-page.md`
+
+### Decisions
+- **Auto-save with debounced toast (1.5s).** Matches the rest of the dashboard's "things happen in real time" tone. No save button
+- **All filters visible at once.** Honest about the configurable surface. Fallback option noted — drop to a collapsed "Advanced filters" expand if density ever feels heavy
+- **Whitelist + Blacklist live in one card with internal tabs.** They're "exceptions to the default behavior" — one concept, two sides
+- **Welcome DM textarea is uncontrolled + saves on blur.** Keeps the toast system calm; store updates only when the user leaves the field
+- **Growth+ has its own card with `bg-bg`** so it reads as a distinct product, per PRODUCT.md Problem 1 (never merge Growth+ with Targeted Growth)
+- **Plan-gating: subdued row + `Advanced` pill → shared `UpgradeBottomSheet`.** Reuses one sheet for Welcome DM, Close Friends, Gender filter, and (future) at-cap target slots — contextual content per `feature` prop
+
+---
+
 ## 2026-04-24 — Overview AccountCard v4
 
 ### Changed
