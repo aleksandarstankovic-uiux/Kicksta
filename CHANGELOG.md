@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-04-24 — Growth page v2 (rework)
+
+### Changed
+- **2-column desktop grid.** Mode full-width → Engagement + Lists (narrower left column) beside Filters (wider right column) → Growth+ banner full-width closer. Mobile stacks. Page feels dense and scannable instead of mostly empty
+- **Mode card → 3 elevated option cards.** `Zap` / `UserPlus` / `UserMinus` icons, longer descriptions, `Recommended` pill on Auto, `Check` indicator on the selected card. Primary decision on the page now gets the visual weight it deserves
+- **Engagement card — Close Friends add/remove mode.** Toggling Close Friends Adder on reveals a segmented `Add new followers · Remove unfollowers` sub-control with a description that updates per mode
+- **Filters card — compact inline rows.** Each filter is one line (label left, control right); `Info` tooltips on desktop carry the explainers. `Exclude NSFW` switch inlined alongside the others
+- **Lists card — typeahead must-pick.** Typing 2+ chars shows matches from the shared `searchTargets` fixture pool; `Add` disabled until a match is picked, matching the Targeting page's behavior (IG handles must map to real accounts)
+- **Growth+ hero banner.** Purple-tint full-width closer with `Sparkles` icon, headline, body copy, 3 benefit bullets (`Check` icons), and a purple `Add Growth+ →` CTA. Subscriber variant stays compact with `Active/Paused` pill + switch + manage link
+
+### Data / store changes
+- `mockGrowthConfig.closeFriendsAdder`: `false` → `{ enabled: false, mode: 'add' }`
+- `useGrowthConfig.toggleCloseFriends` now flips `.enabled` on the nested shape
+- **New** `useGrowthConfig.setCloseFriendsMode(mode)` — `'add'` or `'remove'`
+
+### Files rewritten
+- `src/pages/growth/ModeCard.jsx` · `EngagementCard.jsx` · `FiltersCard.jsx` · `ListsCard.jsx` · `GrowthPlusCard.jsx` · `index.jsx`
+- `src/pages/growth/PresetRangePills.jsx` (pill padding tightened for inline rows)
+- `src/stores/useGrowthConfig.js` · `src/mocks/growthConfig.js`
+
+### Decisions
+- **Grid A over symmetric 2-col.** Mode deserves full width; Engagement + Lists are naturally narrow; Filters needs breathing room; Growth+ is a hero
+- **Elevated selection cards for Mode** (not segmented pills). Mode is the page's primary decision — bigger options with icon + description land the stakes; `Recommended` pill reduces analysis paralysis for new users
+- **Close Friends "pick one mode"** instead of two independent sub-toggles. Matches user intent ("a mode for either X or Y"); one knob is simpler
+- **Tooltips on filters** instead of always-visible descriptions. Labels are self-explanatory; descriptions would fight the denser layout. Tooltips are a desktop-only nicety; mobile drops them entirely without losing usability
+- **Must-pick typeahead on Lists.** Same rationale as Targeting — handles must map to real IG accounts for the engine to do anything meaningful with them
+- **Growth+ stays banner-shaped** (not card-shaped). Matches the Overview's Growth+ banner visual vocabulary; on the Growth page it gets hero-sized with a benefit list because this is where users are already considering Growth+-adjacent configuration
+
+---
+
 ## 2026-04-24 — Growth page
 
 ### Created
