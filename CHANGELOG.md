@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-04-24 — Growth page v4 (visible state + edit modals)
+
+### Changed
+- **Filters card** becomes a read-only display of every setting (6 rows — Following count · Follower count · Media count · Account privacy · Gender target · Exclude NSFW), each with its current value on the right. Top-right `Edit` button opens a modal
+- **Lists card** displays both Whitelist and Blacklist with all entries visible on the page. Top-right `Edit` button opens a modal
+- **FiltersModal + ListsModal** now use **local draft state** with explicit **Cancel / Save** footers. Edits don't commit until Save is clicked; Cancel / overlay-tap / Escape discards. One debounced "Settings saved." toast fires on Save
+- **Grid stays** `lg:grid-cols-2 lg:items-start` — right column (Filters + Lists) gets taller but column heights don't stretch each other
+
+### Created
+- `src/pages/growth/FiltersModal.jsx` (replaces `FiltersDrawer.jsx`)
+- `src/pages/growth/ListsModal.jsx` (replaces `ListsDrawer.jsx`)
+
+### Removed
+- `src/pages/growth/FiltersDrawer.jsx`
+- `src/pages/growth/ListsDrawer.jsx`
+- `src/pages/growth/filterSummary.js` (unused after v4)
+
+### Store changes
+- `useLists.replaceLists(whitelist, blacklist)` — new bulk action for the ListsModal Save flow
+
+### Decisions
+- **Visible state > compact summary.** v3 hid all filter values behind a one-line summary; v4 restores scannability by showing every value
+- **Explicit Save/Cancel over auto-save inside the modal.** Matches the "inspect-then-edit" mental model users expect for complex forms; auto-save stays for Mode + Engagement which are direct, single-knob changes
+- **No unsaved-changes warning on Cancel.** Reversible data, low risk; the toast system makes save-state obvious. Can add a confirmation later if user behavior shows pain
+
+---
+
 ## 2026-04-24 — Growth page v3 (settings-dashboard rework)
 
 ### Changed
