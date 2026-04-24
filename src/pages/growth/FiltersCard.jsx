@@ -1,28 +1,84 @@
-import { SlidersHorizontal } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
-import { summarizeFilters } from './filterSummary'
+import { mockUser } from '@/mocks/user'
+import { formatCount } from '@/utils/formatCount'
 
-// v3: Filters is now a single summary row with a Customize button.
-// The full dial UI lives in FiltersDrawer (opened from the page shell).
-export default function FiltersCard({ onCustomize }) {
+function rangeFor(min, max, noun) {
+  if ((min === 0 || min == null) && max == null) return 'Any'
+  if (min === 0 || min == null) return `Up to ${formatCount(max)} ${noun}`
+  if (max == null) return `${formatCount(min)}+ ${noun}`
+  return `${formatCount(min)}–${formatCount(max)} ${noun}`
+}
+
+function privacyLabel(value) {
+  if (value === 'public') return 'Public only'
+  if (value === 'private') return 'Private only'
+  return 'All'
+}
+
+function genderLabel(value) {
+  if (value === 'male') return 'Male only'
+  if (value === 'female') return 'Female only'
+  return 'All'
+}
+
+function Row({ label, value, locked = false }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-2.5">
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-text-secondary">{label}</span>
+        {locked && (
+          <span className="rounded-full bg-blue-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-text">
+            Advanced
+          </span>
+        )}
+      </div>
+      <span className="text-sm font-medium text-text-primary">{value}</span>
+    </div>
+  )
+}
+
+export default function FiltersCard({ onEdit }) {
   const filters = useGrowthConfig((s) => s.config.filters)
-  const summary = summarizeFilters(filters)
+  const genderLocked = mockUser.plan !== 'advanced'
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
-      <h2 className="text-base font-semibold text-text-primary">Filters</h2>
-      <p className="mt-1 text-sm text-text-secondary">Who Kicksta targets.</p>
-
-      <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
-        <p className="min-w-0 truncate text-sm text-text-primary">{summary}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="text-base font-semibold text-text-primary">Filters</h2>
+          <p className="mt-1 text-sm text-text-secondary">Who Kicksta targets.</p>
+        </div>
         <button
           type="button"
-          onClick={onCustomize}
+          onClick={onEdit}
           className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 text-sm font-medium text-text-primary transition-colors hover:bg-bg"
         >
-          <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-          Customize
+          <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+          Edit
         </button>
+      </div>
+
+      <div className="mt-4 flex flex-col divide-y divide-border">
+        <Row
+          label="Following count"
+          value={rangeFor(filters.followingMin, filters.followingMax, 'following')}
+        />
+        <Row
+          label="Follower count"
+          value={rangeFor(filters.followerMin, filters.followerMax, 'followers')}
+        />
+        <Row
+          label="Media count"
+          value={rangeFor(filters.mediaMin, filters.mediaMax, 'posts')}
+        />
+        <Row label="Account privacy" value={privacyLabel(filters.accountPrivacy)} />
+        <Row
+          label="Gender target"
+          value={genderLabel(filters.genderTarget)}
+          locked={genderLocked}
+        />
+        <Row label="Exclude NSFW" value={filters.excludeNsfw ? 'On' : 'Off'} />
       </div>
     </section>
   )
