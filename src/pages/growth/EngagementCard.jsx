@@ -1,0 +1,95 @@
+import { Heart, MessageSquare, Star } from 'lucide-react'
+import { useGrowthConfig } from '@/stores/useGrowthConfig'
+import { mockUser } from '@/mocks/user'
+import SettingSwitch from '@/components/SettingSwitch'
+
+// Plan-gating helper — kept local until a second consumer shows up.
+function isLocked(feature, user) {
+  if (user.plan === 'advanced') return false
+  return feature === 'welcome_dm' || feature === 'close_friends'
+}
+
+export default function EngagementCard({ onRequestUpgrade }) {
+  const {
+    config,
+    toggleLikeAfterFollow,
+    toggleWelcomeDm,
+    setWelcomeDmMessage,
+    toggleCloseFriends,
+  } = useGrowthConfig()
+
+  const welcomeLocked = isLocked('welcome_dm', mockUser)
+  const closeFriendsLocked = isLocked('close_friends', mockUser)
+
+  const showWelcomeEditor = config.welcomeDm.enabled && !welcomeLocked
+
+  return (
+    <section className="mt-4 rounded-xl border border-border bg-surface p-4 lg:p-5">
+      <h2 className="text-base font-semibold text-text-primary">Engagement</h2>
+      <p className="mt-1 text-sm text-text-secondary">
+        How Kicksta interacts with new followers.
+      </p>
+
+      <div className="mt-2 flex flex-col divide-y divide-border">
+        <SettingSwitch
+          icon={Heart}
+          title="Like after follow"
+          description="Like a few of their recent posts after following — boosts the follow-back rate."
+          checked={config.likeAfterFollow}
+          onChange={() => toggleLikeAfterFollow()}
+        />
+
+        <div>
+          <SettingSwitch
+            icon={MessageSquare}
+            title="Welcome DM"
+            description="Auto-DM new followers once they follow back."
+            checked={config.welcomeDm.enabled}
+            onChange={() => toggleWelcomeDm()}
+            locked={welcomeLocked}
+            onLockedTap={() => onRequestUpgrade('welcome_dm')}
+          />
+          {showWelcomeEditor && (
+            <div className="pb-3">
+              <label
+                htmlFor="welcome-dm-message"
+                className="text-[11px] font-medium uppercase tracking-wide text-text-muted"
+              >
+                Message
+              </label>
+              <textarea
+                id="welcome-dm-message"
+                rows={4}
+                maxLength={200}
+                defaultValue={config.welcomeDm.message}
+                onBlur={(e) => setWelcomeDmMessage(e.target.value)}
+                className="mt-1.5 w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary outline-none placeholder:text-text-muted"
+              />
+              <div className="mt-1 text-right text-xs text-text-muted">
+                <WelcomeDmCounter />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <SettingSwitch
+          icon={Star}
+          title="Close Friends Adder"
+          description="Add new followers to your Close Friends list for exclusive content."
+          checked={config.closeFriendsAdder}
+          onChange={() => toggleCloseFriends()}
+          locked={closeFriendsLocked}
+          onLockedTap={() => onRequestUpgrade('close_friends')}
+        />
+      </div>
+    </section>
+  )
+}
+
+// Live character counter (re-reads the message from the store so the
+// count stays correct when typing — the textarea itself is uncontrolled,
+// saving only on blur).
+function WelcomeDmCounter() {
+  const message = useGrowthConfig((s) => s.config.welcomeDm.message)
+  return <span>{message.length}/200</span>
+}
