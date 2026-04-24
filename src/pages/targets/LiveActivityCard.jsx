@@ -93,11 +93,20 @@ export default function LiveActivityCard({ onOpenTarget }) {
           aria-hidden="true"
         />
 
-        {/* Left: eyebrow + animated icon/phrase. */}
+        {/* Left: eyebrow row (with inline next-in label on mobile) + animated phrase. */}
         <div className="min-w-0 flex-1 pl-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-            System activity
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+              System activity
+            </p>
+            {/* Mobile-only: "next in" as a compact inline label right
+                next to the eyebrow so it's visible up top. */}
+            {nextActionLabel && (
+              <span className="rounded-full bg-bg px-1.5 py-0.5 text-[10px] text-text-muted lg:hidden">
+                {nextActionLabel}
+              </span>
+            )}
+          </div>
 
           <div
             key={contentKey}
@@ -138,20 +147,13 @@ export default function LiveActivityCard({ onOpenTarget }) {
           </div>
         </div>
 
-        {/* Right: next action label, centered vertically with the card. */}
+        {/* Right: next action chip on desktop only (mobile shows it inline up top). */}
         {nextActionLabel && (
           <span className="hidden shrink-0 rounded-full bg-bg px-2 py-1 text-xs text-text-muted lg:inline">
             {nextActionLabel}
           </span>
         )}
       </div>
-
-      {/* Mobile secondary line — only the next action label (or nothing). */}
-      {nextActionLabel && (
-        <div className="border-t border-border px-4 py-2 text-xs text-text-muted lg:hidden">
-          {nextActionLabel}
-        </div>
-      )}
     </section>
   )
 }

@@ -317,7 +317,7 @@ function AccountSwitcher({ collapsed }) {
 
 const tabs = [
   { to: '/', icon: BarChart3, label: 'Overview' },
-  { to: '/targets', icon: Target, label: 'Targets' },
+  { to: '/targets', icon: Target, label: 'Targeting' },
   { to: '/growth', icon: TrendingUp, label: 'Growth' },
 ]
 
