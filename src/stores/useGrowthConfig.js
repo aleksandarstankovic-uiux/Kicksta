@@ -53,7 +53,23 @@ export const useGrowthConfig = create((set, get) => ({
 
   toggleCloseFriends: () => {
     set((state) => ({
-      config: { ...state.config, closeFriendsAdder: !state.config.closeFriendsAdder },
+      config: {
+        ...state.config,
+        closeFriendsAdder: {
+          ...state.config.closeFriendsAdder,
+          enabled: !state.config.closeFriendsAdder.enabled,
+        },
+      },
+    }))
+    announceSaved()
+  },
+
+  setCloseFriendsMode: (mode) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        closeFriendsAdder: { ...state.config.closeFriendsAdder, mode },
+      },
     }))
     announceSaved()
   },

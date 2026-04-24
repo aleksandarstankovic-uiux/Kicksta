@@ -5,7 +5,10 @@ export const mockGrowthConfig = {
     enabled: false,
     message: 'Hey! Thanks for the follow \ud83d\ude4c Check out our latest drop \u2192 link in bio',
   },
-  closeFriendsAdder: false,
+  closeFriendsAdder: {
+    enabled: false,
+    mode: 'add',
+  },
   growthPlusActive: false,
   filters: {
     followingMin: 100,
