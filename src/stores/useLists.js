@@ -53,4 +53,11 @@ export const useLists = create((set, get) => ({
     }))
     announceSaved()
   },
+
+  // Bulk replace for the ListsModal Save action — writes both lists
+  // atomically and fires one debounced toast.
+  replaceLists: (whitelist, blacklist) => {
+    set({ whitelist, blacklist })
+    announceSaved()
+  },
 }))
