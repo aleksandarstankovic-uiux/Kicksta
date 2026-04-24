@@ -5,6 +5,35 @@
 
 ---
 
+## 2026-04-24 — Growth page v3 (settings-dashboard rework)
+
+### Changed
+- **Filters becomes a summary card + drawer.** In-page view is a single sentence (e.g. `200–50K followers · NSFW excluded`) with a `Customize` button. Full 6-dial UI moves to a focused drawer. Page height stops changing when Custom ranges open
+- **Lists becomes a summary card + drawer.** In-page view shows `Whitelist (N) · Blacklist (M)` with a `Manage` button. Tabs + typeahead + entries all live in the drawer
+- **Welcome DM textarea moves to a modal.** Engagement card shows an `Edit message` link when enabled; clicking opens a small modal with the textarea, Cancel/Save. Engagement card is now fixed-height for Welcome DM
+- **Growth+ compacts to a one-row banner.** Icon + eyebrow + headline + sub copy + `Add Growth+ →` CTA all on one line at `lg:+`. Stacks on mobile. No empty right-column space
+- **Grid rebalances** to symmetric `lg:grid-cols-2`: Engagement left, Filters summary + Lists summary stacked right. Equal visual weight
+- **Close Friends segmented sub-control** stays inline — small enough (~60px) to keep visible when toggled on
+
+### Created
+- `src/pages/growth/FiltersDrawer.jsx`
+- `src/pages/growth/ListsDrawer.jsx`
+- `src/pages/growth/WelcomeDmModal.jsx`
+- `src/pages/growth/filterSummary.js` — `summarizeFilters(filters)` helper
+
+### Rewritten
+- `src/pages/growth/FiltersCard.jsx` · `ListsCard.jsx` · `GrowthPlusCard.jsx` · `EngagementCard.jsx` · `index.jsx`
+
+### Unchanged
+- `ModeCard.jsx` · `SafetyStrip.jsx` · `PresetRangePills.jsx` · `SettingSwitch.jsx` · `UpgradeBottomSheet.jsx` · all stores and mocks
+
+### Decisions
+- **Settings dashboard over form.** Growth config is changed rarely; the page should feel configured, not in-flight. Direct controls for Mode + Engagement (the frequent knobs); summary + drawer for Filters + Lists (the rarer, denser knobs)
+- **Fixed-height default, by design.** The only remaining variable-height interaction is Close Friends' segmented sub-control (~60px, one state, acceptable)
+- **Growth+ banner borrows the Overview banner's proportions.** Same visual vocabulary across the dashboard; no duplicate hero treatment
+
+---
+
 ## 2026-04-24 — Growth page v2 (rework)
 
 ### Changed
