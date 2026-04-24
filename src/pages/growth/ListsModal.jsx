@@ -20,33 +20,41 @@ const TABS = [
   },
 ]
 
-export default function ListsDrawer({ open, onClose }) {
+const newId = (prefix) => `${prefix}_${Math.random().toString(36).slice(2, 8)}`
+
+export default function ListsModal({ open, onClose }) {
   const [mounted, setMounted] = useState(false)
   const [tab, setTab] = useState('whitelist')
   const [input, setInput] = useState('')
   const [matches, setMatches] = useState([])
   const [pickedMatch, setPickedMatch] = useState(null)
 
-  const whitelist = useLists((s) => s.whitelist)
-  const blacklist = useLists((s) => s.blacklist)
-  const addEntry = useLists((s) => s.addEntry)
-  const removeEntry = useLists((s) => s.removeEntry)
+  const storedWhitelist = useLists((s) => s.whitelist)
+  const storedBlacklist = useLists((s) => s.blacklist)
+  const replaceLists = useLists((s) => s.replaceLists)
+
+  const [draftWhitelist, setDraftWhitelist] = useState(storedWhitelist)
+  const [draftBlacklist, setDraftBlacklist] = useState(storedBlacklist)
 
   const currentTab = TABS.find((t) => t.key === tab)
-  const entries = tab === 'whitelist' ? whitelist : blacklist
+  const draftEntries = tab === 'whitelist' ? draftWhitelist : draftBlacklist
+  const setDraftEntries = tab === 'whitelist' ? setDraftWhitelist : setDraftBlacklist
 
   const clean = input.replace(/^@/, '').trim()
 
   useEffect(() => {
     if (!open) return
     setMounted(false)
+    setTab('whitelist')
     setInput('')
     setMatches([])
     setPickedMatch(null)
+    setDraftWhitelist(storedWhitelist)
+    setDraftBlacklist(storedBlacklist)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setMounted(true))
     })
-  }, [open])
+  }, [open, storedWhitelist, storedBlacklist])
 
   useEffect(() => {
     if (!open) return
@@ -82,7 +90,7 @@ export default function ListsDrawer({ open, onClose }) {
 
   if (!open) return null
 
-  const canSubmit = Boolean(pickedMatch)
+  const canAdd = Boolean(pickedMatch)
 
   const handlePickMatch = (m) => {
     setInput(m.username)
@@ -91,21 +99,39 @@ export default function ListsDrawer({ open, onClose }) {
   }
 
   const handleAdd = () => {
-    if (!canSubmit) return
-    const result = addEntry(tab, pickedMatch.username)
-    if (result === 'duplicate') {
+    if (!canAdd) return
+    const username = `@${pickedMatch.username.toLowerCase()}`
+    const duplicate = draftEntries.some(
+      (e) => e.username.toLowerCase() === username,
+    )
+    if (duplicate) {
       useToasts.getState().addToast({
         message: 'Already in list.',
         tone: 'warning',
       })
       return
     }
+    const entry = {
+      id: newId(tab === 'whitelist' ? 'w' : 'b'),
+      username,
+      addedAt: new Date().toISOString(),
+    }
+    setDraftEntries((prev) => [...prev, entry])
     setInput('')
     setPickedMatch(null)
   }
 
+  const handleRemove = (id) => {
+    setDraftEntries((prev) => prev.filter((e) => e.id !== id))
+  }
+
+  const handleSave = () => {
+    replaceLists(draftWhitelist, draftBlacklist)
+    onClose()
+  }
+
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && canSubmit) {
+    if (e.key === 'Enter' && canAdd) {
       e.preventDefault()
       handleAdd()
     }
@@ -115,7 +141,7 @@ export default function ListsDrawer({ open, onClose }) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Manage lists"
+      aria-label="Edit lists"
       className={`fixed inset-0 z-50 flex items-end justify-center bg-black/40 transition-opacity duration-200 lg:items-center ${
         mounted ? 'opacity-100' : 'opacity-0'
       }`}
@@ -128,7 +154,7 @@ export default function ListsDrawer({ open, onClose }) {
         }`}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <h2 className="text-base font-semibold text-text-primary">Manage lists</h2>
+          <h2 className="text-base font-semibold text-text-primary">Edit lists</h2>
           <button
             type="button"
             aria-label="Close"
@@ -183,7 +209,7 @@ export default function ListsDrawer({ open, onClose }) {
             <button
               type="button"
               onClick={handleAdd}
-              disabled={!canSubmit}
+              disabled={!canAdd}
               className="inline-flex h-10 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Add
@@ -231,17 +257,17 @@ export default function ListsDrawer({ open, onClose }) {
           )}
 
           <div className="mt-4 flex flex-col divide-y divide-border">
-            {entries.length === 0 && (
+            {draftEntries.length === 0 && (
               <p className="py-4 text-center text-sm text-text-muted">
                 {currentTab.emptyCopy}
               </p>
             )}
-            {entries.map((e) => (
+            {draftEntries.map((e) => (
               <div key={e.id} className="flex items-center justify-between py-3">
                 <span className="text-sm text-text-primary">{e.username}</span>
                 <button
                   type="button"
-                  onClick={() => removeEntry(tab, e.id)}
+                  onClick={() => handleRemove(e.id)}
                   aria-label={`Remove ${e.username}`}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-red-text"
                 >
@@ -252,13 +278,20 @@ export default function ListsDrawer({ open, onClose }) {
           </div>
         </div>
 
-        <div className="border-t border-border px-5 py-3 flex justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-border px-5 py-3 lg:flex-row lg:justify-end">
           <button
             type="button"
             onClick={onClose}
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-bg px-4 text-sm font-medium text-text-primary hover:opacity-90"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
             className="inline-flex h-10 items-center justify-center rounded-lg bg-blue-base px-5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
-            Done
+            Save
           </button>
         </div>
       </div>
