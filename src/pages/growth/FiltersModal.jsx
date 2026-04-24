@@ -102,22 +102,25 @@ function SegmentedPills({ value, options, onChange }) {
   )
 }
 
-export default function FiltersDrawer({ open, onClose, onRequestUpgrade }) {
+export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
   const [mounted, setMounted] = useState(false)
 
-  const config = useGrowthConfig((s) => s.config)
+  const storedFilters = useGrowthConfig((s) => s.config.filters)
   const setFilter = useGrowthConfig((s) => s.setFilter)
   const toggleExcludeNsfw = useGrowthConfig((s) => s.toggleExcludeNsfw)
+
+  const [draft, setDraft] = useState(storedFilters)
 
   const genderLocked = mockUser.plan !== 'advanced'
 
   useEffect(() => {
     if (!open) return
+    setDraft(storedFilters)
     setMounted(false)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setMounted(true))
     })
-  }, [open])
+  }, [open, storedFilters])
 
   useEffect(() => {
     if (!open) return
@@ -130,24 +133,27 @@ export default function FiltersDrawer({ open, onClose, onRequestUpgrade }) {
 
   if (!open) return null
 
-  const followingRange = {
-    min: config.filters.followingMin,
-    max: config.filters.followingMax,
+  const handleSave = () => {
+    setFilter('followingRange', { min: draft.followingMin, max: draft.followingMax })
+    setFilter('followerRange', { min: draft.followerMin, max: draft.followerMax })
+    setFilter('mediaRange', { min: draft.mediaMin, max: draft.mediaMax })
+    setFilter('accountPrivacy', draft.accountPrivacy)
+    setFilter('genderTarget', draft.genderTarget)
+    if (draft.excludeNsfw !== storedFilters.excludeNsfw) {
+      toggleExcludeNsfw()
+    }
+    onClose()
   }
-  const followerRange = {
-    min: config.filters.followerMin,
-    max: config.filters.followerMax,
-  }
-  const mediaRange = {
-    min: config.filters.mediaMin,
-    max: config.filters.mediaMax,
-  }
+
+  const followingRange = { min: draft.followingMin, max: draft.followingMax }
+  const followerRange = { min: draft.followerMin, max: draft.followerMax }
+  const mediaRange = { min: draft.mediaMin, max: draft.mediaMax }
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Customize filters"
+      aria-label="Edit filters"
       className={`fixed inset-0 z-50 flex items-end justify-center bg-black/40 transition-opacity duration-200 lg:items-center ${
         mounted ? 'opacity-100' : 'opacity-0'
       }`}
@@ -160,7 +166,7 @@ export default function FiltersDrawer({ open, onClose, onRequestUpgrade }) {
         }`}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <h2 className="text-base font-semibold text-text-primary">Customize filters</h2>
+          <h2 className="text-base font-semibold text-text-primary">Edit filters</h2>
           <button
             type="button"
             aria-label="Close"
@@ -176,7 +182,9 @@ export default function FiltersDrawer({ open, onClose, onRequestUpgrade }) {
             <PresetRangePills
               presets={FOLLOWING_PRESETS}
               value={followingRange}
-              onChange={(v) => setFilter('followingRange', v)}
+              onChange={(v) =>
+                setDraft((d) => ({ ...d, followingMin: v.min, followingMax: v.max }))
+              }
             />
           </FilterRow>
 
@@ -184,7 +192,9 @@ export default function FiltersDrawer({ open, onClose, onRequestUpgrade }) {
             <PresetRangePills
               presets={FOLLOWER_PRESETS}
               value={followerRange}
-              onChange={(v) => setFilter('followerRange', v)}
+              onChange={(v) =>
+                setDraft((d) => ({ ...d, followerMin: v.min, followerMax: v.max }))
+              }
             />
           </FilterRow>
 
@@ -192,15 +202,17 @@ export default function FiltersDrawer({ open, onClose, onRequestUpgrade }) {
             <PresetRangePills
               presets={MEDIA_PRESETS}
               value={mediaRange}
-              onChange={(v) => setFilter('mediaRange', v)}
+              onChange={(v) =>
+                setDraft((d) => ({ ...d, mediaMin: v.min, mediaMax: v.max }))
+              }
             />
           </FilterRow>
 
           <FilterRow title="Account privacy" tooltip="Whether their profile is public or private.">
             <SegmentedPills
-              value={config.filters.accountPrivacy}
+              value={draft.accountPrivacy}
               options={PRIVACY_OPTIONS}
-              onChange={(v) => setFilter('accountPrivacy', v)}
+              onChange={(v) => setDraft((d) => ({ ...d, accountPrivacy: v }))}
             />
           </FilterRow>
 
@@ -211,9 +223,9 @@ export default function FiltersDrawer({ open, onClose, onRequestUpgrade }) {
             onLockedTap={() => onRequestUpgrade('gender_filter')}
           >
             <SegmentedPills
-              value={config.filters.genderTarget}
+              value={draft.genderTarget}
               options={GENDER_OPTIONS}
-              onChange={(v) => setFilter('genderTarget', v)}
+              onChange={(v) => setDraft((d) => ({ ...d, genderTarget: v }))}
             />
           </FilterRow>
 
@@ -222,15 +234,15 @@ export default function FiltersDrawer({ open, onClose, onRequestUpgrade }) {
               <button
                 type="button"
                 role="switch"
-                aria-checked={config.filters.excludeNsfw}
-                onClick={() => toggleExcludeNsfw()}
+                aria-checked={draft.excludeNsfw}
+                onClick={() => setDraft((d) => ({ ...d, excludeNsfw: !d.excludeNsfw }))}
                 className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors ${
-                  config.filters.excludeNsfw ? 'bg-green-base' : 'bg-border'
+                  draft.excludeNsfw ? 'bg-green-base' : 'bg-border'
                 }`}
               >
                 <span
                   className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${
-                    config.filters.excludeNsfw ? 'translate-x-[18px]' : 'translate-x-0.5'
+                    draft.excludeNsfw ? 'translate-x-[18px]' : 'translate-x-0.5'
                   }`}
                   aria-hidden="true"
                 />
@@ -239,13 +251,20 @@ export default function FiltersDrawer({ open, onClose, onRequestUpgrade }) {
           </FilterRow>
         </div>
 
-        <div className="border-t border-border px-5 py-3 flex justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-border px-5 py-3 lg:flex-row lg:justify-end">
           <button
             type="button"
             onClick={onClose}
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-bg px-4 text-sm font-medium text-text-primary hover:opacity-90"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
             className="inline-flex h-10 items-center justify-center rounded-lg bg-blue-base px-5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
-            Done
+            Save
           </button>
         </div>
       </div>
