@@ -1,9 +1,13 @@
 import { useState } from 'react'
-import { Heart, MessageSquare, Pencil, Star } from 'lucide-react'
+import { Heart, MessageSquare, Star } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import SettingSwitch from '@/components/SettingSwitch'
+import CardChip from '@/components/CardChip'
+import InfoTooltip from '@/components/InfoTooltip'
 import WelcomeDmModal from './WelcomeDmModal'
+import WelcomeDmPreview from './WelcomeDmPreview'
+import CloseFriendsProgress from './CloseFriendsProgress'
 
 function isLocked(feature, user) {
   if (user.plan === 'advanced') return false
@@ -39,18 +43,20 @@ export default function EngagementCard({ onRequestUpgrade }) {
   const welcomeLocked = isLocked('welcome_dm', mockUser)
   const closeFriendsLocked = isLocked('close_friends', mockUser)
 
-  const showEditLink = config.welcomeDm.enabled && !welcomeLocked
+  const showPreview = config.welcomeDm.enabled && !welcomeLocked
   const cfEnabled = config.closeFriendsAdder.enabled
   const cfMode = config.closeFriendsAdder.mode
-  const showCfMode = cfEnabled && !closeFriendsLocked
-  const cfCurrent = CF_MODES.find((m) => m.value === cfMode) ?? CF_MODES[0]
+  const showCfControls = cfEnabled && !closeFriendsLocked
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
-      <h2 className="text-base font-semibold text-text-primary">Engagement</h2>
-      <p className="mt-1 text-sm text-text-secondary">
-        How Kicksta interacts with new followers.
-      </p>
+      <div className="flex items-center gap-3">
+        <CardChip color="green" icon={Heart} />
+        <div className="flex items-center gap-2">
+          <h2 className="text-base font-semibold text-text-primary">Engagement</h2>
+          <InfoTooltip text="How Kicksta interacts with new followers." />
+        </div>
+      </div>
 
       <div className="mt-2 flex flex-col divide-y divide-border">
         <SettingSwitch
@@ -71,17 +77,11 @@ export default function EngagementCard({ onRequestUpgrade }) {
             locked={welcomeLocked}
             onLockedTap={() => onRequestUpgrade('welcome_dm')}
           />
-          {showEditLink && (
-            <div className="pb-3 pl-7">
-              <button
-                type="button"
-                onClick={() => setDmModalOpen(true)}
-                className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary"
-              >
-                <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                Edit message
-              </button>
-            </div>
+          {showPreview && (
+            <WelcomeDmPreview
+              message={config.welcomeDm.message}
+              onEdit={() => setDmModalOpen(true)}
+            />
           )}
         </div>
 
@@ -95,8 +95,8 @@ export default function EngagementCard({ onRequestUpgrade }) {
             locked={closeFriendsLocked}
             onLockedTap={() => onRequestUpgrade('close_friends')}
           />
-          {showCfMode && (
-            <div className="pb-3">
+          {showCfControls && (
+            <div className="ml-7 pb-3">
               <div className="inline-flex rounded-full bg-bg p-1">
                 {CF_MODES.map((m) => {
                   const selected = cfMode === m.value
@@ -116,9 +116,7 @@ export default function EngagementCard({ onRequestUpgrade }) {
                   )
                 })}
               </div>
-              <p className="mt-2 text-xs text-text-secondary">
-                {cfCurrent.description}
-              </p>
+              <CloseFriendsProgress mode={cfMode} />
             </div>
           )}
         </div>
