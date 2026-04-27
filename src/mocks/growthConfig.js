@@ -22,3 +22,21 @@ export const mockGrowthConfig = {
     excludeNsfw: true,
   },
 }
+
+// Mock progress for the Close Friends Adder. Values are intentionally
+// mid-flight so the progress bar shows movement.
+export const mockCloseFriendsProgress = {
+  added: 127,
+  total: 482,
+}
+
+// Handles cycled through by the Close Friends ticker. Same list is
+// reused for both "Adding" (mode === 'add') and "Removing" (mode === 'remove')
+// states \u2014 copy is differentiated by the consumer.
+export const mockCloseFriendsRecentHandles = [
+  '@taylor.fit',
+  '@noah.brews',
+  '@maya.studio',
+  '@kai.rides',
+  '@lena.chefs',
+]
