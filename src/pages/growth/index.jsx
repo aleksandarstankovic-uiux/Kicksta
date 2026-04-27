@@ -1,25 +1,27 @@
 import { useState } from 'react'
+import { mockUser } from '@/mocks/user'
 import ModeCard from './ModeCard'
 import EngagementCard from './EngagementCard'
 import FiltersCard from './FiltersCard'
 import FiltersModal from './FiltersModal'
-import ListsCard from './ListsCard'
-import ListsModal from './ListsModal'
-import GrowthPlusCard from './GrowthPlusCard'
+import WhitelistCard from './WhitelistCard'
+import WhitelistModal from './WhitelistModal'
+import BlacklistCard from './BlacklistCard'
+import BlacklistModal from './BlacklistModal'
+import LiveActivityStrip from './LiveActivityStrip'
+import GrowthPlusBanner from '@/components/GrowthPlusBanner'
 import UpgradeBottomSheet from '@/components/UpgradeBottomSheet'
 
-// Growth page v4 layout:
-// - Safety strip + Mode take the full width.
-// - Engagement (left) beside Filters + Lists read-only cards (right).
-//   Filters + Lists are tall because they show all current state.
-// - Growth+ closes the page as a compact one-row banner.
-// - Filters modal + Lists modal open from each card's Edit button and
-//   handle the actual editing with a local draft + Save/Cancel.
-// - Welcome DM editing opens a modal from EngagementCard.
+// Growth page v5 layout:
+// - Mode card opens the page (safety copy lives inline at the bottom of it).
+// - 2x2 grid: Engagement → Filters on the left, Whitelist → Blacklist on the right.
+// - LiveActivityStrip below the grid — proof your config is running.
+// - Shared GrowthPlusBanner closes the page (same component as Overview).
 export default function GrowthPage() {
   const [upgradeFeature, setUpgradeFeature] = useState(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [listsOpen, setListsOpen] = useState(false)
+  const [whitelistOpen, setWhitelistOpen] = useState(false)
+  const [blacklistOpen, setBlacklistOpen] = useState(false)
 
   const openUpgrade = (feature) => setUpgradeFeature(feature)
   const closeUpgrade = () => setUpgradeFeature(null)
@@ -37,24 +39,32 @@ export default function GrowthPage() {
 
       <ModeCard />
 
-      {/* Equal 2-col grid on lg:+, stacks on mobile. Engagement left;
-          Filters + Lists (visible state) stack on the right. */}
+      {/* 2x2 grid — Engagement → Filters on left, Whitelist → Blacklist on right.
+          Each column is its own flex-col so the cards stack independently. */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
-        <EngagementCard onRequestUpgrade={openUpgrade} />
         <div className="flex flex-col gap-4">
+          <EngagementCard onRequestUpgrade={openUpgrade} />
           <FiltersCard onEdit={() => setFiltersOpen(true)} />
-          <ListsCard onEdit={() => setListsOpen(true)} />
+        </div>
+        <div className="flex flex-col gap-4">
+          <WhitelistCard onEdit={() => setWhitelistOpen(true)} />
+          <BlacklistCard onEdit={() => setBlacklistOpen(true)} />
         </div>
       </div>
 
-      <GrowthPlusCard />
+      <LiveActivityStrip />
+
+      <div className="mt-4">
+        <GrowthPlusBanner isSubscribed={mockUser.growthPlusSubscribed} />
+      </div>
 
       <FiltersModal
         open={filtersOpen}
         onClose={() => setFiltersOpen(false)}
         onRequestUpgrade={openUpgrade}
       />
-      <ListsModal open={listsOpen} onClose={() => setListsOpen(false)} />
+      <WhitelistModal open={whitelistOpen} onClose={() => setWhitelistOpen(false)} />
+      <BlacklistModal open={blacklistOpen} onClose={() => setBlacklistOpen(false)} />
       <UpgradeBottomSheet
         open={upgradeFeature !== null}
         onClose={closeUpgrade}
