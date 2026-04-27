@@ -1,24 +1,28 @@
 import { useEffect, useState } from 'react'
-import { Info, X } from 'lucide-react'
+import { ChevronDown, User, Users, X } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
-import PresetRangePills from './PresetRangePills'
+import InfoTooltip from '@/components/InfoTooltip'
+import SettingSwitch from '@/components/SettingSwitch'
 
 const FOLLOWING_PRESETS = [
-  { key: 'low', label: '< 500', min: 0, max: 500 },
-  { key: 'mid', label: '500–5K', min: 500, max: 5000 },
-  { key: 'high', label: '5K+', min: 5000, max: null },
+  { key: 'any', label: 'Any', min: 0, max: null },
+  { key: 'low', label: 'Up to 500', min: 0, max: 500 },
+  { key: 'mid', label: '500 – 5,000', min: 500, max: 5000 },
+  { key: 'high', label: '5,000+', min: 5000, max: null },
 ]
 
 const FOLLOWER_PRESETS = [
-  { key: 'low', label: '< 1K', min: 0, max: 1000 },
-  { key: 'mid', label: '1K–50K', min: 1000, max: 50000 },
-  { key: 'high', label: '50K+', min: 50000, max: null },
+  { key: 'any', label: 'Any', min: 0, max: null },
+  { key: 'low', label: 'Up to 1,000', min: 0, max: 1000 },
+  { key: 'mid', label: '1,000 – 50,000', min: 1000, max: 50000 },
+  { key: 'high', label: '50,000+', min: 50000, max: null },
 ]
 
 const MEDIA_PRESETS = [
-  { key: 'low', label: '< 10', min: 0, max: 10 },
-  { key: 'mid', label: '10–100', min: 10, max: 100 },
+  { key: 'any', label: 'Any', min: 0, max: null },
+  { key: 'low', label: 'Up to 10', min: 0, max: 10 },
+  { key: 'mid', label: '10 – 100', min: 10, max: 100 },
   { key: 'high', label: '100+', min: 100, max: null },
 ]
 
@@ -34,70 +38,123 @@ const GENDER_OPTIONS = [
   { value: 'female', label: 'Female' },
 ]
 
-function InfoTooltip({ text }) {
+// Find the preset matching the current min/max, or return 'custom' if no match.
+function presetKeyFor(presets, min, max) {
+  const found = presets.find((p) => (p.min ?? 0) === (min ?? 0) && (p.max ?? null) === (max ?? null))
+  return found ? found.key : 'custom'
+}
+
+function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
+  const currentKey = presetKeyFor(presets, min, max)
+  const isCustom = currentKey === 'custom'
+
+  const handleSelect = (e) => {
+    const key = e.target.value
+    if (key === 'custom') {
+      // Stay on the current min/max; just flip the dropdown to custom.
+      onChange({ min: min ?? 0, max: max ?? null })
+      // The dropdown will read 'custom' on next render because no preset matches.
+      return
+    }
+    const preset = presets.find((p) => p.key === key)
+    if (preset) {
+      onChange({ min: preset.min, max: preset.max })
+    }
+  }
+
   return (
-    <span className="group relative hidden lg:inline-block">
-      <Info className="h-3.5 w-3.5 text-text-muted" aria-hidden="true" />
-      <span
-        role="tooltip"
-        className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 w-max max-w-[240px] -translate-x-1/2 rounded-lg bg-text-primary px-2.5 py-1.5 text-[11px] leading-relaxed text-surface opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
-      >
-        {text}
-      </span>
-    </span>
+    <div>
+      <div className="mb-1.5 flex items-center gap-2">
+        <label className="text-sm font-medium text-text-primary">{label}</label>
+        <InfoTooltip text={tooltip} />
+      </div>
+      <div className="relative">
+        <select
+          value={currentKey}
+          onChange={handleSelect}
+          className="h-10 w-full appearance-none rounded-lg border border-border bg-surface px-3 pr-9 text-sm text-text-primary focus:border-blue-base focus:outline-none"
+        >
+          {presets.map((p) => (
+            <option key={p.key} value={p.key}>
+              {p.label}
+            </option>
+          ))}
+          <option value="custom">Custom…</option>
+        </select>
+        <ChevronDown
+          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary"
+          aria-hidden="true"
+        />
+      </div>
+      {isCustom && (
+        <div className="mt-2 flex gap-2">
+          <input
+            type="number"
+            value={min ?? ''}
+            onChange={(e) => onChange({ min: e.target.value === '' ? null : Number(e.target.value), max })}
+            placeholder="Min"
+            className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-blue-base"
+          />
+          <input
+            type="number"
+            value={max ?? ''}
+            onChange={(e) => onChange({ min, max: e.target.value === '' ? null : Number(e.target.value) })}
+            placeholder="Max"
+            className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-blue-base"
+          />
+        </div>
+      )}
+    </div>
   )
 }
 
-function FilterRow({ title, tooltip, locked = false, onLockedTap, children }) {
+function SegmentedField({ label, tooltip, value, options, onChange, locked = false, onLockedTap }) {
   return (
     <div
-      className={`flex flex-col gap-2 border-b border-border py-3 last:border-b-0 lg:flex-row lg:items-center lg:gap-4 ${
-        locked ? 'cursor-pointer' : ''
-      }`}
+      className={locked ? 'cursor-pointer' : ''}
       onClick={locked ? onLockedTap : undefined}
     >
-      <div className="flex items-center gap-1.5 lg:w-36 lg:shrink-0">
-        <span
-          className={`text-sm font-medium ${
-            locked ? 'text-text-secondary' : 'text-text-primary'
-          }`}
-        >
-          {title}
-        </span>
+      <div className="mb-1.5 flex items-center gap-2">
+        <label className="text-sm font-medium text-text-primary">{label}</label>
+        <InfoTooltip text={tooltip} />
         {locked && (
           <span className="rounded-full bg-blue-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-text">
             Advanced
           </span>
         )}
-        <InfoTooltip text={tooltip} />
       </div>
-      <div className={`min-w-0 flex-1 ${locked ? 'pointer-events-none opacity-60' : ''}`}>
-        {children}
+      <div className={locked ? 'pointer-events-none opacity-60' : ''}>
+        <div className="inline-flex w-full rounded-full bg-bg p-1">
+          {options.map((o) => {
+            const selected = value === o.value
+            return (
+              <button
+                key={String(o.value)}
+                type="button"
+                onClick={() => onChange(o.value)}
+                className={`inline-flex h-9 flex-1 items-center justify-center rounded-full px-4 text-sm font-medium transition-colors ${
+                  selected
+                    ? 'bg-surface text-text-primary shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {o.label}
+              </button>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
 }
 
-function SegmentedPills({ value, options, onChange }) {
+function ColumnHeader({ icon: Icon, children }) {
   return (
-    <div className="inline-flex rounded-full bg-bg p-1">
-      {options.map((o) => {
-        const selected = value === o.value
-        return (
-          <button
-            key={String(o.value)}
-            type="button"
-            onClick={() => onChange(o.value)}
-            className={`inline-flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium transition-colors ${
-              selected
-                ? 'bg-surface text-text-primary shadow-sm'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
-          >
-            {o.label}
-          </button>
-        )
-      })}
+    <div className="mb-4 flex items-center gap-2">
+      <Icon className="h-3.5 w-3.5 text-text-secondary" aria-hidden="true" />
+      <span className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+        {children}
+      </span>
     </div>
   )
 }
@@ -145,10 +202,6 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
     onClose()
   }
 
-  const followingRange = { min: draft.followingMin, max: draft.followingMax }
-  const followerRange = { min: draft.followerMin, max: draft.followerMax }
-  const mediaRange = { min: draft.mediaMin, max: draft.mediaMax }
-
   return (
     <div
       role="dialog"
@@ -177,78 +230,74 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4">
-          <FilterRow title="Following count" tooltip="People this account follows.">
-            <PresetRangePills
-              presets={FOLLOWING_PRESETS}
-              value={followingRange}
-              onChange={(v) =>
-                setDraft((d) => ({ ...d, followingMin: v.min, followingMax: v.max }))
-              }
-            />
-          </FilterRow>
-
-          <FilterRow title="Follower count" tooltip="How many followers they have.">
-            <PresetRangePills
-              presets={FOLLOWER_PRESETS}
-              value={followerRange}
-              onChange={(v) =>
-                setDraft((d) => ({ ...d, followerMin: v.min, followerMax: v.max }))
-              }
-            />
-          </FilterRow>
-
-          <FilterRow title="Media count" tooltip="How many posts they've published.">
-            <PresetRangePills
-              presets={MEDIA_PRESETS}
-              value={mediaRange}
-              onChange={(v) =>
-                setDraft((d) => ({ ...d, mediaMin: v.min, mediaMax: v.max }))
-              }
-            />
-          </FilterRow>
-
-          <FilterRow title="Account privacy" tooltip="Whether their profile is public or private.">
-            <SegmentedPills
-              value={draft.accountPrivacy}
-              options={PRIVACY_OPTIONS}
-              onChange={(v) => setDraft((d) => ({ ...d, accountPrivacy: v }))}
-            />
-          </FilterRow>
-
-          <FilterRow
-            title="Gender target"
-            tooltip="Narrow targeting by account gender."
-            locked={genderLocked}
-            onLockedTap={() => onRequestUpgrade('gender_filter')}
-          >
-            <SegmentedPills
-              value={draft.genderTarget}
-              options={GENDER_OPTIONS}
-              onChange={(v) => setDraft((d) => ({ ...d, genderTarget: v }))}
-            />
-          </FilterRow>
-
-          <FilterRow title="Exclude NSFW" tooltip="Skip accounts that appear to contain adult content.">
-            <div className="flex justify-end lg:justify-start">
-              <button
-                type="button"
-                role="switch"
-                aria-checked={draft.excludeNsfw}
-                onClick={() => setDraft((d) => ({ ...d, excludeNsfw: !d.excludeNsfw }))}
-                className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors ${
-                  draft.excludeNsfw ? 'bg-green-base' : 'bg-border'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${
-                    draft.excludeNsfw ? 'translate-x-[18px]' : 'translate-x-0.5'
-                  }`}
-                  aria-hidden="true"
+        <div className="flex-1 overflow-y-auto px-5 py-4 lg:px-6 lg:py-6">
+          <div className="lg:grid lg:grid-cols-2 lg:gap-8">
+            {/* Left column — Audience size */}
+            <div>
+              <ColumnHeader icon={Users}>Audience size</ColumnHeader>
+              <div className="flex flex-col gap-5">
+                <RangeDropdown
+                  label="Following count"
+                  tooltip="People this account follows."
+                  presets={FOLLOWING_PRESETS}
+                  min={draft.followingMin}
+                  max={draft.followingMax}
+                  onChange={(v) =>
+                    setDraft((d) => ({ ...d, followingMin: v.min, followingMax: v.max }))
+                  }
                 />
-              </button>
+                <RangeDropdown
+                  label="Follower count"
+                  tooltip="How many followers they have."
+                  presets={FOLLOWER_PRESETS}
+                  min={draft.followerMin}
+                  max={draft.followerMax}
+                  onChange={(v) =>
+                    setDraft((d) => ({ ...d, followerMin: v.min, followerMax: v.max }))
+                  }
+                />
+                <RangeDropdown
+                  label="Media count"
+                  tooltip="How many posts they've published."
+                  presets={MEDIA_PRESETS}
+                  min={draft.mediaMin}
+                  max={draft.mediaMax}
+                  onChange={(v) =>
+                    setDraft((d) => ({ ...d, mediaMin: v.min, mediaMax: v.max }))
+                  }
+                />
+              </div>
             </div>
-          </FilterRow>
+
+            {/* Right column — Account type */}
+            <div className="mt-6 lg:mt-0">
+              <ColumnHeader icon={User}>Account type</ColumnHeader>
+              <div className="flex flex-col gap-5">
+                <SegmentedField
+                  label="Account privacy"
+                  tooltip="Whether their profile is public or private."
+                  value={draft.accountPrivacy}
+                  options={PRIVACY_OPTIONS}
+                  onChange={(v) => setDraft((d) => ({ ...d, accountPrivacy: v }))}
+                />
+                <SegmentedField
+                  label="Gender target"
+                  tooltip="Narrow targeting by account gender."
+                  value={draft.genderTarget}
+                  options={GENDER_OPTIONS}
+                  onChange={(v) => setDraft((d) => ({ ...d, genderTarget: v }))}
+                  locked={genderLocked}
+                  onLockedTap={() => onRequestUpgrade('gender_filter')}
+                />
+                <SettingSwitch
+                  title="Exclude NSFW"
+                  description="Skip accounts that appear to contain adult content."
+                  checked={draft.excludeNsfw}
+                  onChange={() => setDraft((d) => ({ ...d, excludeNsfw: !d.excludeNsfw }))}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col-reverse gap-3 border-t border-border px-5 py-3 lg:flex-row lg:justify-end">
