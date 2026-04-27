@@ -8,7 +8,7 @@ import { Pencil } from 'lucide-react'
 // WelcomeDmModal (unchanged from v5).
 export default function WelcomeDmPreview({ message, onEdit }) {
   return (
-    <div className="ml-7 mt-2 flex flex-col gap-2 pb-3">
+    <div className="mt-3 flex flex-col gap-2 pb-3">
       <div className="rounded-2xl rounded-tl-sm bg-blue-tint px-3 py-2 text-sm leading-relaxed text-text-primary">
         <p className="line-clamp-2">{message}</p>
       </div>

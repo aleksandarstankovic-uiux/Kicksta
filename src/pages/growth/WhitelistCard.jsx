@@ -3,16 +3,19 @@ import { useLists } from '@/stores/useLists'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 
-export default function WhitelistHalf({ onEdit }) {
+// Standalone Whitelist card. Same chip + chrome + edit pattern as the
+// other settings cards (Mode, Engagement, Filters). Sits in its own
+// grid cell on the page; modal is owned by the parent.
+export default function WhitelistCard({ onEdit }) {
   const whitelist = useLists((s) => s.whitelist)
 
   return (
-    <div className="p-4 lg:p-5">
+    <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <CardChip color="green" icon={ShieldCheck} />
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-text-primary">Whitelist</h3>
+            <h2 className="text-base font-semibold text-text-primary">Whitelist</h2>
             <InfoTooltip text="Accounts Kicksta will never unfollow." />
           </div>
         </div>
@@ -40,6 +43,6 @@ export default function WhitelistHalf({ onEdit }) {
           ))}
         </ul>
       )}
-    </div>
+    </section>
   )
 }

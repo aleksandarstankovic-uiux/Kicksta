@@ -3,16 +3,19 @@ import { useLists } from '@/stores/useLists'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 
-export default function BlacklistHalf({ onEdit }) {
+// Standalone Blacklist card. Same chip + chrome + edit pattern as the
+// other settings cards. Sits in its own grid cell; modal is owned by
+// the parent.
+export default function BlacklistCard({ onEdit }) {
   const blacklist = useLists((s) => s.blacklist)
 
   return (
-    <div className="p-4 lg:p-5">
+    <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <CardChip color="neutral" icon={Ban} />
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-text-primary">Blacklist</h3>
+            <h2 className="text-base font-semibold text-text-primary">Blacklist</h2>
             <InfoTooltip text="Accounts Kicksta will never follow." />
           </div>
         </div>
@@ -40,6 +43,6 @@ export default function BlacklistHalf({ onEdit }) {
           ))}
         </ul>
       )}
-    </div>
+    </section>
   )
 }

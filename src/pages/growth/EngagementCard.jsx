@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Heart, MessageSquare, Star } from 'lucide-react'
+import { Handshake, Heart, MessageSquare, Star } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import SettingSwitch from '@/components/SettingSwitch'
@@ -51,7 +51,7 @@ export default function EngagementCard({ onRequestUpgrade }) {
   return (
     <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
       <div className="flex items-center gap-3">
-        <CardChip color="green" icon={Heart} />
+        <CardChip color="green" icon={Handshake} />
         <div className="flex items-center gap-2">
           <h2 className="text-base font-semibold text-text-primary">Engagement</h2>
           <InfoTooltip text="How Kicksta interacts with new followers." />
@@ -96,7 +96,7 @@ export default function EngagementCard({ onRequestUpgrade }) {
             onLockedTap={() => onRequestUpgrade('close_friends')}
           />
           {showCfControls && (
-            <div className="ml-7 pb-3">
+            <div className="pb-3 pt-1">
               <div className="inline-flex rounded-full bg-bg p-1">
                 {CF_MODES.map((m) => {
                   const selected = cfMode === m.value

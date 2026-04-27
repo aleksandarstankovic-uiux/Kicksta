@@ -98,7 +98,12 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git tag *)",
-      "Bash(git -C \"/Users/aleksandarstankovic/Desktop/Vibe Dash\" log -1 --oneline)"
+      "Bash(git -C \"/Users/aleksandarstankovic/Desktop/Vibe Dash\" log -1 --oneline)",
+      "Bash(grep -n \"bg-\\\\${color}-tint\\\\|text-\\\\${color}\" src/components/CardChip.jsx)",
+      "Bash(cat tailwind.config.js)",
+      "Bash(cat tailwind.config.ts)",
+      "Bash(xargs ls *)",
+      "Bash(grep -n \"bg-\\\\${color}-tint text-\\\\${color}-base\" src/components/CardChip.jsx)"
     ]
   }
 }
