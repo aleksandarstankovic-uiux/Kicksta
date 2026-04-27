@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import SafetyStrip from './SafetyStrip'
 import ModeCard from './ModeCard'
 import EngagementCard from './EngagementCard'
 import FiltersCard from './FiltersCard'
@@ -35,8 +34,6 @@ export default function GrowthPage() {
           Configure how Kicksta grows your account.
         </p>
       </header>
-
-      <SafetyStrip />
 
       <ModeCard />
 

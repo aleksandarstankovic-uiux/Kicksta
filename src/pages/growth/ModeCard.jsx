@@ -1,4 +1,4 @@
-import { Check, UserMinus, UserPlus, Zap } from 'lucide-react'
+import { Check, Shield, UserMinus, UserPlus, Zap } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
 const MODES = [
@@ -89,6 +89,11 @@ export default function ModeCard() {
             </button>
           )
         })}
+      </div>
+
+      <div className="mt-4 flex items-center gap-2 text-xs text-text-muted">
+        <Shield className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <span>Kicksta stays within Instagram's safe daily limits.</span>
       </div>
     </section>
   )

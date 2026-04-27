@@ -92,7 +92,13 @@
       "Bash(curl -s -o /dev/null -w 'ngrok_http=%{http_code}\\\\n' --max-time 8 -H 'ngrok-skip-browser-warning: true' https://playhouse-bonfire-regroup.ngrok-free.dev/)",
       "WebFetch(domain:claude.com)",
       "Bash(claude plugin *)",
-      "Bash(grep -iE '\\\\.md$|context|notes')"
+      "Bash(grep -iE '\\\\.md$|context|notes')",
+      "Read(//Applications/**)",
+      "Read(//usr/bin/**)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git tag *)",
+      "Bash(git -C \"/Users/aleksandarstankovic/Desktop/Vibe Dash\" log -1 --oneline)"
     ]
   }
 }
