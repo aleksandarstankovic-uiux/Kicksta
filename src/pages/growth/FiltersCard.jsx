@@ -1,4 +1,4 @@
-import { Pencil } from 'lucide-react'
+import { Image, Lock, Pencil, ShieldOff, User, UserPlus, Users } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import { formatCount } from '@/utils/formatCount'
@@ -22,10 +22,11 @@ function genderLabel(value) {
   return 'All'
 }
 
-function Row({ label, value, locked = false }) {
+function Row({ icon: Icon, label, value, locked = false }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2.5">
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-3">
+        <Icon className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
         <span className="text-sm text-text-secondary">{label}</span>
         {locked && (
           <span className="rounded-full bg-blue-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-text">
@@ -35,6 +36,14 @@ function Row({ label, value, locked = false }) {
       </div>
       <span className="text-sm font-medium text-text-primary">{value}</span>
     </div>
+  )
+}
+
+function GroupHeader({ children }) {
+  return (
+    <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+      {children}
+    </p>
   )
 }
 
@@ -59,26 +68,47 @@ export default function FiltersCard({ onEdit }) {
         </button>
       </div>
 
-      <div className="mt-4 flex flex-col divide-y divide-border">
-        <Row
-          label="Following count"
-          value={rangeFor(filters.followingMin, filters.followingMax, 'following')}
-        />
-        <Row
-          label="Follower count"
-          value={rangeFor(filters.followerMin, filters.followerMax, 'followers')}
-        />
-        <Row
-          label="Media count"
-          value={rangeFor(filters.mediaMin, filters.mediaMax, 'posts')}
-        />
-        <Row label="Account privacy" value={privacyLabel(filters.accountPrivacy)} />
-        <Row
-          label="Gender target"
-          value={genderLabel(filters.genderTarget)}
-          locked={genderLocked}
-        />
-        <Row label="Exclude NSFW" value={filters.excludeNsfw ? 'On' : 'Off'} />
+      <div className="mt-4">
+        <GroupHeader>Audience size</GroupHeader>
+        <div className="mt-1 flex flex-col divide-y divide-border">
+          <Row
+            icon={Users}
+            label="Following count"
+            value={rangeFor(filters.followingMin, filters.followingMax, 'following')}
+          />
+          <Row
+            icon={UserPlus}
+            label="Follower count"
+            value={rangeFor(filters.followerMin, filters.followerMax, 'followers')}
+          />
+          <Row
+            icon={Image}
+            label="Media count"
+            value={rangeFor(filters.mediaMin, filters.mediaMax, 'posts')}
+          />
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <GroupHeader>Account type</GroupHeader>
+        <div className="mt-1 flex flex-col divide-y divide-border">
+          <Row
+            icon={Lock}
+            label="Account privacy"
+            value={privacyLabel(filters.accountPrivacy)}
+          />
+          <Row
+            icon={User}
+            label="Gender target"
+            value={genderLabel(filters.genderTarget)}
+            locked={genderLocked}
+          />
+          <Row
+            icon={ShieldOff}
+            label="Exclude NSFW"
+            value={filters.excludeNsfw ? 'On' : 'Off'}
+          />
+        </div>
       </div>
     </section>
   )
