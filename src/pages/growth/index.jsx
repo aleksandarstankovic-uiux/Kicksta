@@ -37,7 +37,13 @@ export default function GrowthPage() {
 
       <ModeCard />
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+      {/* Default `align-items: stretch` (no `lg:items-start`) makes
+          row-mates match heights — Filters fills to Engagement's height,
+          Blacklist fills to Whitelist's. Engagement is itself
+          constant-height (it reserves space for the expanded preview /
+          progress regardless of toggle state), so the page never
+          shifts when toggles flip. */}
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <EngagementCard onRequestUpgrade={openUpgrade} />
         <FiltersCard onEdit={() => setFiltersOpen(true)} />
         <WhitelistCard onEdit={() => setWhitelistOpen(true)} />

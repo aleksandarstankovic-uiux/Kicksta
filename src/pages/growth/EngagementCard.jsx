@@ -77,12 +77,18 @@ export default function EngagementCard({ onRequestUpgrade }) {
             locked={welcomeLocked}
             onLockedTap={() => onRequestUpgrade('welcome_dm')}
           />
-          {showPreview && (
+          {/* Reserve the preview slot whether the toggle is on or off so
+              the card height stays constant — flipping the toggle no
+              longer pushes the rest of the page down. */}
+          <div
+            className={showPreview ? '' : 'invisible pointer-events-none'}
+            aria-hidden={!showPreview}
+          >
             <WelcomeDmPreview
               message={config.welcomeDm.message}
               onEdit={() => setDmModalOpen(true)}
             />
-          )}
+          </div>
         </div>
 
         <div>
@@ -95,30 +101,34 @@ export default function EngagementCard({ onRequestUpgrade }) {
             locked={closeFriendsLocked}
             onLockedTap={() => onRequestUpgrade('close_friends')}
           />
-          {showCfControls && (
-            <div className="pb-3 pt-1">
-              <div className="inline-flex rounded-full bg-bg p-1">
-                {CF_MODES.map((m) => {
-                  const selected = cfMode === m.value
-                  return (
-                    <button
-                      key={m.value}
-                      type="button"
-                      onClick={() => setCloseFriendsMode(m.value)}
-                      className={`inline-flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium transition-colors ${
-                        selected
-                          ? 'bg-surface text-text-primary shadow-sm'
-                          : 'text-text-secondary hover:text-text-primary'
-                      }`}
-                    >
-                      {m.label}
-                    </button>
-                  )
-                })}
-              </div>
-              <CloseFriendsProgress mode={cfMode} />
+          {/* Same height-reservation pattern: the segmented control +
+              progress strip render even when the toggle is off, hidden
+              via `invisible`. */}
+          <div
+            className={`pb-3 pt-1 ${showCfControls ? '' : 'invisible pointer-events-none'}`}
+            aria-hidden={!showCfControls}
+          >
+            <div className="inline-flex rounded-full bg-bg p-1">
+              {CF_MODES.map((m) => {
+                const selected = cfMode === m.value
+                return (
+                  <button
+                    key={m.value}
+                    type="button"
+                    onClick={() => setCloseFriendsMode(m.value)}
+                    className={`inline-flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium transition-colors ${
+                      selected
+                        ? 'bg-surface text-text-primary shadow-sm'
+                        : 'text-text-secondary hover:text-text-primary'
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                )
+              })}
             </div>
-          )}
+            <CloseFriendsProgress mode={cfMode} />
+          </div>
         </div>
       </div>
 
