@@ -5,6 +5,38 @@
 
 ---
 
+## 2026-04-27 — Growth page v6 (chrome unification + content depth)
+
+### Changed
+- **Chrome system** — every settings card now leads with a tinted icon chip (Mode = blue Settings2, Engagement = green Heart, Filters = yellow SlidersHorizontal, Whitelist = green ShieldCheck, Blacklist = neutral Ban). Card subtitles removed everywhere; an `InfoTooltip` next to each title carries the explanation.
+- **Page opener** — H1 subtitle removed. `ModeCard` is now a full card with chip + tooltip + a green "Within IG limits ✓" pill on the right (replaces the standalone Shield+text safety footer).
+- **Engagement card** — Welcome DM row, when on, shows a chat-bubble preview of the message + a filled blue "Edit message" button. Close Friends Adder, when on, shows a green progress bar (`127/482 = 26%`) and a pulsing "Adding @handle…" ticker that cycles through 5 mock handles every ~4s. Verb flips to "Removing" in remove mode.
+- **Filters modal** redesigned — wider (`max-w-2xl`), two-column on desktop (Audience size · Account type). Range filters now use a native `<select>` dropdown with presets + "Custom…" option (custom reveals persistent Min/Max inputs — nothing jumps mid-edit). Privacy + Gender are bigger segmented pills. Exclude NSFW is a `SettingSwitch` row.
+- **Lists card** — Whitelist + Blacklist fused into a single `ListsCard` with two halves (vertical divider on desktop, horizontal on mobile). Edit button per half is now a square Pencil icon button. Card height is balanced internally; right column = one card matching Engagement+Filters height.
+- **Filters card** drops the per-row icons; card-level chip carries identity now.
+
+### Created
+- `src/components/CardChip.jsx` — shared tinted chip primitive (`color="blue|green|yellow|neutral"`, `icon`, `size="md|lg"`).
+- `src/components/InfoTooltip.jsx` — extracted from FiltersModal; visible on all breakpoints.
+- `src/pages/growth/WelcomeDmPreview.jsx`
+- `src/pages/growth/CloseFriendsProgress.jsx`
+- `src/pages/growth/ListsCard.jsx`, `WhitelistHalf.jsx`, `BlacklistHalf.jsx`
+- Mock data: `mockCloseFriendsProgress`, `mockCloseFriendsRecentHandles` in `src/mocks/growthConfig.js`.
+
+### Removed
+- `src/pages/growth/LiveActivityStrip.jsx` (settings page, no live status).
+- `src/pages/growth/PresetRangePills.jsx` (logic absorbed into the dropdown).
+- `src/pages/growth/WhitelistCard.jsx` and `BlacklistCard.jsx` (replaced by halves inside the fused card).
+- All card subtitles on the Growth page.
+- Standalone Shield + safety line at the bottom of `ModeCard`.
+
+### Decisions
+- **Tinted chip pattern is the through-line for "feels like the rest of the dash."** Same chip recipe Overview uses (Sparkles chip in GrowthPlusBanner, avatar ring on AccountCard) — applied consistently to every Growth card.
+- **Blacklist chip is neutral (`bg-bg`), not red.** CLAUDE.md reserves red for connection errors; blacklist is a configuration state, not an error state.
+- **No metric tiles, no charts, no live status on Growth.** Only live energy is the Close Friends ticker, which is a *consequence of the user's settings* rather than dashboard analytics.
+
+---
+
 ## 2026-04-27 — Growth page v5 (visual cohesion + readability)
 
 ### Changed
