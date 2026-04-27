@@ -18,7 +18,6 @@ import {
   Shield,
   ChevronRight,
   Star,
-  Sparkles,
   Pause,
   Play,
 } from 'lucide-react'
@@ -39,7 +38,6 @@ import { mockInstagram } from '@/mocks/instagram'
 import { mockUser, PLAN_CATALOG } from '@/mocks/user'
 import {
   mockGrowthDaily,
-  mockGrowthPlusInsights,
 } from '@/mocks/growth'
 import { mockTargets } from '@/mocks/targets'
 import { mockGrowthConfig } from '@/mocks/growthConfig'
