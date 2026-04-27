@@ -89,68 +89,68 @@ src/mocks/targets.js  rows with followers/posts + tuned follow-back rates
 
 ---
 
-### Growth (`/growth`, `src/pages/growth/`) — v4
+### Growth (`/growth`, `src/pages/growth/`) — v5
 
-Settings dashboard pattern. Direct controls for Mode + Engagement (auto-save with 1.5s debounced toast); read-only display + Edit modal for Filters + Lists.
+Settings dashboard, tightened for visual cohesion. Direct controls for Mode + Engagement (auto-save with 1.5s debounced toast); read-only display + Edit modal for Filters + Whitelist + Blacklist. Shared Growth+ banner with Overview. SafetyStrip dropped — safety copy lives inside Mode card.
 
 **Layout (desktop):**
 ```
-Safety strip
-Mode (3 elevated option cards, full-width)
-┌─── Engagement (left) ────┬─── Filters card (read-only rows + Edit) ───┐
-│                          ├─── Lists card (visible entries + Edit) ────┤
-└──────────────────────────┴────────────────────────────────────────────┘
-Growth+ compact one-row banner
+Mode card (3 elevated options + inline Shield safety footer)
+┌─── Engagement (left) ─────────┬─── Whitelist (right, ShieldCheck green) ───┐
+│ Filters (left, grouped icons) │ Blacklist (right, Ban neutral)              │
+└────────────────────────────────┴─────────────────────────────────────────────┘
+LiveActivityStrip (settings-in-action, useSystemStatus)
+GrowthPlusBanner (shared with Overview)
 ```
 
-Grid: `lg:grid-cols-2 lg:items-start`. Mobile stacks single column.
+Grid: `lg:grid-cols-2 lg:items-start` with each column its own `flex flex-col gap-4`. Mobile stacks single column in this order: Mode → Engagement → Filters → Whitelist → Blacklist → LiveActivityStrip → GrowthPlusBanner.
 
 **File layout:**
 ```
 src/pages/growth/
-  index.jsx              page shell + drawer state
-  SafetyStrip.jsx        blue-tint Shield + safety copy
-  ModeCard.jsx           3 elevated cards: Auto (Recommended) · Follow-only · Unfollow-only
-  EngagementCard.jsx     3 toggles + Welcome DM modal trigger + Close Friends segmented (Add/Remove)
-  WelcomeDmModal.jsx     local draft textarea + Save/Cancel
-  FiltersCard.jsx        read-only rows: Following count · Follower count · Media count · Account privacy · Gender target · Exclude NSFW. Top-right Edit
-  FiltersModal.jsx       all 6 dials + InfoTooltip + local draft + Cancel/Save
+  index.jsx              page shell + modal state
+  ModeCard.jsx           3 elevated cards + Shield + "Kicksta stays within Instagram's safe daily limits."
+  EngagementCard.jsx     3 toggles via SettingSwitch with Heart/MessageSquare/Star icons
+  WelcomeDmModal.jsx     local draft textarea + Save/Cancel (unchanged from v4)
+  FiltersCard.jsx        grouped: AUDIENCE SIZE + ACCOUNT TYPE sub-headers, icon per row, top-right Edit
+  FiltersModal.jsx       all 6 dials + InfoTooltip + local draft + Cancel/Save (unchanged)
   PresetRangePills.jsx   preset pills + Custom (Min/Max inputs)
-  ListsCard.jsx          WHITELIST + BLACKLIST sub-headers + entries on the page. Top-right Edit
-  ListsModal.jsx         tabs + must-pick typeahead + draft entries + Cancel/Save
-  GrowthPlusCard.jsx     compact one-row banner (purple) — Sparkles + GROWTH+ + headline + sub + Add Growth+ →
+  WhitelistCard.jsx      green ShieldCheck title + entries + count eyebrow + Edit
+  WhitelistModal.jsx     single-list editor: typeahead + draft + Cancel/Save
+  BlacklistCard.jsx      neutral Ban title + entries + count eyebrow + Edit
+  BlacklistModal.jsx     single-list editor: typeahead + draft + Cancel/Save
+  LiveActivityStrip.jsx  phase icon + status copy + (lg) next-action hint, hidden in setup
+src/components/GrowthPlusBanner.jsx  shared with Overview
+src/pages/accountGrowthPlus/index.jsx  stub for /account/growth-plus (Manage subscription link target)
 src/components/SettingSwitch.jsx     shared switch primitive (locked + Advanced pill support)
-src/components/UpgradeBottomSheet.jsx  shared upgrade modal (per-feature content)
+src/components/UpgradeBottomSheet.jsx  shared upgrade modal
 src/stores/useGrowthConfig.js  config + setters + announceSaved() debounced 1.5s toast
-src/stores/useLists.js  whitelist/blacklist + addEntry/removeEntry + replaceLists (bulk for v4 modal Save)
+src/stores/useLists.js  whitelist/blacklist + addEntry/removeEntry + replaceWhitelist/replaceBlacklist
 src/mocks/growthConfig.js  closeFriendsAdder = {enabled, mode}
 ```
 
-**Mode card:** 3 selection cards, each with icon (`Zap` / `UserPlus` / `UserMinus`), title, description. Selected = blue border + bg-blue-tint/40 + Check icon corner. Auto has `RECOMMENDED` pill.
+**Mode card:** 3 selection cards (Zap / UserPlus / UserMinus icons). Selected = blue border + bg-blue-tint/40 + Check corner. Auto has `RECOMMENDED` pill. Inline footer: Shield (16px, muted) + "Kicksta stays within Instagram's safe daily limits."
 
 **Engagement card** (3 rows via `SettingSwitch`):
-- Like after follow — toggle only
-- Welcome DM — toggle + `Edit message` link (opens modal). Plan-gated for Growth (locked → Advanced pill, opens upgrade sheet on tap)
-- Close Friends Adder — toggle + segmented `Add new followers / Remove unfollowers` when on. Plan-gated similarly
+- Like after follow (Heart) — toggle only
+- Welcome DM (MessageSquare) — toggle + `Edit message` link (opens modal). Plan-gated.
+- Close Friends Adder (Star) — toggle + segmented `Add new followers / Remove unfollowers` when on. Plan-gated.
 
-**Filters card (v4):** 6 read-only rows with `label left, value right`:
-| Row | Display |
-|-----|---------|
-| Following count | `Up to 5K following` / `500–5K following` / `5K+ following` / `Any` |
-| Follower count | same shape, "followers" noun |
-| Media count | same shape, "posts" noun |
-| Account privacy | `All` / `Public only` / `Private only` |
-| Gender target | `All` / `Male only` / `Female only` (+ `Advanced` pill on Growth plan) |
-| Exclude NSFW | `On` / `Off` |
-Top-right `Edit` button (Pencil icon, ghost outline) opens `FiltersModal` with **local draft + Save/Cancel**. Save dispatches setters in sequence; debouncer collapses to one toast.
+**Filters card (v5):** Two grouped sub-sections, icon per row.
+- AUDIENCE SIZE: Following count (Users) · Follower count (UserPlus) · Media count (Image)
+- ACCOUNT TYPE: Account privacy (Lock) · Gender target (User, +Advanced pill on Growth plan) · Exclude NSFW (ShieldOff)
 
-**Lists card (v4):** Both lists visible. Sub-header `WHITELIST (N)` / `BLACKLIST (N)` + entries inline. Empty state per list: muted one-liner. Top-right `Edit` button opens `ListsModal` with tabs + typeahead + **local draft + Save/Cancel**. Save calls `useLists.replaceLists(whitelist, blacklist)` (bulk action).
+Same value formatters as v4. Top-right `Edit` opens `FiltersModal` (unchanged) with local draft + Save/Cancel.
 
-**Growth+ banner:** Compact one-row layout (icon · `GROWTH+` eyebrow + headline + sub · `Add Growth+ →` button). Purple theme (`bg-purple-tint/30` + `border-purple-base/20`). Subscriber variant: `Active`/`Paused` pill + `SettingSwitch` for pause + `Manage subscription` link.
+**Whitelist + Blacklist (v5):** Two separate cards in the right column. Whitelist = green `ShieldCheck` icon next to title, "Accounts Kicksta will never unfollow." sub. Blacklist = muted `Ban` icon, "Accounts Kicksta will never follow." sub. Each card shows count eyebrow (`N accounts protected` / `N accounts blocked`) + entries inline. Each Edit button opens a dedicated single-list modal (`WhitelistModal` / `BlacklistModal`) with typeahead + draft + Save/Cancel. Save calls `replaceWhitelist(list)` / `replaceBlacklist(list)` (single-list bulk replacers; the old combined `replaceLists` is gone).
 
-**Plan gating:** `mockUser.plan === 'advanced'` by default. Welcome DM, Close Friends, Gender filter are Advanced-only — locked rows render subdued + `Advanced` pill, tap opens `UpgradeBottomSheet` (per-feature content, `/signup/plan-selection` CTA).
+**LiveActivityStrip:** Driven by `useSystemStatus`. Phase icon + status copy + (lg only) "next in ~Xmin" hint. Animates `animate-pulse` during running phases. Hidden entirely in `setup`.
 
-**Spec/plan:** v4 → `docs/superpowers/specs/2026-04-24-growth-page-v4-design.md` + `plans/2026-04-24-growth-page-v4.md`.
+**Growth+ banner:** Now shared with Overview via `src/components/GrowthPlusBanner.jsx`. Same gradient + Sparkles chip + headline + benefit list. Non-subscriber CTA: "Add Growth+" → `/signup/growth-plus`. Subscriber: `Active` pill + "Manage subscription" link → `/account/growth-plus` stub. No primary CTA when subscribed.
+
+**Plan gating:** Same as v4 — `mockUser.plan === 'advanced'` by default; Welcome DM / Close Friends / Gender filter Advanced-only.
+
+**Spec/plan:** v5 → `docs/superpowers/specs/2026-04-27-growth-page-v5-design.md` + `plans/2026-04-27-growth-page-v5.md`.
 
 ---
 
@@ -228,3 +228,4 @@ Top-right `Edit` button (Pencil icon, ghost outline) opens `FiltersModal` with *
 - **2026-04-24 (growth v2)** — 2-col grid; Mode → 3 elevated cards; Close Friends Add/Remove; filters as compact inline rows; Lists must-pick typeahead; Growth+ purple hero
 - **2026-04-24 (growth v3)** — Settings-dashboard pass: Filters + Lists become summary cards with focused drawers; Welcome DM textarea moves to modal; Growth+ compacts to one-row banner
 - **2026-04-24 (growth v4)** — Filters + Lists become **visible-state cards** (all values / entries on the page) with top-right `Edit` button → modal with **local draft + Save/Cancel**. New `replaceLists` bulk action; `filterSummary` deleted; Drawers renamed → Modals
+- **2026-04-27 (growth v5)** — Visual cohesion + readability pass: dropped SafetyStrip (safety copy moved into ModeCard footer); grouped Filters under AUDIENCE SIZE / ACCOUNT TYPE with per-row icons; split Lists into separate Whitelist (green ShieldCheck) and Blacklist (neutral Ban) cards each with its own Edit modal; new `LiveActivityStrip` above Growth+ banner; extracted `GrowthPlusBanner` to shared `src/components/` (used by Overview + Growth) with new "Add Growth+" CTA and "Manage subscription" subscriber link; stubbed `/account/growth-plus` route; split `replaceLists` into `replaceWhitelist` + `replaceBlacklist`

@@ -5,6 +5,37 @@
 
 ---
 
+## 2026-04-27 — Growth page v5 (visual cohesion + readability)
+
+### Changed
+- **Top of page** — `SafetyStrip` removed; safety message ("Kicksta stays within Instagram's safe daily limits.") folded into a small inline footer at the bottom of `ModeCard` with a muted Shield icon
+- **Filters card** — flat 6-row list replaced with two grouped sub-sections (`AUDIENCE SIZE`: Following / Follower / Media · `ACCOUNT TYPE`: Privacy / Gender / Exclude NSFW). Each row gains a Lucide icon prefix (Users / UserPlus / Image / Lock / User / ShieldOff). Edit button + handlers + value formatters unchanged
+- **Lists card** split into two distinct cards — **Whitelist** (green `ShieldCheck` icon, "Accounts Kicksta will never unfollow.") and **Blacklist** (neutral `Ban` icon, "Accounts Kicksta will never follow."). Each card shows a `N accounts protected` / `N accounts blocked` eyebrow + entries inline. Each has its own dedicated Edit modal — `WhitelistModal` and `BlacklistModal` — with typeahead + draft + Save/Cancel
+- **Layout** reorganised to a symmetric 2×2 grid: left column = Engagement → Filters · right column = Whitelist → Blacklist
+- **Growth+ banner** unified with Overview — extracted to `src/components/GrowthPlusBanner.jsx`, used on both pages. Non-subscriber CTA copy is now "Add Growth+" → `/signup/growth-plus`. Subscriber state shows a "Manage subscription" link → new `/account/growth-plus` stub. Compact one-row `GrowthPlusCard` deleted
+- **`useLists` store** — `replaceLists(white, black)` split into `replaceWhitelist(list)` and `replaceBlacklist(list)`
+
+### Created
+- `src/components/GrowthPlusBanner.jsx` — shared between Overview and Growth
+- `src/pages/growth/WhitelistCard.jsx`, `WhitelistModal.jsx`
+- `src/pages/growth/BlacklistCard.jsx`, `BlacklistModal.jsx`
+- `src/pages/growth/LiveActivityStrip.jsx` — driven by `useSystemStatus`. Phase icon + status copy + (lg only) "next in ~X min" hint. Hidden in `setup`. Sits above the Growth+ banner
+- `src/pages/accountGrowthPlus/index.jsx` + `/account/growth-plus` route — stub page so the Manage subscription link has a real destination. Full management UI deferred
+
+### Removed
+- `src/pages/growth/SafetyStrip.jsx`
+- `src/pages/growth/ListsCard.jsx`, `ListsModal.jsx`
+- `src/pages/growth/GrowthPlusCard.jsx`
+- Inline `GrowthPlusBanner` definition in `src/pages/overview/index.jsx` (now imported from `@/components/`)
+- `useLists.replaceLists` bulk action
+
+### Decisions
+- **Growth is configuration, not analytics.** No metric tiles, historical numbers, or charts on the page — Overview owns performance. The one piece of live energy is the `LiveActivityStrip`, which only shows what is happening *right now* (no totals or rates)
+- **Whitelist accent treatment** resolved as the green `ShieldCheck` icon next to the title (not a green top-strip). Single visual cue, no double-marking
+- **Growth+ is positioned as an *addition*, not an upgrade** — copy switched from "Upgrade to Growth+" to "Add Growth+" everywhere. Subscriber lifecycle gets a dedicated `/account/growth-plus` route (stubbed for now)
+
+---
+
 ## 2026-04-24 — Growth page v4 (visible state + edit modals)
 
 ### Changed
