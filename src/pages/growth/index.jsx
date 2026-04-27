@@ -4,24 +4,19 @@ import ModeCard from './ModeCard'
 import EngagementCard from './EngagementCard'
 import FiltersCard from './FiltersCard'
 import FiltersModal from './FiltersModal'
-import WhitelistCard from './WhitelistCard'
-import WhitelistModal from './WhitelistModal'
-import BlacklistCard from './BlacklistCard'
-import BlacklistModal from './BlacklistModal'
-import LiveActivityStrip from './LiveActivityStrip'
+import ListsCard from './ListsCard'
 import GrowthPlusBanner from '@/components/GrowthPlusBanner'
 import UpgradeBottomSheet from '@/components/UpgradeBottomSheet'
 
-// Growth page v5 layout:
-// - Mode card opens the page (safety copy lives inline at the bottom of it).
-// - 2x2 grid: Engagement → Filters on the left, Whitelist → Blacklist on the right.
-// - LiveActivityStrip below the grid — proof your config is running.
+// Growth page v6 layout:
+// - H1 only (no subtitle).
+// - Mode hero card opens the page (chip + tooltip + within-IG-limits pill).
+// - 2-column grid: Engagement + Filters stacked left, fused Lists card right.
 // - Shared GrowthPlusBanner closes the page (same component as Overview).
+// - LiveActivityStrip removed — settings page, no live status.
 export default function GrowthPage() {
   const [upgradeFeature, setUpgradeFeature] = useState(null)
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [whitelistOpen, setWhitelistOpen] = useState(false)
-  const [blacklistOpen, setBlacklistOpen] = useState(false)
 
   const openUpgrade = (feature) => setUpgradeFeature(feature)
   const closeUpgrade = () => setUpgradeFeature(null)
@@ -32,27 +27,20 @@ export default function GrowthPage() {
         <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
           Growth
         </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Configure how Kicksta grows your account.
-        </p>
       </header>
 
       <ModeCard />
 
-      {/* 2x2 grid — Engagement → Filters on left, Whitelist → Blacklist on right.
-          Each column is its own flex-col so the cards stack independently. */}
+      {/* Two columns on desktop:
+          Left column = Engagement → Filters (settings the user toggles)
+          Right column = ListsCard (fused Whitelist + Blacklist halves). */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         <div className="flex flex-col gap-4">
           <EngagementCard onRequestUpgrade={openUpgrade} />
           <FiltersCard onEdit={() => setFiltersOpen(true)} />
         </div>
-        <div className="flex flex-col gap-4">
-          <WhitelistCard onEdit={() => setWhitelistOpen(true)} />
-          <BlacklistCard onEdit={() => setBlacklistOpen(true)} />
-        </div>
+        <ListsCard />
       </div>
-
-      <LiveActivityStrip />
 
       <div className="mt-4">
         <GrowthPlusBanner isSubscribed={mockUser.growthPlusSubscribed} />
@@ -63,8 +51,6 @@ export default function GrowthPage() {
         onClose={() => setFiltersOpen(false)}
         onRequestUpgrade={openUpgrade}
       />
-      <WhitelistModal open={whitelistOpen} onClose={() => setWhitelistOpen(false)} />
-      <BlacklistModal open={blacklistOpen} onClose={() => setBlacklistOpen(false)} />
       <UpgradeBottomSheet
         open={upgradeFeature !== null}
         onClose={closeUpgrade}
