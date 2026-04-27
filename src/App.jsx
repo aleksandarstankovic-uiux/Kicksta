@@ -5,6 +5,7 @@ import OverviewPage from '@/pages/overview'
 import TargetsPage from '@/pages/targets'
 import GrowthPage from '@/pages/growth'
 import AccountPage from '@/pages/account'
+import AccountGrowthPlusPage from '@/pages/accountGrowthPlus'
 import IgPreview from '@/pages/signup/steps/IgPreview'
 import PlanSelection from '@/pages/signup/steps/PlanSelection'
 import Billing from '@/pages/signup/steps/Billing'
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/targets" element={<TargetsPage />} />
         <Route path="/growth" element={<GrowthPage />} />
         <Route path="/account" element={<AccountPage />} />
+        <Route path="/account/growth-plus" element={<AccountGrowthPlusPage />} />
       </Route>
 
       {/* Signup flow — inside dashboard app, no nav */}
