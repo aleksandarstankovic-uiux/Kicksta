@@ -3,6 +3,16 @@
 // icon in text-<color>-base. Default size is 36px (h-9 w-9), icon 18px.
 //
 // Usage: <CardChip color="blue" icon={Settings2} />
+//
+// Tailwind v4 content scan — the className uses template-literal
+// interpolation (`bg-${color}-tint`), which the scanner does not
+// resolve. The lines below appear as raw literals so every supported
+// color is emitted in the CSS bundle. Add new colors here when used.
+//   bg-blue-tint   text-blue-base
+//   bg-green-tint  text-green-base
+//   bg-yellow-tint text-yellow-base
+//   bg-purple-tint text-purple-base
+//   bg-red-tint    text-red-base
 export default function CardChip({ color = 'blue', icon: Icon, size = 'md' }) {
   const dim = size === 'lg' ? 'h-11 w-11' : 'h-9 w-9'
   const iconDim = size === 'lg' ? 'h-5 w-5' : 'h-[18px] w-[18px]'

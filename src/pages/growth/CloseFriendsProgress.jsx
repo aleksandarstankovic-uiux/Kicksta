@@ -24,13 +24,14 @@ export default function CloseFriendsProgress({ mode }) {
   }, [])
 
   const verb = mode === 'remove' ? 'Removing' : 'Adding'
+  const pastTense = mode === 'remove' ? 'removed' : 'added'
   const handle = mockCloseFriendsRecentHandles[handleIdx]
 
   return (
     <div className="mt-3">
       <div className="rounded-lg bg-bg p-3">
         <p className="text-xs font-medium text-text-primary">
-          {added} of {total} followers added
+          {added} of {total} followers {pastTense}
         </p>
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border">
           <div
