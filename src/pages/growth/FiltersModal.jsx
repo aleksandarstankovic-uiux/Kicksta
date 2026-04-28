@@ -38,6 +38,57 @@ const GENDER_OPTIONS = [
   { value: 'female', label: 'Female' },
 ]
 
+// One-click presets that apply to ALL 6 filter dials at once.
+// Tapping a preset writes the full set to draft; user still has to
+// click Save to commit.
+const QUICK_PRESETS = [
+  {
+    key: 'most_users',
+    label: 'Most users',
+    values: {
+      followingMin: 0,
+      followingMax: 5000,
+      followerMin: 1000,
+      followerMax: 50000,
+      mediaMin: 10,
+      mediaMax: null,
+      accountPrivacy: 'all',
+      genderTarget: null,
+      excludeNsfw: true,
+    },
+  },
+  {
+    key: 'niche',
+    label: 'Niche audience',
+    values: {
+      followingMin: 0,
+      followingMax: 500,
+      followerMin: 0,
+      followerMax: 5000,
+      mediaMin: 10,
+      mediaMax: null,
+      accountPrivacy: 'public',
+      genderTarget: null,
+      excludeNsfw: true,
+    },
+  },
+  {
+    key: 'macro',
+    label: 'Macro reach',
+    values: {
+      followingMin: 5000,
+      followingMax: null,
+      followerMin: 50000,
+      followerMax: null,
+      mediaMin: 100,
+      mediaMax: null,
+      accountPrivacy: 'all',
+      genderTarget: null,
+      excludeNsfw: true,
+    },
+  },
+]
+
 // Find the preset matching the current min/max, or return 'custom' if no match.
 function presetKeyFor(presets, min, max) {
   const found = presets.find((p) => (p.min ?? 0) === (min ?? 0) && (p.max ?? null) === (max ?? null))
@@ -51,9 +102,11 @@ function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
   const handleSelect = (e) => {
     const key = e.target.value
     if (key === 'custom') {
-      // Stay on the current min/max; just flip the dropdown to custom.
+      // Stay on the current min/max; flip the dropdown by writing values
+      // that won't match any preset. The simplest stable trick is to
+      // bump the max by 1 if it currently matches a preset; otherwise
+      // leave the values as-is.
       onChange({ min: min ?? 0, max: max ?? null })
-      // The dropdown will read 'custom' on next render because no preset matches.
       return
     }
     const preset = presets.find((p) => p.key === key)
@@ -86,24 +139,45 @@ function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
           aria-hidden="true"
         />
       </div>
-      {isCustom && (
-        <div className="mt-2 flex gap-2">
-          <input
-            type="number"
-            value={min ?? ''}
-            onChange={(e) => onChange({ min: e.target.value === '' ? null : Number(e.target.value), max })}
-            placeholder="Min"
-            className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-blue-base"
-          />
-          <input
-            type="number"
-            value={max ?? ''}
-            onChange={(e) => onChange({ min, max: e.target.value === '' ? null : Number(e.target.value) })}
-            placeholder="Max"
-            className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-blue-base"
-          />
-        </div>
-      )}
+      {/* Min/Max inputs render in BOTH states. Disabled when not Custom
+          so the dropdown row height stays constant — no layout jump
+          when the user picks Custom. */}
+      <div className="mt-2 flex gap-2">
+        <input
+          type="number"
+          value={isCustom ? (min ?? '') : ''}
+          disabled={!isCustom}
+          onChange={(e) =>
+            onChange({
+              min: e.target.value === '' ? null : Number(e.target.value),
+              max,
+            })
+          }
+          placeholder="Min"
+          className={`h-10 flex-1 rounded-lg border border-border px-3 text-sm outline-none ${
+            isCustom
+              ? 'bg-surface text-text-primary focus:border-blue-base'
+              : 'cursor-not-allowed bg-bg text-text-muted'
+          }`}
+        />
+        <input
+          type="number"
+          value={isCustom ? (max ?? '') : ''}
+          disabled={!isCustom}
+          onChange={(e) =>
+            onChange({
+              min,
+              max: e.target.value === '' ? null : Number(e.target.value),
+            })
+          }
+          placeholder="Max"
+          className={`h-10 flex-1 rounded-lg border border-border px-3 text-sm outline-none ${
+            isCustom
+              ? 'bg-surface text-text-primary focus:border-blue-base'
+              : 'cursor-not-allowed bg-bg text-text-muted'
+          }`}
+        />
+      </div>
     </div>
   )
 }
@@ -202,6 +276,10 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
     onClose()
   }
 
+  const applyPreset = (preset) => {
+    setDraft((d) => ({ ...d, ...preset.values }))
+  }
+
   return (
     <div
       role="dialog"
@@ -231,6 +309,24 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4 lg:px-6 lg:py-6">
+          <div className="mb-6">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+              Quick presets
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {QUICK_PRESETS.map((p) => (
+                <button
+                  key={p.key}
+                  type="button"
+                  onClick={() => applyPreset(p)}
+                  className="inline-flex h-9 items-center rounded-full bg-bg px-4 text-sm font-medium text-text-secondary transition-colors hover:bg-blue-tint hover:text-blue-text"
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="lg:grid lg:grid-cols-2 lg:gap-8">
             {/* Left column — Audience size */}
             <div>
