@@ -1381,24 +1381,19 @@ function TargetsOverviewBody({ targets, plan }) {
     .slice()
     .sort((a, b) => b.followBackCount - a.followBackCount)[0]
 
-  // Four states mapped to the design-system color tokens. Meanings:
-  //   active   → green  — currently working on this source
-  //   queued   → blue   — waiting in line, not started yet
-  //   paused   → grey   — targeting turned off
-  //   depleted → yellow — no users left to follow from this source
-  const statusDot = {
-    active: 'bg-green-base',
-    queued: 'bg-blue-base',
-    paused: 'bg-text-muted',
-    depleted: 'bg-yellow-base',
+  // Status pill recipes — match the TargetRow on the Targeting page so
+  // the same target reads identically on both surfaces.
+  const statusPillClass = {
+    active: 'bg-green-tint text-green-text',
+    queued: 'bg-blue-tint text-blue-text',
+    paused: 'bg-bg text-text-secondary',
+    depleted: 'bg-yellow-tint text-yellow-text',
   }
-  // Tooltip copy — surfaces the meaning on hover, focus, or tap of the dot
-  // (and of the DEPLETED pill). Same string reused in both triggers.
-  const statusTooltip = {
-    active: 'Working on it — currently being targeted for growth',
-    queued: 'In queue — will start once an active slot frees up',
-    paused: 'Targeting off — this source is temporarily not running',
-    depleted: 'Depleted — no more users left to follow from this source',
+  const statusLabel = {
+    active: 'Active',
+    queued: 'Queued',
+    paused: 'Paused',
+    depleted: 'Depleted',
   }
 
   return (
@@ -1461,24 +1456,6 @@ function TargetsOverviewBody({ targets, plan }) {
                   )}
                 </div>
 
-                {/* Status dot — button gives tap/focus affordance on mobile
-                    and keyboard, hover reveals the tooltip on desktop. */}
-                <span className="group/dot relative flex shrink-0 items-center">
-                  <button
-                    type="button"
-                    aria-label={statusTooltip[target.status]}
-                    className={`h-2.5 w-2.5 cursor-help rounded-full outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-blue-base ${statusDot[target.status]}`}
-                  />
-                  <span
-                    role="tooltip"
-                    // Anchored to the left of the dot (not centered) so it
-                    // doesn't clip off the viewport on narrow mobile widths.
-                    className="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[220px] rounded-lg bg-text-primary px-2.5 py-1.5 text-[11px] font-normal leading-relaxed text-surface opacity-0 shadow-lg transition-opacity group-hover/dot:opacity-100 group-focus-within/dot:opacity-100"
-                  >
-                    {statusTooltip[target.status]}
-                  </span>
-                </span>
-
                 <span
                   className={`truncate text-sm font-medium ${
                     isDepleted ? 'text-text-muted line-through' : 'text-text-primary'
@@ -1494,25 +1471,13 @@ function TargetsOverviewBody({ targets, plan }) {
                   />
                 )}
 
-                {isDepleted && (
-                  // Same group-hover/focus tooltip pattern as the dot so the
-                  // pill is a second, more discoverable trigger on mobile.
-                  <span className="group/pill relative flex shrink-0 items-center">
-                    <button
-                      type="button"
-                      aria-label={statusTooltip.depleted}
-                      className="cursor-help rounded-full bg-yellow-text px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-blue-base"
-                    >
-                      Depleted
-                    </button>
-                    <span
-                      role="tooltip"
-                      className="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[220px] rounded-lg bg-text-primary px-2.5 py-1.5 text-[11px] font-normal leading-relaxed text-surface opacity-0 shadow-lg transition-opacity group-hover/pill:opacity-100 group-focus-within/pill:opacity-100"
-                    >
-                      {statusTooltip.depleted}
-                    </span>
-                  </span>
-                )}
+                {/* Status pill — same recipe as the Targeting page row so
+                    the same target reads identically on both surfaces. */}
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${statusPillClass[target.status]}`}
+                >
+                  {statusLabel[target.status]}
+                </span>
               </div>
 
               {/* Right column: follow-back count */}

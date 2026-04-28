@@ -94,7 +94,7 @@ export default function FiltersCard({ onEdit }) {
         </div>
       </div>
 
-      <div className="mt-4 border-b border-border pb-4">
+      <div className="mt-4 border-b border-border">
         <GroupHeader icon={User}>Account type</GroupHeader>
         <div className="mt-1 flex flex-col divide-y divide-border">
           <Row label="Account privacy" value={privacyLabel(filters.accountPrivacy)} />

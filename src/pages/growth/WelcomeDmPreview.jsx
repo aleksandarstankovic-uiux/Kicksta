@@ -6,7 +6,7 @@
 // handler is disabled.
 export default function WelcomeDmPreview({ message, onEdit, enabled }) {
   return (
-    <div className="mt-3 pb-3">
+    <div className="mt-2 pb-2">
       <button
         type="button"
         onClick={enabled ? onEdit : undefined}
@@ -32,7 +32,7 @@ export default function WelcomeDmPreview({ message, onEdit, enabled }) {
         </span>
       </button>
       <p
-        className={`mt-1.5 text-xs ${enabled ? 'text-text-secondary' : 'text-text-muted'}`}
+        className={`mt-1 text-xs ${enabled ? 'text-text-secondary' : 'text-text-muted'}`}
         aria-hidden="true"
       >
         {enabled ? 'Click the bubble to edit' : 'Edit becomes available when on'}
