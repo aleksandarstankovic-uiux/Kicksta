@@ -17,6 +17,7 @@ import {
   Heart,
   Shield,
   ChevronRight,
+  Hash,
   Star,
   Pause,
   Play,
@@ -49,6 +50,8 @@ import {
 } from '@/mocks/systemStatus'
 import { useSystemStatus } from '@/hooks/useSystemStatus'
 import { useToasts } from '@/stores/useToasts'
+import { useTargetsStore } from '@/stores/useTargetsStore'
+import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import GrowthPlusBanner from '@/components/GrowthPlusBanner'
 
 // --- Helpers ---
@@ -1345,7 +1348,14 @@ function ActivityFeed({ items, period, customRange }) {
   )
 }
 
-function TargetsOverview({ targets, plan }) {
+function TargetsOverview({ plan }) {
+  // Read targets from the live store so additions / removals / pause
+  // changes made on the Targeting page are reflected here in real time.
+  const targets = useTargetsStore((s) => s.targets)
+  return <TargetsOverviewBody targets={targets} plan={plan} />
+}
+
+function TargetsOverviewBody({ targets, plan }) {
   const maxSlots = plan === 'advanced' ? 30 : 10
   const activeTargets = targets.filter((t) => t.status === 'active')
 
@@ -1415,6 +1425,11 @@ function TargetsOverview({ targets, plan }) {
         {displayTargets.map((target, i) => {
           const isTop = topTarget && target.id === topTarget.id
           const isDepleted = target.status === 'depleted'
+          const isHashtag = target.type === 'hashtag'
+          // Same avatar recipe as TargetRow on the Targeting page so
+          // targets read the same visually across the dashboard.
+          const handleStart = target.value.replace(/^[@#]/, '')
+          const avatarLetter = handleStart.charAt(0).toUpperCase()
           return (
             <div
               key={target.id}
@@ -1424,8 +1439,28 @@ function TargetsOverview({ targets, plan }) {
                 i > 0 ? 'border-t border-border' : ''
               } ${isDepleted ? 'bg-bg' : ''}`}
             >
-              {/* Left column: dot + name + (star | depleted pill) */}
+              {/* Left column: avatar + dot + name + (star | depleted pill) */}
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                {/* Avatar — Hash icon for hashtags, image when available,
+                    or a letter chip. Matches the Targeting page row. */}
+                <div
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-xs font-semibold text-text-secondary ${
+                    isDepleted ? 'opacity-60' : ''
+                  }`}
+                >
+                  {isHashtag ? (
+                    <Hash className="h-3.5 w-3.5" aria-hidden="true" />
+                  ) : target.profilePic ? (
+                    <img
+                      src={target.profilePic}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    avatarLetter
+                  )}
+                </div>
+
                 {/* Status dot — button gives tap/focus affordance on mobile
                     and keyboard, hover reveals the tooltip on desktop. */}
                 <span className="group/dot relative flex shrink-0 items-center">
@@ -1508,7 +1543,14 @@ function TargetsOverview({ targets, plan }) {
   )
 }
 
-function GrowthSettingsSnapshot({ config, plan }) {
+function GrowthSettingsSnapshot({ plan }) {
+  // Read live config from the Zustand store so Mode / Engagement /
+  // Filter changes made on the Growth page are reflected here.
+  const config = useGrowthConfig((s) => s.config)
+  return <GrowthSettingsSnapshotBody config={config} plan={plan} />
+}
+
+function GrowthSettingsSnapshotBody({ config, plan }) {
   const modeLabels = { auto: 'Auto', follow_only: 'Follow only', unfollow_only: 'Unfollow only' }
   const isAdvanced = plan === 'advanced'
 
@@ -1762,8 +1804,10 @@ export default function OverviewPage() {
         {/* Targets + Growth Settings — side by side on lg:, stacked on mobile.
             Both are targeting-related so they share a row as sibling cards. */}
         <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-          <TargetsOverview targets={mockTargets} plan={user.plan} />
-          <GrowthSettingsSnapshot config={mockGrowthConfig} plan={user.plan} />
+          {/* Both snapshots subscribe to the live Zustand stores so changes
+              made on the Targeting / Growth pages propagate here. */}
+          <TargetsOverview plan={user.plan} />
+          <GrowthSettingsSnapshot plan={user.plan} />
         </div>
       </div>
     </div>
