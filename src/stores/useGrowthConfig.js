@@ -2,6 +2,10 @@ import { create } from 'zustand'
 import { mockGrowthConfig } from '@/mocks/growthConfig'
 import { useToasts } from '@/stores/useToasts'
 
+// Snapshot the seed shape so resets stay consistent even if `mockGrowthConfig`
+// drifts at runtime. Deep-cloned via JSON to break nested-object references.
+const DEFAULTS = JSON.parse(JSON.stringify(mockGrowthConfig))
+
 // Debounced "Settings saved." toast — rapid changes (DM typing, range
 // inputs) don't spam. One shared timer across the whole store.
 let toastTimer = null
@@ -107,6 +111,30 @@ export const useGrowthConfig = create((set, get) => ({
   toggleGrowthPlusActive: () => {
     set((state) => ({
       config: { ...state.config, growthPlusActive: !state.config.growthPlusActive },
+    }))
+    announceSaved()
+  },
+
+  resetMode: () => {
+    set((state) => ({ config: { ...state.config, mode: DEFAULTS.mode } }))
+    announceSaved()
+  },
+
+  resetEngagement: () => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        likeAfterFollow: DEFAULTS.likeAfterFollow,
+        welcomeDm: { ...DEFAULTS.welcomeDm },
+        closeFriendsAdder: { ...DEFAULTS.closeFriendsAdder },
+      },
+    }))
+    announceSaved()
+  },
+
+  resetFilters: () => {
+    set((state) => ({
+      config: { ...state.config, filters: { ...DEFAULTS.filters } },
     }))
     announceSaved()
   },
