@@ -1,9 +1,7 @@
-import { useState } from 'react'
 import { Pencil, ShieldCheck } from 'lucide-react'
 import { useLists } from '@/stores/useLists'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
-import ResetConfirmModal from '@/components/ResetConfirmModal'
 import { formatRelativeShort } from '@/utils/formatRelativeShort'
 
 function letterFor(username) {
@@ -12,8 +10,6 @@ function letterFor(username) {
 
 export default function WhitelistCard({ onEdit }) {
   const whitelist = useLists((s) => s.whitelist)
-  const resetWhitelist = useLists((s) => s.resetWhitelist)
-  const [resetOpen, setResetOpen] = useState(false)
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
@@ -57,23 +53,6 @@ export default function WhitelistCard({ onEdit }) {
           ))}
         </ul>
       )}
-
-      <div className="mt-4 flex justify-end">
-        <button
-          type="button"
-          onClick={() => setResetOpen(true)}
-          className="text-xs text-text-muted hover:text-text-secondary"
-        >
-          Reset to defaults
-        </button>
-      </div>
-
-      <ResetConfirmModal
-        open={resetOpen}
-        onClose={() => setResetOpen(false)}
-        onConfirm={() => resetWhitelist()}
-        sectionLabel="Whitelist"
-      />
     </section>
   )
 }

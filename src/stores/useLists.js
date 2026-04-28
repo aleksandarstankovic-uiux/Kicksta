@@ -65,13 +65,4 @@ export const useLists = create((set, get) => ({
     announceSaved()
   },
 
-  resetWhitelist: () => {
-    set({ whitelist: [] })
-    announceSaved()
-  },
-
-  resetBlacklist: () => {
-    set({ blacklist: [] })
-    announceSaved()
-  },
 }))

@@ -41,17 +41,23 @@ const GENDER_OPTIONS = [
 // One-click presets that apply to ALL 6 filter dials at once.
 // Tapping a preset writes the full set to draft; user still has to
 // click Save to commit.
+// Each value pair below maps to an existing dropdown preset (no Custom),
+// so applying a preset leaves all three Range dropdowns on a labelled
+// option instead of the "Custom…" tail.
 const QUICK_PRESETS = [
   {
     key: 'most_users',
     label: 'Most users',
     values: {
-      followingMin: 0,
+      // following = mid (500–5,000)
+      followingMin: 500,
       followingMax: 5000,
+      // follower = mid (1,000–50,000)
       followerMin: 1000,
       followerMax: 50000,
+      // media = mid (10–100)
       mediaMin: 10,
-      mediaMax: null,
+      mediaMax: 100,
       accountPrivacy: 'all',
       genderTarget: null,
       excludeNsfw: true,
@@ -61,12 +67,15 @@ const QUICK_PRESETS = [
     key: 'niche',
     label: 'Niche audience',
     values: {
+      // following = low (Up to 500)
       followingMin: 0,
       followingMax: 500,
+      // follower = low (Up to 1,000)
       followerMin: 0,
-      followerMax: 5000,
+      followerMax: 1000,
+      // media = mid (10–100)
       mediaMin: 10,
-      mediaMax: null,
+      mediaMax: 100,
       accountPrivacy: 'public',
       genderTarget: null,
       excludeNsfw: true,
@@ -76,10 +85,13 @@ const QUICK_PRESETS = [
     key: 'macro',
     label: 'Macro reach',
     values: {
+      // following = high (5,000+)
       followingMin: 5000,
       followingMax: null,
+      // follower = high (50,000+)
       followerMin: 50000,
       followerMax: null,
+      // media = high (100+)
       mediaMin: 100,
       mediaMax: null,
       accountPrivacy: 'all',
@@ -102,6 +114,11 @@ function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
   // preset (e.g. selecting Custom while on `Any` would otherwise snap
   // straight back to `Any` because both render the same min/max).
   const [forcedCustom, setForcedCustom] = useState(matchedKey === 'custom')
+  // If an outside actor (Quick preset) writes values that match a named
+  // preset, clear the forced flag so the dropdown reflects that preset.
+  useEffect(() => {
+    if (matchedKey !== 'custom' && forcedCustom) setForcedCustom(false)
+  }, [matchedKey, forcedCustom])
   const currentKey = forcedCustom ? 'custom' : matchedKey
   const isCustom = currentKey === 'custom'
 
@@ -143,14 +160,14 @@ function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
           aria-hidden="true"
         />
       </div>
-      {/* Min/Max inputs render in BOTH states. Disabled when not Custom
-          so the dropdown row height stays constant — no layout jump
-          when the user picks Custom. */}
+      {/* Min/Max inputs render only when Custom is picked. Quick presets
+          + named options keep both columns visually balanced; deliberately
+          choosing Custom is rare and makes the brief height shift fine. */}
+      {isCustom && (
       <div className="mt-2 flex gap-2">
         <input
           type="number"
-          value={isCustom ? (min ?? '') : ''}
-          disabled={!isCustom}
+          value={min ?? ''}
           onChange={(e) =>
             onChange({
               min: e.target.value === '' ? null : Number(e.target.value),
@@ -158,16 +175,11 @@ function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
             })
           }
           placeholder="Min"
-          className={`h-10 flex-1 rounded-lg border border-border px-3 text-sm outline-none ${
-            isCustom
-              ? 'bg-surface text-text-primary focus:border-blue-base'
-              : 'cursor-not-allowed bg-bg text-text-muted'
-          }`}
+          className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-blue-base"
         />
         <input
           type="number"
-          value={isCustom ? (max ?? '') : ''}
-          disabled={!isCustom}
+          value={max ?? ''}
           onChange={(e) =>
             onChange({
               min,
@@ -175,13 +187,10 @@ function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
             })
           }
           placeholder="Max"
-          className={`h-10 flex-1 rounded-lg border border-border px-3 text-sm outline-none ${
-            isCustom
-              ? 'bg-surface text-text-primary focus:border-blue-base'
-              : 'cursor-not-allowed bg-bg text-text-muted'
-          }`}
+          className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-blue-base"
         />
       </div>
+      )}
     </div>
   )
 }

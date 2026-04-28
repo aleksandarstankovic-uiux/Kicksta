@@ -5,7 +5,6 @@ import { mockUser } from '@/mocks/user'
 import SettingSwitch from '@/components/SettingSwitch'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
-import ResetConfirmModal from '@/components/ResetConfirmModal'
 import WelcomeDmModal from './WelcomeDmModal'
 import WelcomeDmPreview from './WelcomeDmPreview'
 import CloseFriendsProgress from './CloseFriendsProgress'
@@ -37,11 +36,9 @@ export default function EngagementCard({ onRequestUpgrade }) {
     toggleWelcomeDm,
     toggleCloseFriends,
     setCloseFriendsMode,
-    resetEngagement,
   } = useGrowthConfig()
 
   const [dmModalOpen, setDmModalOpen] = useState(false)
-  const [resetOpen, setResetOpen] = useState(false)
 
   const welcomeLocked = isLocked('welcome_dm', mockUser)
   const closeFriendsLocked = isLocked('close_friends', mockUser)
@@ -130,23 +127,7 @@ export default function EngagementCard({ onRequestUpgrade }) {
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
-        <button
-          type="button"
-          onClick={() => setResetOpen(true)}
-          className="text-xs text-text-muted hover:text-text-secondary"
-        >
-          Reset to defaults
-        </button>
-      </div>
-
       <WelcomeDmModal open={dmModalOpen} onClose={() => setDmModalOpen(false)} />
-      <ResetConfirmModal
-        open={resetOpen}
-        onClose={() => setResetOpen(false)}
-        onConfirm={() => resetEngagement()}
-        sectionLabel="Engagement"
-      />
     </section>
   )
 }

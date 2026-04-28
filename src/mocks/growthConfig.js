@@ -10,13 +10,15 @@ export const mockGrowthConfig = {
     mode: 'add',
   },
   growthPlusActive: false,
+  // Defaults match the "Most users" Quick preset so each Range dropdown
+  // opens on a labelled option (mid) rather than the "Custom…" tail.
   filters: {
-    followingMin: 100,
+    followingMin: 500,
     followingMax: 5000,
-    followerMin: 200,
+    followerMin: 1000,
     followerMax: 50000,
     mediaMin: 10,
-    mediaMax: null,
+    mediaMax: 100,
     accountPrivacy: 'all',
     genderTarget: null,
     excludeNsfw: true,

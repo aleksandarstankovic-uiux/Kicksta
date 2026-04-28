@@ -1,47 +1,35 @@
-import { Pencil } from 'lucide-react'
-
-// Chat-bubble preview + filled "Edit message" button shown beneath
-// the Welcome DM toggle row.
+// Chat-bubble preview shown beneath the Welcome DM toggle row.
 //
-// Renders in BOTH states (on / off) so the card height stays constant.
-// When off, the bubble + button slot show muted placeholder copy
-// instead of being invisible — fills the reserved space honestly so
-// it reads as "here's what'll appear" rather than dead space.
+// The bubble itself is the affordance — clicking it opens the edit
+// modal. Renders in BOTH states (on / off) so the card height stays
+// constant; the off-state shows muted placeholder copy and the click
+// handler is disabled.
 export default function WelcomeDmPreview({ message, onEdit, enabled }) {
   return (
-    <div className="mt-3 flex flex-col gap-2 pb-3">
-      <div
-        className={`rounded-2xl rounded-tl-sm px-3 py-2 text-sm leading-relaxed ${
+    <div className="mt-3 pb-3">
+      <button
+        type="button"
+        onClick={enabled ? onEdit : undefined}
+        disabled={!enabled}
+        aria-label={enabled ? 'Edit welcome DM message' : undefined}
+        className={`w-full rounded-2xl rounded-tl-sm px-3 py-2 text-left text-sm leading-relaxed transition-colors ${
           enabled
-            ? 'bg-blue-tint text-text-primary'
-            : 'bg-bg text-text-muted'
+            ? 'cursor-pointer bg-blue-tint text-text-primary hover:bg-blue-tint/80'
+            : 'cursor-not-allowed bg-bg text-text-muted'
         }`}
       >
-        <p className="line-clamp-2">
+        <span className="line-clamp-2 block">
           {enabled
             ? message
             : 'Toggle on to send a custom welcome message to new followers.'}
-        </p>
-      </div>
-      <div>
-        {enabled ? (
-          <button
-            type="button"
-            onClick={onEdit}
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-base px-4 text-sm font-medium text-white transition-opacity hover:opacity-90"
-          >
-            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-            Edit message
-          </button>
-        ) : (
-          <span
-            className="inline-flex h-8 items-center text-xs text-text-muted"
-            aria-hidden="true"
-          >
-            Edit becomes available when on
-          </span>
-        )}
-      </div>
+        </span>
+      </button>
+      <p
+        className={`mt-1.5 text-xs ${enabled ? 'text-text-secondary' : 'text-text-muted'}`}
+        aria-hidden="true"
+      >
+        {enabled ? 'Click the bubble to edit' : 'Edit becomes available when on'}
+      </p>
     </div>
   )
 }

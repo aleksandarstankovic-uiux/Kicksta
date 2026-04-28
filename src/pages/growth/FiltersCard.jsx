@@ -1,11 +1,9 @@
-import { useState } from 'react'
-import { Pencil, SlidersHorizontal } from 'lucide-react'
+import { Lightbulb, Pencil, SlidersHorizontal } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import { formatCount } from '@/utils/formatCount'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
-import ResetConfirmModal from '@/components/ResetConfirmModal'
 import AudienceReachEstimate from './AudienceReachEstimate'
 
 function rangeFor(min, max, noun) {
@@ -53,9 +51,7 @@ function GroupHeader({ children }) {
 
 export default function FiltersCard({ onEdit }) {
   const filters = useGrowthConfig((s) => s.config.filters)
-  const resetFilters = useGrowthConfig((s) => s.resetFilters)
   const genderLocked = mockUser.plan !== 'advanced'
-  const [resetOpen, setResetOpen] = useState(false)
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
@@ -110,22 +106,12 @@ export default function FiltersCard({ onEdit }) {
 
       <AudienceReachEstimate />
 
-      <div className="mt-4 flex justify-end">
-        <button
-          type="button"
-          onClick={() => setResetOpen(true)}
-          className="text-xs text-text-muted hover:text-text-secondary"
-        >
-          Reset to defaults
-        </button>
+      <div className="mt-3 flex items-start gap-2 text-xs text-text-muted">
+        <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-yellow-base" aria-hidden="true" />
+        <span>
+          Tip — tighter following ranges (under 1K) tend to find more engaged accounts.
+        </span>
       </div>
-
-      <ResetConfirmModal
-        open={resetOpen}
-        onClose={() => setResetOpen(false)}
-        onConfirm={() => resetFilters()}
-        sectionLabel="Filters"
-      />
     </section>
   )
 }
