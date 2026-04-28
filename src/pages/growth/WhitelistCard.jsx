@@ -1,13 +1,19 @@
+import { useState } from 'react'
 import { Pencil, ShieldCheck } from 'lucide-react'
 import { useLists } from '@/stores/useLists'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
+import ResetConfirmModal from '@/components/ResetConfirmModal'
+import { formatRelativeShort } from '@/utils/formatRelativeShort'
 
-// Standalone Whitelist card. Same chip + chrome + edit pattern as the
-// other settings cards (Mode, Engagement, Filters). Sits in its own
-// grid cell on the page; modal is owned by the parent.
+function letterFor(username) {
+  return String(username).replace(/^@/, '').charAt(0).toUpperCase() || '·'
+}
+
 export default function WhitelistCard({ onEdit }) {
   const whitelist = useLists((s) => s.whitelist)
+  const resetWhitelist = useLists((s) => s.resetWhitelist)
+  const [resetOpen, setResetOpen] = useState(false)
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
@@ -35,14 +41,39 @@ export default function WhitelistCard({ onEdit }) {
       {whitelist.length === 0 ? (
         <p className="mt-2 text-sm text-text-muted">No accounts protected yet.</p>
       ) : (
-        <ul className="mt-2 flex flex-col gap-1.5">
+        <ul className="mt-2 flex flex-col">
           {whitelist.map((e) => (
-            <li key={e.id} className="text-sm text-text-primary">
-              {e.username}
+            <li key={e.id} className="flex items-center gap-3 py-1.5">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg text-xs font-semibold text-text-secondary">
+                {letterFor(e.username)}
+              </span>
+              <span className="min-w-0 flex-1 truncate text-sm text-text-primary">
+                {e.username}
+              </span>
+              <span className="shrink-0 text-xs text-text-muted">
+                added {formatRelativeShort(e.addedAt)}
+              </span>
             </li>
           ))}
         </ul>
       )}
+
+      <div className="mt-4 flex justify-end">
+        <button
+          type="button"
+          onClick={() => setResetOpen(true)}
+          className="text-xs text-text-muted hover:text-text-secondary"
+        >
+          Reset to defaults
+        </button>
+      </div>
+
+      <ResetConfirmModal
+        open={resetOpen}
+        onClose={() => setResetOpen(false)}
+        onConfirm={() => resetWhitelist()}
+        sectionLabel="Whitelist"
+      />
     </section>
   )
 }
