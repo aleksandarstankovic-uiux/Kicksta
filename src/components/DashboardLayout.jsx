@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useLocation, Link } from 'react-router-dom'
 import { BarChart3, Target, TrendingUp, PanelLeftClose, PanelLeftOpen, LogOut, Bell, AlertTriangle, TrendingUp as GrowthIcon, X, Sparkles, ChevronsUpDown, Plus, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { mockNotifications } from '@/mocks/notifications'
-import { mockAccounts, defaultActiveAccountId } from '@/mocks/accounts'
+import { useNotifications } from '@/stores/useNotifications'
+import { useAccounts } from '@/stores/useAccounts'
 import { SystemStatusRow, SystemStatusIconButton } from '@/components/SystemStatus'
 import ToastContainer from '@/components/Toast'
 import kickstaLogo from '@/assets/kicksta-logo.svg'
@@ -21,7 +21,10 @@ function timeAgo(dateStr) {
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
-  const unread = mockNotifications.filter((n) => !n.read).length
+  const items = useNotifications((s) => s.items)
+  const markAsRead = useNotifications((s) => s.markAsRead)
+  const markAllRead = useNotifications((s) => s.markAllRead)
+  const unread = items.filter((n) => !n.read).length
 
   useEffect(() => {
     function handleClick(e) {
@@ -51,24 +54,36 @@ export function NotificationBell() {
         // narrow devices (e.g. 320px iPhone SE) where the dropdown extending
         // leftward from the bell would otherwise run off the left edge.
         <div className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-surface shadow-xl">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
             <h3 className="text-sm font-semibold text-text-primary">Notifications</h3>
-            <button
-              onClick={() => setOpen(false)}
-              className="flex h-6 w-6 items-center justify-center rounded-md text-text-muted hover:bg-bg hover:text-text-primary"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              {unread > 0 && (
+                <button
+                  onClick={() => markAllRead()}
+                  className="rounded-md px-2 py-1 text-xs font-medium text-blue-text hover:bg-bg"
+                >
+                  Mark all read
+                </button>
+              )}
+              <button
+                onClick={() => setOpen(false)}
+                className="flex h-6 w-6 items-center justify-center rounded-md text-text-muted hover:bg-bg hover:text-text-primary"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
           <div className="max-h-80 overflow-y-auto">
-            {mockNotifications.length === 0 ? (
+            {items.length === 0 ? (
               <p className="px-4 py-6 text-center text-sm text-text-muted">No notifications</p>
             ) : (
-              mockNotifications.map((n) => (
-                <div
+              items.map((n) => (
+                <button
                   key={n.id}
+                  type="button"
+                  onClick={() => !n.read && markAsRead(n.id)}
                   className={cn(
-                    'flex items-start gap-3 border-b border-border px-4 py-3 last:border-b-0',
+                    'flex w-full items-start gap-3 border-b border-border px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-bg',
                     !n.read && 'bg-blue-tint/30'
                   )}
                 >
@@ -90,7 +105,7 @@ export function NotificationBell() {
                     <p className="mt-0.5 text-xs leading-relaxed text-text-secondary">{n.body}</p>
                     <p className="mt-1 text-xs text-text-muted">{timeAgo(n.createdAt)}</p>
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>
@@ -107,7 +122,9 @@ export function NotificationBell() {
 // styling so it visually belongs with the nav tabs below it.
 function AccountSwitcher({ collapsed }) {
   const [open, setOpen] = useState(false)
-  const [activeId, setActiveId] = useState(defaultActiveAccountId)
+  const accounts = useAccounts((s) => s.accounts)
+  const activeId = useAccounts((s) => s.activeId)
+  const setActiveId = useAccounts((s) => s.setActiveId)
   const ref = useRef(null)
 
   useEffect(() => {
@@ -126,8 +143,8 @@ function AccountSwitcher({ collapsed }) {
     }
   }, [open])
 
-  const active = mockAccounts.find((a) => a.id === activeId) ?? mockAccounts[0]
-  const others = mockAccounts.filter((a) => a.id !== active.id)
+  const active = accounts.find((a) => a.id === activeId) ?? accounts[0]
+  const others = accounts.filter((a) => a.id !== active.id)
 
   // Connection-state → dot color (mirrors AccountCard's avatar-dot
   // pattern so the same IG connection state reads the same everywhere).

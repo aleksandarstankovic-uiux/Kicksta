@@ -52,7 +52,6 @@ import { useSystemStatus } from '@/hooks/useSystemStatus'
 import { useToasts } from '@/stores/useToasts'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
-import GrowthPlusBanner from '@/components/GrowthPlusBanner'
 
 // --- Helpers ---
 
@@ -1758,12 +1757,6 @@ export default function OverviewPage() {
               <ActivityFeed items={mockActivity} period={effectivePeriod} />
             </div>
           </div>
-        </div>
-
-        {/* Growth+ banner — full-width marketing strip that separates the
-            growth chart from the targeting cards below. */}
-        <div className="mt-4">
-          <GrowthPlusBanner isSubscribed={user.growthPlusSubscribed} />
         </div>
 
         {/* Targets + Growth Settings — side by side on lg:, stacked on mobile.
