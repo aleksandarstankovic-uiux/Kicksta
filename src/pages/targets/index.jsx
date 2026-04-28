@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import AccountStripe from '@/components/AccountStripe'
 import TargetsHeroCard from './TargetsHeroCard'
 import FilterRow from './FilterRow'
 import TargetList from './TargetList'
@@ -15,8 +14,7 @@ export default function TargetsPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
-      <AccountStripe />
-      <header className="mt-3">
+      <header>
         <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
           Targeting
         </h1>

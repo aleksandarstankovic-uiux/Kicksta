@@ -2,10 +2,10 @@ import { create } from 'zustand'
 import { mockAccounts, defaultActiveAccountId } from '@/mocks/accounts'
 
 // Connected Instagram accounts. The sidebar AccountSwitcher writes
-// `activeId`; pages and the AccountCard / AccountStripe read the active
-// account through `useActiveAccount`. Any consumer that previously
-// reached for `mockInstagram` directly can switch to this store to
-// reflect the user's currently selected account.
+// `activeId`; consumers read the active account through
+// `useActiveAccount`. Any component that previously reached for
+// `mockInstagram` directly can switch to this store to reflect the
+// user's currently selected account.
 export const useAccounts = create((set) => ({
   accounts: mockAccounts,
   activeId: defaultActiveAccountId,

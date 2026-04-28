@@ -10,7 +10,6 @@ import BlacklistCard from './BlacklistCard'
 import BlacklistModal from './BlacklistModal'
 import GrowthPlusBanner from '@/components/GrowthPlusBanner'
 import UpgradeBottomSheet from '@/components/UpgradeBottomSheet'
-import AccountStripe from '@/components/AccountStripe'
 
 // Growth page layout:
 // - H1 only (no subtitle).
@@ -30,8 +29,7 @@ export default function GrowthPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
-      <AccountStripe />
-      <header className="mt-3">
+      <header>
         <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
           Growth
         </h1>
