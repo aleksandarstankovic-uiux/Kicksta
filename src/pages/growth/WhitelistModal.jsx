@@ -202,7 +202,7 @@ export default function WhitelistModal({ open, onClose }) {
             </p>
           )}
 
-          <div className="mt-4 flex flex-col divide-y divide-border">
+          <div className="mt-4 flex max-h-72 flex-col divide-y divide-border overflow-y-auto">
             {draft.length === 0 && (
               <p className="py-4 text-center text-sm text-text-muted">
                 No accounts whitelisted yet.
