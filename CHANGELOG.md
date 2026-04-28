@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-04-28 — Growth page v7 (refinement pass)
+
+### Changed
+- **Mode card** — selecting a mode is now a draft; saved mode keeps the solid-blue selected style, the staged-but-unsaved mode gets a dashed-blue border + light tint. Save mode + Cancel buttons appear in the header only when draft differs from saved. Save fires the existing debounced toast.
+- **Welcome DM** edit button — bumped to `h-10 px-4 text-sm` (was `h-8 px-3 text-xs`). Matches FiltersModal Save and Mode Save sizes.
+- **Close Friends segmented control** — now fills the row width (`flex w-full` with `flex-1` pills) so the two options split the row evenly.
+- **Filters card** — appended an `Estimated audience` footer block with a count (e.g. `~12,400 accounts match your filters`), a horizontal blue progress bar (settings-derived), and a banded hint sentence. Pure mock formula in `audienceReach.js` — replaceable with a real API later without changing call sites.
+- **Whitelist + Blacklist cards** — each row now shows `[Letter chip] @username · added Xd ago`. Letter chip is a 24×24 muted circle. Timestamp uses a new `formatRelativeShort` helper (compact `5d ago` / `2w ago` / `1mo ago`).
+- **FiltersModal Custom range** — Min/Max inputs now render in BOTH states (greyed/disabled when not Custom; editable when Custom). Removes the height jump that pushed one column taller than the other.
+- **FiltersModal quick presets** — three pills above the two columns (`Most users`, `Niche audience`, `Macro reach`) write all 9 filter values to the draft at once. Save still required to commit.
+- **Whitelist + Blacklist modals** — entries list now caps at `max-h-72` and scrolls internally when many entries are added; header + typeahead + Save/Cancel stay pinned.
+
+### Created
+- `src/components/ResetConfirmModal.jsx` — reusable confirmation for the new Reset to defaults action on every settings card. `bg-red-tint text-red-text` ghost-destructive button per CLAUDE.md.
+- `src/utils/formatRelativeShort.js` — compact relative-time formatter for settings-row timestamps.
+- `src/pages/growth/audienceReach.js` — pure deterministic estimator over the filters object.
+- `src/pages/growth/AudienceReachEstimate.jsx` — UI block consuming the estimator.
+- New store actions: `resetMode`, `resetEngagement`, `resetFilters` on `useGrowthConfig`; `resetWhitelist`, `resetBlacklist` on `useLists`.
+
+### Decisions
+- **Reset semantics for lists** — Reset clears Whitelist/Blacklist to empty, not back to the seed. Seed is for visual richness on a fresh page; "reset" semantically means "remove my customizations."
+- **Custom dropdown when not Custom** — Min/Max inputs show empty values (not the underlying min/max) when the dropdown isn't on Custom. The greyed disabled state communicates "pick Custom to edit." Switching to Custom initialises from whatever the previous preset set the underlying values to.
+- **Mode draft sync** — `useEffect` syncs draft from saved mode when saved mode changes externally (e.g. via Reset). Keeps the staged style in lockstep with the store.
+
+---
+
 ## 2026-04-27 — Growth page v6 (chrome unification + content depth)
 
 ### Changed
