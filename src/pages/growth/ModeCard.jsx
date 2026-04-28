@@ -39,17 +39,14 @@ export default function ModeCard() {
 
   return (
     <section className="mt-4 rounded-xl border border-border bg-surface p-4 lg:p-5">
-      {/* Header row — chip + title + tooltip on the left, "within IG limits" pill on the right.
-          Stacks on mobile so the pill drops to a new line below the chip+title. */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-3">
-          <CardChip color="blue" icon={Settings2} />
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-semibold text-text-primary">Mode</h2>
-            <InfoTooltip text="How Kicksta grows your account. You can change this any time." />
-          </div>
-        </div>
-        <span className="inline-flex items-center gap-1 self-start rounded-full bg-green-tint px-2.5 py-1 text-xs font-medium text-green-text lg:self-auto">
+      {/* Header row — single inline cluster so the safety pill sits next
+          to the title rather than floating against the right edge. Wraps
+          to a new line on narrow viewports if needed. */}
+      <div className="flex flex-wrap items-center gap-3">
+        <CardChip color="blue" icon={Settings2} />
+        <h2 className="text-base font-semibold text-text-primary">Mode</h2>
+        <InfoTooltip text="How Kicksta grows your account. You can change this any time." />
+        <span className="inline-flex items-center gap-1 rounded-full bg-green-tint px-2.5 py-1 text-xs font-medium text-green-text">
           <Check className="h-3 w-3" aria-hidden="true" />
           Within IG limits
         </span>
