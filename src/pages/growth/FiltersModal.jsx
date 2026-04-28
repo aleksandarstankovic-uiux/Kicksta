@@ -96,19 +96,23 @@ function presetKeyFor(presets, min, max) {
 }
 
 function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
-  const currentKey = presetKeyFor(presets, min, max)
+  const matchedKey = presetKeyFor(presets, min, max)
+  // Track an explicit "user picked Custom" flag so the dropdown stays on
+  // Custom even when the current min/max coincidentally match a named
+  // preset (e.g. selecting Custom while on `Any` would otherwise snap
+  // straight back to `Any` because both render the same min/max).
+  const [forcedCustom, setForcedCustom] = useState(matchedKey === 'custom')
+  const currentKey = forcedCustom ? 'custom' : matchedKey
   const isCustom = currentKey === 'custom'
 
   const handleSelect = (e) => {
     const key = e.target.value
     if (key === 'custom') {
-      // Stay on the current min/max; flip the dropdown by writing values
-      // that won't match any preset. The simplest stable trick is to
-      // bump the max by 1 if it currently matches a preset; otherwise
-      // leave the values as-is.
+      setForcedCustom(true)
       onChange({ min: min ?? 0, max: max ?? null })
       return
     }
+    setForcedCustom(false)
     const preset = presets.find((p) => p.key === key)
     if (preset) {
       onChange({ min: preset.min, max: preset.max })

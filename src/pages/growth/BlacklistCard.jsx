@@ -7,7 +7,7 @@ import ResetConfirmModal from '@/components/ResetConfirmModal'
 import { formatRelativeShort } from '@/utils/formatRelativeShort'
 
 function letterFor(username) {
-  return String(username).replace(/^@/, '').charAt(0).toUpperCase() || '·'
+  return String(username ?? '').replace(/^@/, '').charAt(0).toUpperCase() || '·'
 }
 
 export default function BlacklistCard({ onEdit }) {
