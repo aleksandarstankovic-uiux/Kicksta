@@ -6,6 +6,15 @@ import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 import AudienceReachEstimate from './AudienceReachEstimate'
 
+// Three filter tips stacked at the bottom of the card. Static list —
+// every load shows the same three (no rotation/timer) so the card
+// reads stably while it's open.
+const FILTER_TIPS = [
+  'Tighter following ranges (under 1K) tend to find more engaged accounts.',
+  'Public-only profiles return more follow-backs than mixed.',
+  'Excluding NSFW protects your account from auto-flagging.',
+]
+
 function rangeFor(min, max, noun) {
   if ((min === 0 || min == null) && max == null) return 'Any'
   if (min === 0 || min == null) return `Up to ${formatCount(max)} ${noun}`
@@ -109,12 +118,20 @@ export default function FiltersCard({ onEdit }) {
 
       <AudienceReachEstimate />
 
-      <div className="mt-3 flex items-start gap-2 text-xs text-text-muted">
-        <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-yellow-base" aria-hidden="true" />
-        <span>
-          Tip — tighter following ranges (under 1K) tend to find more engaged accounts.
-        </span>
-      </div>
+      <ul className="mt-3 flex flex-col gap-2">
+        {FILTER_TIPS.map((tip) => (
+          <li
+            key={tip}
+            className="flex items-start gap-2 text-xs text-text-muted"
+          >
+            <Lightbulb
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-yellow-base"
+              aria-hidden="true"
+            />
+            <span>{tip}</span>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }
