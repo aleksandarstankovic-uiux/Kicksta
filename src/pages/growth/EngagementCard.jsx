@@ -5,6 +5,7 @@ import { mockUser } from '@/mocks/user'
 import SettingSwitch from '@/components/SettingSwitch'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
+import ResetConfirmModal from '@/components/ResetConfirmModal'
 import WelcomeDmModal from './WelcomeDmModal'
 import WelcomeDmPreview from './WelcomeDmPreview'
 import CloseFriendsProgress from './CloseFriendsProgress'
@@ -36,9 +37,11 @@ export default function EngagementCard({ onRequestUpgrade }) {
     toggleWelcomeDm,
     toggleCloseFriends,
     setCloseFriendsMode,
+    resetEngagement,
   } = useGrowthConfig()
 
   const [dmModalOpen, setDmModalOpen] = useState(false)
+  const [resetOpen, setResetOpen] = useState(false)
 
   const welcomeLocked = isLocked('welcome_dm', mockUser)
   const closeFriendsLocked = isLocked('close_friends', mockUser)
@@ -77,9 +80,6 @@ export default function EngagementCard({ onRequestUpgrade }) {
             locked={welcomeLocked}
             onLockedTap={() => onRequestUpgrade('welcome_dm')}
           />
-          {/* Always rendered. WelcomeDmPreview swaps to muted placeholder
-              copy when `enabled` is false, so the card height stays
-              constant in both states without leaving empty real estate. */}
           <WelcomeDmPreview
             enabled={showPreview}
             message={config.welcomeDm.message}
@@ -97,12 +97,11 @@ export default function EngagementCard({ onRequestUpgrade }) {
             locked={closeFriendsLocked}
             onLockedTap={() => onRequestUpgrade('close_friends')}
           />
-          {/* Same constant-height pattern: segmented pills render in both
-              states (greyed when off), and CloseFriendsProgress shows a
-              0% bar + "Currently inactive" copy when off. */}
+          {/* Segmented control fills the row width — `flex w-full` + `flex-1`
+              on each pill splits the row 50/50. Greyed when toggle is off. */}
           <div className="pb-3 pt-1">
             <div
-              className={`inline-flex rounded-full bg-bg p-1 ${
+              className={`flex w-full rounded-full bg-bg p-1 ${
                 showCfControls ? '' : 'opacity-60'
               }`}
               aria-disabled={!showCfControls}
@@ -115,7 +114,7 @@ export default function EngagementCard({ onRequestUpgrade }) {
                     type="button"
                     onClick={() => setCloseFriendsMode(m.value)}
                     disabled={!showCfControls}
-                    className={`inline-flex h-8 items-center justify-center rounded-full px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed ${
+                    className={`inline-flex h-8 flex-1 items-center justify-center rounded-full px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed ${
                       selected
                         ? 'bg-surface text-text-primary shadow-sm'
                         : 'text-text-secondary hover:text-text-primary'
@@ -131,7 +130,23 @@ export default function EngagementCard({ onRequestUpgrade }) {
         </div>
       </div>
 
+      <div className="mt-4 flex justify-end">
+        <button
+          type="button"
+          onClick={() => setResetOpen(true)}
+          className="text-xs text-text-muted hover:text-text-secondary"
+        >
+          Reset to defaults
+        </button>
+      </div>
+
       <WelcomeDmModal open={dmModalOpen} onClose={() => setDmModalOpen(false)} />
+      <ResetConfirmModal
+        open={resetOpen}
+        onClose={() => setResetOpen(false)}
+        onConfirm={() => resetEngagement()}
+        sectionLabel="Engagement"
+      />
     </section>
   )
 }

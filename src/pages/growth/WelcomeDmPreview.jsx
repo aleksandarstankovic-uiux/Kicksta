@@ -28,9 +28,9 @@ export default function WelcomeDmPreview({ message, onEdit, enabled }) {
           <button
             type="button"
             onClick={onEdit}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-blue-base px-3 text-xs font-medium text-white transition-opacity hover:opacity-90"
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-base px-4 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
-            <Pencil className="h-3 w-3" aria-hidden="true" />
+            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
             Edit message
           </button>
         ) : (
