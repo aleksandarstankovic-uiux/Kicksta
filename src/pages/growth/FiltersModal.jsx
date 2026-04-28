@@ -105,32 +105,23 @@ function presetKeyFor(presets, min, max) {
   return found ? found.key : 'custom'
 }
 
-function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
+// `forcedCustom` is owned by the modal so external actions (Quick
+// presets) can clear it; per-row local state would let the dropdown
+// "snap back" on its own when the user typed preset-matching values
+// while in Custom mode.
+function RangeDropdown({ label, tooltip, presets, min, max, onChange, forcedCustom, onForcedCustomChange }) {
   const matchedKey = presetKeyFor(presets, min, max)
-  // Track an explicit "user picked Custom" flag so the dropdown stays on
-  // Custom even when the current min/max coincidentally match a named
-  // preset (e.g. selecting Custom while on `Any` would otherwise snap
-  // straight back to `Any` because both render the same min/max).
-  const [forcedCustom, setForcedCustom] = useState(matchedKey === 'custom')
-  // Clear the forced flag ONLY when matchedKey changes (i.e. an outside
-  // actor — typically a Quick preset — wrote values that match a named
-  // preset). The dep list omits `forcedCustom` on purpose so flipping
-  // it inside handleSelect doesn't immediately retrigger this and reset
-  // the flag back to false.
-  useEffect(() => {
-    if (matchedKey !== 'custom') setForcedCustom(false)
-  }, [matchedKey])
   const currentKey = forcedCustom ? 'custom' : matchedKey
   const isCustom = currentKey === 'custom'
 
   const handleSelect = (e) => {
     const key = e.target.value
     if (key === 'custom') {
-      setForcedCustom(true)
+      onForcedCustomChange(true)
       onChange({ min: min ?? 0, max: max ?? null })
       return
     }
-    setForcedCustom(false)
+    onForcedCustomChange(false)
     const preset = presets.find((p) => p.key === key)
     if (preset) {
       onChange({ min: preset.min, max: preset.max })
@@ -261,13 +252,37 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
   // Cleared automatically the moment any value in `draft` diverges from
   // the preset's defined values — see the useEffect below.
   const [activePreset, setActivePreset] = useState(null)
+  // Per-range "user picked Custom" flags. Owned by the modal so Quick
+  // presets can clear them; otherwise the dropdown would snap back when
+  // typed values match a preset.
+  const [followingCustom, setFollowingCustom] = useState(false)
+  const [followerCustom, setFollowerCustom] = useState(false)
+  const [mediaCustom, setMediaCustom] = useState(false)
 
   const genderLocked = mockUser.plan !== 'advanced'
 
   useEffect(() => {
     if (!open) return
     setDraft(storedFilters)
-    setActivePreset(null)
+    // Restore any Quick preset that the stored filters fully match —
+    // so reopening the modal shows the previously-applied preset still
+    // selected.
+    const matchingPreset = QUICK_PRESETS.find((p) =>
+      Object.entries(p.values).every(([k, v]) => storedFilters[k] === v),
+    )
+    setActivePreset(matchingPreset ? matchingPreset.key : null)
+    // Initialise Custom flags from whether the stored ranges match a
+    // named preset. If no preset matches, the dropdown lands on Custom
+    // automatically.
+    setFollowingCustom(
+      presetKeyFor(FOLLOWING_PRESETS, storedFilters.followingMin, storedFilters.followingMax) === 'custom',
+    )
+    setFollowerCustom(
+      presetKeyFor(FOLLOWER_PRESETS, storedFilters.followerMin, storedFilters.followerMax) === 'custom',
+    )
+    setMediaCustom(
+      presetKeyFor(MEDIA_PRESETS, storedFilters.mediaMin, storedFilters.mediaMax) === 'custom',
+    )
     setMounted(false)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setMounted(true))
@@ -311,6 +326,11 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
   const applyPreset = (preset) => {
     setDraft((d) => ({ ...d, ...preset.values }))
     setActivePreset(preset.key)
+    // Clear all Custom flags — the preset values match named options on
+    // every range, so the dropdowns should land on those labels.
+    setFollowingCustom(false)
+    setFollowerCustom(false)
+    setMediaCustom(false)
   }
 
   return (
@@ -398,6 +418,8 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
                   onChange={(v) =>
                     setDraft((d) => ({ ...d, followingMin: v.min, followingMax: v.max }))
                   }
+                  forcedCustom={followingCustom}
+                  onForcedCustomChange={setFollowingCustom}
                 />
                 <RangeDropdown
                   label="Follower count"
@@ -408,6 +430,8 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
                   onChange={(v) =>
                     setDraft((d) => ({ ...d, followerMin: v.min, followerMax: v.max }))
                   }
+                  forcedCustom={followerCustom}
+                  onForcedCustomChange={setFollowerCustom}
                 />
                 <RangeDropdown
                   label="Media count"
@@ -418,6 +442,8 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
                   onChange={(v) =>
                     setDraft((d) => ({ ...d, mediaMin: v.min, mediaMax: v.max }))
                   }
+                  forcedCustom={mediaCustom}
+                  onForcedCustomChange={setMediaCustom}
                 />
               </div>
             </div>
