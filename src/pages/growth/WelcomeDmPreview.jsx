@@ -18,7 +18,14 @@ export default function WelcomeDmPreview({ message, onEdit, enabled }) {
             : 'cursor-not-allowed border-transparent bg-bg text-text-muted'
         }`}
       >
-        <span className="line-clamp-2 block">
+        {/* Hard-truncate to exactly 2 lines regardless of message length:
+            line-clamp-2 plus an explicit max-height in line-height units
+            (text-sm × leading-relaxed × 2 lines ≈ 2.85em) so the bubble
+            never grows even if line-clamp is somehow overridden. */}
+        <span
+          className="line-clamp-2 block overflow-hidden break-words"
+          style={{ maxHeight: '2.85em' }}
+        >
           {enabled
             ? message
             : 'Toggle on to send a custom welcome message to new followers.'}

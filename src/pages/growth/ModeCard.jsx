@@ -89,10 +89,6 @@ export default function ModeCard() {
         <CardChip color="blue" icon={Settings2} />
         <h2 className="text-base font-semibold text-text-primary">Mode</h2>
         <InfoTooltip text="How Kicksta grows your account. You can change this any time." />
-        <span className="inline-flex items-center gap-1 rounded-full bg-green-tint px-2.5 py-1 text-xs font-medium text-green-text">
-          <Check className="h-3 w-3" aria-hidden="true" />
-          Within IG limits
-        </span>
 
         {dirty && (
           <div className="ml-auto hidden items-center gap-2 lg:flex">
