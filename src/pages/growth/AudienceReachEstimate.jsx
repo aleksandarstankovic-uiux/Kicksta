@@ -5,16 +5,22 @@ import { estimateAudienceReach } from './audienceReach'
 // Health pill — color-coded label that replaces the v7 progress bar.
 // Tone is `green` for the sweet-spot ("Healthy reach") and `yellow`
 // for both extremes (Very tight / Tight focus / Wide reach).
-function HealthPill({ tone, children }) {
+//
+// Renders the full label on sm:+ and a short label on mobile so it
+// always fits on a single line.
+function HealthPill({ tone, full }) {
   const cls =
     tone === 'green'
       ? 'bg-green-tint text-green-text'
       : 'bg-yellow-tint text-yellow-text'
+  // Drop a trailing " reach" on mobile so the pill stays one-line.
+  const short = full.replace(/ reach$/, '')
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${cls}`}
+      className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-medium ${cls}`}
     >
-      {children}
+      <span className="sm:hidden">{short}</span>
+      <span className="hidden sm:inline">{full}</span>
     </span>
   )
 }
@@ -34,7 +40,7 @@ export default function AudienceReachEstimate() {
         <p className="text-sm font-medium text-text-primary">
           ~{formatCount(count)} accounts match your filters
         </p>
-        <HealthPill tone={tone}>{health}</HealthPill>
+        <HealthPill tone={tone} full={health} />
       </div>
     </div>
   )

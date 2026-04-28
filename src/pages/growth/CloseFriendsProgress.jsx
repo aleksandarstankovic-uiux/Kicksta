@@ -40,7 +40,7 @@ export default function CloseFriendsProgress({ mode, enabled }) {
           className={`text-sm font-medium ${enabled ? 'text-text-primary' : 'text-text-muted'}`}
         >
           {enabled
-            ? `${added} of ${total} followers ${pastTense} (${pct}%)`
+            ? `${added} of ${total} followers ${pastTense}`
             : 'Activity will appear when on'}
         </p>
         {enabled && (
@@ -48,6 +48,12 @@ export default function CloseFriendsProgress({ mode, enabled }) {
             Active
           </span>
         )}
+      </div>
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-border">
+        <div
+          className="h-full rounded-full bg-green-base transition-[width] duration-500"
+          style={{ width: `${enabled ? pct : 0}%` }}
+        />
       </div>
       {enabled && (
         <p className="mt-2 flex items-center gap-2 text-xs text-text-secondary animate-pulse">

@@ -88,9 +88,11 @@ export default function WhitelistModal({ open, onClose }) {
       useToasts.getState().addToast({ message: 'Already in list.', tone: 'warning' })
       return
     }
+    // Newest entries appear at the top of the list — same convention as
+    // the page-level cards so the user immediately sees what they just added.
     setDraft((prev) => [
-      ...prev,
       { id: newId(), username, addedAt: new Date().toISOString() },
+      ...prev,
     ])
     setInput('')
     setPickedMatch(null)

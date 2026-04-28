@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown, SlidersHorizontal, User, Users, X } from 'lucide-react'
+import { ChevronDown, Megaphone, SlidersHorizontal, Target, User, Users, X } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import InfoTooltip from '@/components/InfoTooltip'
@@ -49,6 +49,7 @@ const QUICK_PRESETS = [
   {
     key: 'most_users',
     label: 'Most users',
+    icon: Users,
     description: 'Mid-range followers and posts. Recommended starting point.',
     values: {
       followingMin: 500,
@@ -65,6 +66,7 @@ const QUICK_PRESETS = [
   {
     key: 'niche',
     label: 'Niche audience',
+    icon: Target,
     description: 'Smaller, focused public accounts.',
     values: {
       followingMin: 0,
@@ -81,6 +83,7 @@ const QUICK_PRESETS = [
   {
     key: 'macro',
     label: 'Macro reach',
+    icon: Megaphone,
     description: 'Established creators with large followings.',
     values: {
       followingMin: 5000,
@@ -158,36 +161,38 @@ function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
           aria-hidden="true"
         />
       </div>
-      {/* Min/Max inputs render only when Custom is picked. Quick presets
-          + named options keep both columns visually balanced; deliberately
-          choosing Custom is rare and makes the brief height shift fine. */}
+      {/* Compact labeled Min/Max pair — only renders when Custom is
+          picked. Inputs are fixed-width so they never push past the
+          column or look like full-width form fields. */}
       {isCustom && (
-      <div className="mt-2 flex gap-2">
-        <input
-          type="number"
-          value={min ?? ''}
-          onChange={(e) =>
-            onChange({
-              min: e.target.value === '' ? null : Number(e.target.value),
-              max,
-            })
-          }
-          placeholder="Min"
-          className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-blue-base"
-        />
-        <input
-          type="number"
-          value={max ?? ''}
-          onChange={(e) =>
-            onChange({
-              min,
-              max: e.target.value === '' ? null : Number(e.target.value),
-            })
-          }
-          placeholder="Max"
-          className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary outline-none focus:border-blue-base"
-        />
-      </div>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-text-muted">From</span>
+          <input
+            type="number"
+            value={min ?? ''}
+            onChange={(e) =>
+              onChange({
+                min: e.target.value === '' ? null : Number(e.target.value),
+                max,
+              })
+            }
+            placeholder="Min"
+            className="h-9 w-24 rounded-lg border border-border bg-surface px-2 text-sm text-text-primary outline-none focus:border-blue-base"
+          />
+          <span className="text-xs text-text-muted">to</span>
+          <input
+            type="number"
+            value={max ?? ''}
+            onChange={(e) =>
+              onChange({
+                min,
+                max: e.target.value === '' ? null : Number(e.target.value),
+              })
+            }
+            placeholder="Max"
+            className="h-9 w-24 rounded-lg border border-border bg-surface px-2 text-sm text-text-primary outline-none focus:border-blue-base"
+          />
+        </div>
       )}
     </div>
   )
@@ -347,17 +352,22 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
             <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
               {QUICK_PRESETS.map((p) => {
                 const isActive = activePreset === p.key
+                const Icon = p.icon
                 return (
                   <button
                     key={p.key}
                     type="button"
                     onClick={() => applyPreset(p)}
-                    className={`flex flex-col gap-1 rounded-xl border p-3 text-left transition-all ${
+                    className={`flex flex-col gap-1.5 rounded-xl border p-3 text-left transition-all ${
                       isActive
                         ? 'border-blue-base bg-blue-tint/40 shadow-sm'
                         : 'border-border bg-surface hover:border-border-strong hover:bg-bg'
                     }`}
                   >
+                    <Icon
+                      className={`h-4 w-4 ${isActive ? 'text-blue-base' : 'text-text-secondary'}`}
+                      aria-hidden="true"
+                    />
                     <span
                       className={`text-sm font-semibold ${
                         isActive ? 'text-blue-text' : 'text-text-primary'

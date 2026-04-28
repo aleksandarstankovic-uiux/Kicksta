@@ -1,4 +1,4 @@
-import { Lightbulb, Pencil, SlidersHorizontal } from 'lucide-react'
+import { Lightbulb, Pencil, SlidersHorizontal, User, Users } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import { formatCount } from '@/utils/formatCount'
@@ -41,11 +41,14 @@ function Row({ label, value, locked = false }) {
   )
 }
 
-function GroupHeader({ children }) {
+function GroupHeader({ icon: Icon, children }) {
   return (
-    <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-      {children}
-    </p>
+    <div className="flex items-center gap-2">
+      <Icon className="h-3.5 w-3.5 text-text-secondary" aria-hidden="true" />
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+        {children}
+      </p>
+    </div>
   )
 }
 
@@ -74,7 +77,7 @@ export default function FiltersCard({ onEdit }) {
       </div>
 
       <div className="mt-4">
-        <GroupHeader>Audience size</GroupHeader>
+        <GroupHeader icon={Users}>Audience size</GroupHeader>
         <div className="mt-1 flex flex-col divide-y divide-border">
           <Row
             label="Following count"
@@ -91,8 +94,8 @@ export default function FiltersCard({ onEdit }) {
         </div>
       </div>
 
-      <div className="mt-4">
-        <GroupHeader>Account type</GroupHeader>
+      <div className="mt-4 border-b border-border pb-4">
+        <GroupHeader icon={User}>Account type</GroupHeader>
         <div className="mt-1 flex flex-col divide-y divide-border">
           <Row label="Account privacy" value={privacyLabel(filters.accountPrivacy)} />
           <Row
