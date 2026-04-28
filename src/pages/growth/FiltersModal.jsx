@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown, User, Users, X } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal, User, Users, X } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import InfoTooltip from '@/components/InfoTooltip'
 import SettingSwitch from '@/components/SettingSwitch'
+import CardChip from '@/components/CardChip'
 
 const FOLLOWING_PRESETS = [
   { key: 'any', label: 'Any', min: 0, max: null },
@@ -48,14 +49,12 @@ const QUICK_PRESETS = [
   {
     key: 'most_users',
     label: 'Most users',
+    description: 'Mid-range followers and posts. Recommended starting point.',
     values: {
-      // following = mid (500–5,000)
       followingMin: 500,
       followingMax: 5000,
-      // follower = mid (1,000–50,000)
       followerMin: 1000,
       followerMax: 50000,
-      // media = mid (10–100)
       mediaMin: 10,
       mediaMax: 100,
       accountPrivacy: 'all',
@@ -66,14 +65,12 @@ const QUICK_PRESETS = [
   {
     key: 'niche',
     label: 'Niche audience',
+    description: 'Smaller, focused public accounts.',
     values: {
-      // following = low (Up to 500)
       followingMin: 0,
       followingMax: 500,
-      // follower = low (Up to 1,000)
       followerMin: 0,
       followerMax: 1000,
-      // media = mid (10–100)
       mediaMin: 10,
       mediaMax: 100,
       accountPrivacy: 'public',
@@ -84,14 +81,12 @@ const QUICK_PRESETS = [
   {
     key: 'macro',
     label: 'Macro reach',
+    description: 'Established creators with large followings.',
     values: {
-      // following = high (5,000+)
       followingMin: 5000,
       followingMax: null,
-      // follower = high (50,000+)
       followerMin: 50000,
       followerMax: null,
-      // media = high (100+)
       mediaMin: 100,
       mediaMax: null,
       accountPrivacy: 'all',
@@ -114,11 +109,14 @@ function RangeDropdown({ label, tooltip, presets, min, max, onChange }) {
   // preset (e.g. selecting Custom while on `Any` would otherwise snap
   // straight back to `Any` because both render the same min/max).
   const [forcedCustom, setForcedCustom] = useState(matchedKey === 'custom')
-  // If an outside actor (Quick preset) writes values that match a named
-  // preset, clear the forced flag so the dropdown reflects that preset.
+  // Clear the forced flag ONLY when matchedKey changes (i.e. an outside
+  // actor — typically a Quick preset — wrote values that match a named
+  // preset). The dep list omits `forcedCustom` on purpose so flipping
+  // it inside handleSelect doesn't immediately retrigger this and reset
+  // the flag back to false.
   useEffect(() => {
-    if (matchedKey !== 'custom' && forcedCustom) setForcedCustom(false)
-  }, [matchedKey, forcedCustom])
+    if (matchedKey !== 'custom') setForcedCustom(false)
+  }, [matchedKey])
   const currentKey = forcedCustom ? 'custom' : matchedKey
   const isCustom = currentKey === 'custom'
 
@@ -254,17 +252,33 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
   const toggleExcludeNsfw = useGrowthConfig((s) => s.toggleExcludeNsfw)
 
   const [draft, setDraft] = useState(storedFilters)
+  // Tracks the currently-applied Quick preset (highlighted in the UI).
+  // Cleared automatically the moment any value in `draft` diverges from
+  // the preset's defined values — see the useEffect below.
+  const [activePreset, setActivePreset] = useState(null)
 
   const genderLocked = mockUser.plan !== 'advanced'
 
   useEffect(() => {
     if (!open) return
     setDraft(storedFilters)
+    setActivePreset(null)
     setMounted(false)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setMounted(true))
     })
   }, [open, storedFilters])
+
+  // Auto-deselect the active preset when the draft drifts away from it.
+  useEffect(() => {
+    if (!activePreset) return
+    const preset = QUICK_PRESETS.find((p) => p.key === activePreset)
+    if (!preset) return
+    const stillMatches = Object.entries(preset.values).every(
+      ([k, v]) => draft[k] === v,
+    )
+    if (!stillMatches) setActivePreset(null)
+  }, [draft, activePreset])
 
   useEffect(() => {
     if (!open) return
@@ -291,6 +305,7 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
 
   const applyPreset = (preset) => {
     setDraft((d) => ({ ...d, ...preset.values }))
+    setActivePreset(preset.key)
   }
 
   return (
@@ -309,13 +324,16 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
-        <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <h2 className="text-base font-semibold text-text-primary">Edit filters</h2>
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+          <div className="flex items-center gap-3">
+            <CardChip color="yellow" icon={SlidersHorizontal} />
+            <h2 className="text-base font-semibold text-text-primary">Edit filters</h2>
+          </div>
           <button
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -326,17 +344,33 @@ export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
             <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
               Quick presets
             </p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {QUICK_PRESETS.map((p) => (
-                <button
-                  key={p.key}
-                  type="button"
-                  onClick={() => applyPreset(p)}
-                  className="inline-flex h-9 items-center rounded-full bg-bg px-4 text-sm font-medium text-text-secondary transition-colors hover:bg-blue-tint hover:text-blue-text"
-                >
-                  {p.label}
-                </button>
-              ))}
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {QUICK_PRESETS.map((p) => {
+                const isActive = activePreset === p.key
+                return (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => applyPreset(p)}
+                    className={`flex flex-col gap-1 rounded-xl border p-3 text-left transition-all ${
+                      isActive
+                        ? 'border-blue-base bg-blue-tint/40 shadow-sm'
+                        : 'border-border bg-surface hover:border-border-strong hover:bg-bg'
+                    }`}
+                  >
+                    <span
+                      className={`text-sm font-semibold ${
+                        isActive ? 'text-blue-text' : 'text-text-primary'
+                      }`}
+                    >
+                      {p.label}
+                    </span>
+                    <span className="text-xs leading-snug text-text-secondary">
+                      {p.description}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
           </div>
 

@@ -2,10 +2,10 @@
 // deterministic, no side effects, replaceable with a real API later
 // without changing call sites.
 //
-// Returns { count, pct, hint }:
-//   count — estimated matching accounts (clamped to [200, 50000])
-//   pct   — bar fill percent in [2, 100]
-//   hint  — short copy band that flips by count
+// Returns { count, health, tone }:
+//   count  — estimated matching accounts (clamped to [200, 50000])
+//   health — short label for the configuration health
+//   tone   — token suffix used for the health pill ("green" | "yellow")
 
 const POOL = 50_000
 
@@ -54,11 +54,22 @@ export function estimateAudienceReach(filters) {
     NSFW_FACTOR(filters.excludeNsfw)
   const raw = Math.round(POOL * factor)
   const count = Math.max(200, Math.min(POOL, raw))
-  const pct = Math.max(2, Math.min(100, Math.round((count / POOL) * 100)))
-  let hint
-  if (count < 500) hint = 'Filters are very tight — consider widening one.'
-  else if (count < 2000) hint = 'Tight focus.'
-  else if (count < 20000) hint = 'Healthy reach.'
-  else hint = 'Wide reach — consider narrowing for relevance.'
-  return { count, pct, hint }
+  // Health bands. Tone uses CLAUDE.md tokens — green for the sweet
+  // spot, yellow for both extremes (too tight / too wide). Red is
+  // reserved for connection errors elsewhere on the dashboard.
+  let health, tone
+  if (count < 500) {
+    health = 'Very tight'
+    tone = 'yellow'
+  } else if (count < 2000) {
+    health = 'Tight focus'
+    tone = 'yellow'
+  } else if (count < 20000) {
+    health = 'Healthy reach'
+    tone = 'green'
+  } else {
+    health = 'Wide reach'
+    tone = 'yellow'
+  }
+  return { count, health, tone }
 }

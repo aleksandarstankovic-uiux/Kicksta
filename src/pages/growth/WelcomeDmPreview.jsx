@@ -12,10 +12,10 @@ export default function WelcomeDmPreview({ message, onEdit, enabled }) {
         onClick={enabled ? onEdit : undefined}
         disabled={!enabled}
         aria-label={enabled ? 'Edit welcome DM message' : undefined}
-        className={`w-full rounded-2xl rounded-tl-sm px-3 py-2 text-left text-sm leading-relaxed transition-colors ${
+        className={`group w-full rounded-2xl rounded-tl-sm border px-3 py-2 text-left text-sm leading-relaxed transition-all ${
           enabled
-            ? 'cursor-pointer bg-blue-tint text-text-primary hover:bg-blue-tint/80'
-            : 'cursor-not-allowed bg-bg text-text-muted'
+            ? 'cursor-pointer border-transparent bg-blue-tint text-text-primary hover:border-blue-base hover:bg-blue-tint/70 hover:shadow-sm'
+            : 'cursor-not-allowed border-transparent bg-bg text-text-muted'
         }`}
       >
         <span className="line-clamp-2 block">

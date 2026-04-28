@@ -4,14 +4,14 @@ import {
   mockCloseFriendsRecentHandles,
 } from '@/mocks/growthConfig'
 
-// Progress bar + animated handle ticker for the Close Friends Adder.
-// Values are mocked from src/mocks/growthConfig.js — real wiring is
-// future work.
+// Activity block for the Close Friends Adder. Visual treatment mirrors
+// `AudienceReachEstimate` — same container recipe, same eyebrow style,
+// same right-side status pill — so the two settings-derived cards on
+// the page read as siblings.
 //
 // `mode` is 'add' | 'remove'; the verb in the ticker line flips
-// accordingly. When `enabled === false`, the same shape renders with
-// muted placeholder copy + a 0% bar — keeps the Engagement card
-// height constant whether the toggle is on or off.
+// accordingly. When `enabled === false`, the block renders the same
+// shell with muted placeholder copy (no active pill).
 export default function CloseFriendsProgress({ mode, enabled }) {
   const { added, total } = mockCloseFriendsProgress
   const pct = Math.max(0, Math.min(100, Math.round((added / total) * 100)))
@@ -31,29 +31,29 @@ export default function CloseFriendsProgress({ mode, enabled }) {
   const handle = mockCloseFriendsRecentHandles[handleIdx]
 
   return (
-    <div className="mt-3">
-      <div className="rounded-lg bg-bg p-3">
+    <div className="mt-3 rounded-lg bg-bg p-4">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+        Activity
+      </p>
+      <div className="mt-1 flex items-center justify-between gap-3">
         <p
-          className={`text-xs font-medium ${enabled ? 'text-text-primary' : 'text-text-muted'}`}
+          className={`text-sm font-medium ${enabled ? 'text-text-primary' : 'text-text-muted'}`}
         >
           {enabled
-            ? `${added} of ${total} followers ${pastTense}`
-            : 'Progress will appear when on'}
+            ? `${added} of ${total} followers ${pastTense} (${pct}%)`
+            : 'Activity will appear when on'}
         </p>
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border">
-          <div
-            className="h-full rounded-full bg-green-base transition-[width] duration-500"
-            style={{ width: `${enabled ? pct : 0}%` }}
-          />
-        </div>
+        {enabled && (
+          <span className="inline-flex items-center rounded-full bg-green-tint px-2.5 py-1 text-xs font-medium text-green-text">
+            Active
+          </span>
+        )}
       </div>
-      <p
-        className={`mt-2 flex items-center gap-2 text-xs ${
-          enabled ? 'animate-pulse text-text-secondary' : 'text-text-muted'
-        }`}
-      >
-        {enabled ? `${verb} ${handle}…` : 'Currently inactive'}
-      </p>
+      {enabled && (
+        <p className="mt-2 flex items-center gap-2 text-xs text-text-secondary animate-pulse">
+          {verb} {handle}…
+        </p>
+      )}
     </div>
   )
 }

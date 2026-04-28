@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { X } from 'lucide-react'
+import { MessageSquare, X } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
+import CardChip from '@/components/CardChip'
 
 // Modal for editing the Welcome DM message. Auto-saves on Save click;
 // Cancel discards edits. Keeps the Engagement card fixed-height.
@@ -53,13 +54,16 @@ export default function WelcomeDmModal({ open, onClose }) {
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
-        <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <h2 className="text-base font-semibold text-text-primary">Welcome DM message</h2>
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+          <div className="flex items-center gap-3">
+            <CardChip color="green" icon={MessageSquare} />
+            <h2 className="text-base font-semibold text-text-primary">Welcome DM message</h2>
+          </div>
           <button
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>

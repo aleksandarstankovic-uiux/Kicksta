@@ -33,6 +33,9 @@ export default function GrowthPage() {
         <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
           Growth
         </h1>
+        <p className="mt-1 text-sm text-text-secondary">
+          Configure how Kicksta grows your account.
+        </p>
       </header>
 
       <ModeCard />

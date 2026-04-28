@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { ShieldCheck, X } from 'lucide-react'
 import { useLists } from '@/stores/useLists'
 import { useToasts } from '@/stores/useToasts'
 import { searchTargets } from '@/mocks/targetSearch'
 import { formatCount } from '@/utils/formatCount'
+import CardChip from '@/components/CardChip'
+import { formatRelativeShort } from '@/utils/formatRelativeShort'
 
 const newId = () => `w_${Math.random().toString(36).slice(2, 8)}`
+
+function letterFor(username) {
+  return String(username ?? '').replace(/^@/, '').charAt(0).toUpperCase() || '·'
+}
 
 export default function WhitelistModal({ open, onClose }) {
   const [mounted, setMounted] = useState(false)
@@ -122,13 +128,16 @@ export default function WhitelistModal({ open, onClose }) {
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
-        <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <h2 className="text-base font-semibold text-text-primary">Edit whitelist</h2>
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+          <div className="flex items-center gap-3">
+            <CardChip color="green" icon={ShieldCheck} />
+            <h2 className="text-base font-semibold text-text-primary">Edit whitelist</h2>
+          </div>
           <button
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -209,13 +218,21 @@ export default function WhitelistModal({ open, onClose }) {
               </p>
             )}
             {draft.map((e) => (
-              <div key={e.id} className="flex items-center justify-between py-3">
-                <span className="text-sm text-text-primary">{e.username}</span>
+              <div key={e.id} className="flex items-center gap-3 py-2.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg text-xs font-semibold text-text-secondary">
+                  {letterFor(e.username)}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm text-text-primary">
+                  {e.username}
+                </span>
+                <span className="shrink-0 text-xs text-text-muted">
+                  added {formatRelativeShort(e.addedAt)}
+                </span>
                 <button
                   type="button"
                   onClick={() => handleRemove(e.id)}
                   aria-label={`Remove ${e.username}`}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-red-text"
+                  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-red-text"
                 >
                   <X className="h-4 w-4" aria-hidden="true" />
                 </button>
