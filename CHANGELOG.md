@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-04-29 — Settings page fixes
+
+### Changed
+- **Sub-nav selected state** — desktop SettingsNav active row gains a leading 3-px blue accent bar; mobile active row flips its icon chip to filled `bg-blue-base text-white`. Selection is now unmistakable at a glance.
+- **ProfilePanel** restructured — was three section cards, now one outer card with two eyebrow-labeled sections (Personal info / Security). Communication preferences removed entirely (the wrong surface for transactional notification routing; will get its own page if ever needed). All inline edits are gone — every Edit button opens a focused modal (`EditNameModal`, `EditEmailModal`, `EditPhoneModal`, plus the existing `PasswordModal`). The four modals dispatch via `open-edit-*-modal` CustomEvents and mount inside the AccountPage shell.
+- **Multiple payment methods** — `usePaymentMethod` (singular) replaced by `usePaymentMethods` (plural) with `cards`, `addCard`, `removeCard`, `setPrimary`, `updateCard`. The card list shows brand + last4 + Primary pill + expiry, with a kebab menu offering Set as primary / Edit / Remove. Add row at the bottom opens `EditPaymentModal` in add-mode (modal supports both modes via a `cardId` prop). Removing the primary or the last card fires an explanatory error toast.
+- **Payment method card** — header copy promoted to `text-lg font-semibold leading-snug`. The "Used by N subscriptions · $X/mo total" line moves out of the muted footer into a prominent `bg-bg` summary pill at the top of the card.
+- **Billing email removed** from per-card display (it's a user-level field; per-card billing email is store-only for now).
+- **Billing history compacted** — mobile invoice rows collapse from 3 lines to 2 (date + amount + status pill on top, description + Download on bottom). Desktop description column gets `truncate max-w-[40ch]` with a title attribute so long descriptions don't wrap rows.
+- **SubscriptionCard** stripped — drops the "Currently active" pill, drops the Server line, drops the "N invoices · Active for X days" footer; keeps avatar + username + inline status pill + plan label + a single bottom "Next billing: $X on date" line.
+- **`/account/subscriptions/:id` is now a standalone page** — lifted out of the `/account` settings shell into a sibling route under `DashboardLayout`. Renders without the settings nav rail; header is its own (back-arrow icon button + avatar + username + status pill). Two-hop mobile path collapses to one obvious back arrow per hop.
+- **Mobile shell redesigned** — `/account` itself drops the marketing subtitle and renders as a settings menu screen. Each panel (`profile` / `payment` / `subscriptions`) on mobile gets its own H1 (the panel name) with a 44×44 ChevronLeft back-arrow icon button to its left. The "← Settings" text link is gone. Desktop two-pane layout unchanged.
+
+### Created
+- `src/stores/usePaymentMethods.js`, `src/mocks/paymentMethods.js`
+- `src/pages/account/PaymentMethodsCard.jsx`
+- `src/pages/account/EditNameModal.jsx`, `EditEmailModal.jsx`, `EditPhoneModal.jsx`
+
+### Removed
+- `src/stores/usePaymentMethod.js`, `src/mocks/paymentMethod.js`, `src/pages/account/PaymentMethodCard.jsx` (superseded by plural variants)
+- `commPrefs` + `setCommPref` from `useUserProfile`
+- The "Currently active" pill on SubscriptionCard
+- The activity-line footer on SubscriptionCard
+
+### Decisions
+- One primary card on file, billed for every subscription. Per-subscription card overrides deferred.
+- Communication preferences off the Profile page entirely; will get its own surface only if needed.
+
+---
+
 ## 2026-04-29 — Settings page polish
 
 ### Changed
