@@ -26,25 +26,27 @@ export default function SubscriptionDetail() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6 lg:px-8">
-      {/* Standalone header — no settings shell wrapper. */}
-      <div className="flex items-center gap-3">
+      {/* Standalone header — no settings shell wrapper. Smaller
+          back button + avatar on phones so the username + status
+          pill have room. Username truncates if needed. */}
+      <div className="flex items-center gap-2 sm:gap-3">
         <Link
           to="/account/subscriptions"
           aria-label="Back to subscriptions"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary sm:h-11 sm:w-11"
         >
           <ChevronLeft className="h-5 w-5" />
         </Link>
         {profilePic ? (
-          <img src={profilePic} alt="" className="h-11 w-11 rounded-full object-cover" />
+          <img src={profilePic} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover sm:h-11 sm:w-11" />
         ) : (
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-tint text-base font-semibold text-blue-text">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-tint text-base font-semibold text-blue-text sm:h-11 sm:w-11">
             {letterFor(username)}
           </span>
         )}
-        <div className="flex flex-1 flex-wrap items-center gap-2">
-          <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">{username}</h1>
-          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${pill.cls}`}>
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <h1 className="truncate text-base font-semibold leading-snug text-text-primary sm:text-lg lg:text-xl">{username}</h1>
+          <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${pill.cls}`}>
             {pill.label}
           </span>
         </div>

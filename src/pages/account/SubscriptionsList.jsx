@@ -23,9 +23,11 @@ export default function SubscriptionsList() {
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="inline-flex h-10 items-center gap-1 rounded-lg bg-blue-base px-3 text-sm font-medium text-white hover:opacity-90"
+          aria-label="Add subscription"
+          className="inline-flex h-10 shrink-0 items-center gap-1 rounded-lg bg-blue-base px-3 text-sm font-medium text-white hover:opacity-90"
         >
-          <Plus className="h-4 w-4" /> Add subscription
+          <Plus className="h-4 w-4" />
+          <span className="hidden sm:inline">Add subscription</span>
         </button>
       </div>
 

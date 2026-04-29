@@ -4,12 +4,16 @@ import { useUserProfile } from '@/stores/useUserProfile'
 
 // Change-password modal. Validates: current required, new ≥ 8 chars,
 // confirm must match new. Mock current is "password" — see store.
+//
+// Errors are scoped per-field via `errors.<field>` so the message
+// renders directly under the field it relates to instead of as a
+// single bottom-of-form line.
 export default function PasswordModal({ open, onClose }) {
   const [mounted, setMounted] = useState(false)
   const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
-  const [error, setError] = useState('')
+  const [errors, setErrors] = useState({})
   const [busy, setBusy] = useState(false)
 
   const changePassword = useUserProfile((s) => s.changePassword)
@@ -20,7 +24,7 @@ export default function PasswordModal({ open, onClose }) {
     setCurrent('')
     setNext('')
     setConfirm('')
-    setError('')
+    setErrors({})
     setBusy(false)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setMounted(true))
@@ -38,15 +42,34 @@ export default function PasswordModal({ open, onClose }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setError('')
-    if (!current) return setError('Enter your current password.')
-    if (next.length < 8) return setError('New password must be at least 8 characters.')
-    if (next !== confirm) return setError('Passwords do not match.')
+    // Validate every field up front and surface ALL errors so the
+    // user sees each one underneath its own input on the first
+    // submit, not one-at-a-time.
+    const next_errors = {}
+    if (!current) next_errors.current = 'Enter your current password.'
+    if (!next) {
+      next_errors.next = 'Enter a new password.'
+    } else if (next.length < 8) {
+      next_errors.next = 'New password must be at least 8 characters.'
+    }
+    if (!confirm) {
+      next_errors.confirm = 'Re-enter your new password.'
+    } else if (next && next !== confirm) {
+      next_errors.confirm = 'Passwords do not match.'
+    }
+    if (Object.keys(next_errors).length > 0) {
+      setErrors(next_errors)
+      return
+    }
+
+    setErrors({})
     setBusy(true)
     const result = await changePassword({ current, next })
     setBusy(false)
     if (!result.ok) {
-      setError(result.error)
+      // Backend rejection always relates to the current password
+      // in V1 (mock store only validates `current`).
+      setErrors({ current: result.error })
       return
     }
     onClose()
@@ -79,10 +102,37 @@ export default function PasswordModal({ open, onClose }) {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Field label="Current password" type="password" value={current} onChange={setCurrent} />
-          <Field label="New password" type="password" value={next} onChange={setNext} hint="At least 8 characters." />
-          <Field label="Confirm new password" type="password" value={confirm} onChange={setConfirm} />
-          {error && <p className="text-xs text-red-text" role="alert">{error}</p>}
+          <Field
+            label="Current password"
+            type="password"
+            value={current}
+            onChange={(v) => {
+              setCurrent(v)
+              if (errors.current) setErrors((p) => ({ ...p, current: undefined }))
+            }}
+            error={errors.current}
+          />
+          <Field
+            label="New password"
+            type="password"
+            value={next}
+            onChange={(v) => {
+              setNext(v)
+              if (errors.next) setErrors((p) => ({ ...p, next: undefined }))
+            }}
+            error={errors.next}
+            hint="At least 8 characters."
+          />
+          <Field
+            label="Confirm new password"
+            type="password"
+            value={confirm}
+            onChange={(v) => {
+              setConfirm(v)
+              if (errors.confirm) setErrors((p) => ({ ...p, confirm: undefined }))
+            }}
+            error={errors.confirm}
+          />
         </div>
 
         <div className="mt-5 flex items-center justify-end gap-2">
@@ -106,7 +156,7 @@ export default function PasswordModal({ open, onClose }) {
   )
 }
 
-function Field({ label, type, value, onChange, hint }) {
+function Field({ label, type, value, onChange, hint, error }) {
   return (
     <label className="flex flex-col gap-1">
       <span className="text-sm font-medium text-text-secondary">{label}</span>
@@ -114,9 +164,16 @@ function Field({ label, type, value, onChange, hint }) {
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-lg border border-border bg-surface px-3 text-sm text-text-primary focus:border-blue-base focus:outline-none"
+        aria-invalid={!!error}
+        className={`h-10 rounded-lg border bg-surface px-3 text-sm text-text-primary focus:outline-none ${
+          error ? 'border-red-base focus:border-red-base' : 'border-border focus:border-blue-base'
+        }`}
       />
-      {hint && <span className="text-xs text-text-muted">{hint}</span>}
+      {error ? (
+        <span className="text-xs text-red-text" role="alert">{error}</span>
+      ) : (
+        hint && <span className="text-xs text-text-muted">{hint}</span>
+      )}
     </label>
   )
 }

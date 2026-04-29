@@ -11,14 +11,14 @@ function fireOpen(event) {
   window.dispatchEvent(new CustomEvent(event))
 }
 
-// One row inside a section. All edits open a modal — no inline
-// editing anywhere.
+// One row inside the Profile card. All edits open a modal — no
+// inline editing anywhere.
 function Row({ label, value, onEdit }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-border py-3 last:border-b-0">
-      <div className="flex flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <span className="text-sm font-medium text-text-secondary">{label}</span>
-        <span className="text-sm text-text-primary">{value}</span>
+        <span className="truncate text-sm text-text-primary">{value}</span>
       </div>
       <button
         onClick={onEdit}
@@ -46,26 +46,11 @@ export default function ProfilePanel() {
         <InfoTooltip text="Identity, contact info, and login credentials for your Kicksta account." />
       </div>
 
-      {/* Personal info section */}
-      <div className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
-          Personal info
-        </p>
-        <div className="mt-2 flex flex-col">
-          <Row label="Name" value={fullName} onEdit={() => fireOpen('open-edit-name-modal')} />
-          <Row label="Email" value={profile.email} onEdit={() => fireOpen('open-edit-email-modal')} />
-          <Row label="Phone number" value={phoneDisplay} onEdit={() => fireOpen('open-edit-phone-modal')} />
-        </div>
-      </div>
-
-      {/* Security section */}
-      <div className="mt-6 border-t border-border pt-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
-          Security
-        </p>
-        <div className="mt-2 flex flex-col">
-          <Row label="Password" value="••••••••" onEdit={() => fireOpen('open-password-modal')} />
-        </div>
+      <div className="mt-4 flex flex-col">
+        <Row label="Name" value={fullName} onEdit={() => fireOpen('open-edit-name-modal')} />
+        <Row label="Email" value={profile.email} onEdit={() => fireOpen('open-edit-email-modal')} />
+        <Row label="Phone number" value={phoneDisplay} onEdit={() => fireOpen('open-edit-phone-modal')} />
+        <Row label="Password" value="••••••••" onEdit={() => fireOpen('open-password-modal')} />
       </div>
     </div>
   )

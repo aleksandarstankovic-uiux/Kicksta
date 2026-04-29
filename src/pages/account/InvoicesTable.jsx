@@ -34,6 +34,19 @@ function formatDate(iso) {
   })
 }
 
+function DownloadButton({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label="Download invoice"
+      title="Download invoice"
+      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-blue-text hover:bg-bg"
+    >
+      <Download className="h-4 w-4" />
+    </button>
+  )
+}
+
 export default function InvoicesTable({ invoices, emptyMessage = 'No invoices yet.' }) {
   function handleDownload() {
     useToasts.getState().addToast({
@@ -58,13 +71,14 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
-      {/* Desktop: real table. Description column truncates so long
-          values never push a row to two lines. */}
+      {/* Desktop: real table. The description column has a fixed
+          width via table-layout:auto + the inner <span> applying
+          truncate, so long descriptions never push the row taller. */}
       <table className="hidden w-full text-left text-sm md:table">
         <thead className="border-b border-border bg-bg/40 text-xs uppercase tracking-wide text-text-secondary">
           <tr>
             <th className="whitespace-nowrap px-4 py-3 font-medium">Date</th>
-            <th className="px-4 py-3 font-medium">Description</th>
+            <th className="w-full px-4 py-3 font-medium">Description</th>
             <th className="whitespace-nowrap px-4 py-3 font-medium">Amount</th>
             <th className="whitespace-nowrap px-4 py-3 font-medium">Status</th>
             <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Action</th>
@@ -74,22 +88,19 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
           {sorted.map((inv) => (
             <tr key={inv.id} className="border-b border-border last:border-b-0">
               <td className="whitespace-nowrap px-4 py-3 text-text-primary">{formatDate(inv.date)}</td>
-              <td className="max-w-[40ch] truncate px-4 py-3 text-text-secondary" title={inv.description}>
-                {inv.description}
+              <td className="px-4 py-3 text-text-secondary">
+                <span className="block max-w-[28ch] truncate" title={inv.description}>
+                  {inv.description}
+                </span>
               </td>
               <td className="whitespace-nowrap px-4 py-3 font-medium text-text-primary">
                 ${inv.amount.toFixed(2)}
               </td>
-              <td className="px-4 py-3">
+              <td className="whitespace-nowrap px-4 py-3">
                 <StatusPill status={inv.status} />
               </td>
               <td className="whitespace-nowrap px-4 py-3 text-right">
-                <button
-                  onClick={handleDownload}
-                  className="inline-flex h-10 items-center gap-1 rounded-md px-2 text-sm font-medium text-blue-text hover:bg-bg"
-                >
-                  <Download className="h-3.5 w-3.5" /> Download
-                </button>
+                <DownloadButton onClick={handleDownload} />
               </td>
             </tr>
           ))}
@@ -108,15 +119,10 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
               <span className="ml-auto"><StatusPill status={inv.status} /></span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <p className="truncate text-xs text-text-secondary" title={inv.description}>
+              <p className="min-w-0 flex-1 truncate text-xs text-text-secondary" title={inv.description}>
                 {inv.description}
               </p>
-              <button
-                onClick={handleDownload}
-                className="inline-flex h-10 shrink-0 items-center gap-1 rounded-md px-2 text-sm font-medium text-blue-text"
-              >
-                <Download className="h-3.5 w-3.5" /> Download
-              </button>
+              <DownloadButton onClick={handleDownload} />
             </div>
           </li>
         ))}

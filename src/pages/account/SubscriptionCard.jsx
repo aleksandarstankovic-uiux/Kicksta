@@ -28,9 +28,9 @@ export default function SubscriptionCard({ subscription }) {
             {letterFor(username)}
           </span>
         )}
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold text-text-primary">{username}</p>
+            <p className="truncate text-sm font-semibold text-text-primary">{username}</p>
             <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${pill.cls}`}>
               {pill.label}
             </span>
