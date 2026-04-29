@@ -1,10 +1,19 @@
+import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import SettingsNav from './SettingsNav'
+import PasswordModal from './PasswordModal'
 
-// Settings shell. Renders the page title, the secondary settings nav
-// (left column on desktop, top row on mobile), and the active panel
-// via <Outlet />. Children are routed under /account/*.
 export default function AccountPage() {
+  const [passwordOpen, setPasswordOpen] = useState(false)
+
+  useEffect(() => {
+    function open() {
+      setPasswordOpen(true)
+    }
+    window.addEventListener('open-password-modal', open)
+    return () => window.removeEventListener('open-password-modal', open)
+  }, [])
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
       <header>
@@ -24,6 +33,8 @@ export default function AccountPage() {
           <Outlet />
         </section>
       </div>
+
+      <PasswordModal open={passwordOpen} onClose={() => setPasswordOpen(false)} />
     </div>
   )
 }
