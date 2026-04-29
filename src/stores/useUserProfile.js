@@ -80,7 +80,3 @@ export const useUserProfile = create((set, get) => ({
     return { ok: true }
   },
 }))
-
-export function useFullName() {
-  return useUserProfile((s) => `${s.firstName} ${s.lastName}`.trim())
-}
