@@ -50,10 +50,12 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        // w-80 is the natural width; max-w cap prevents overflow on very
-        // narrow devices (e.g. 320px iPhone SE) where the dropdown extending
-        // leftward from the bell would otherwise run off the left edge.
-        <div className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-surface shadow-xl">
+        // Open rightward on desktop (`lg:left-0`) since the bell lives at
+        // the right edge of the narrow sidebar — anchoring to its right
+        // would push the panel off the left side of the viewport. On
+        // mobile the bell sits at the top-right of the page, so we keep
+        // `right-0` there so the panel stays on-screen.
+        <div className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-surface shadow-xl lg:right-auto lg:left-0">
           <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
             <h3 className="text-sm font-semibold text-text-primary">Notifications</h3>
             <div className="flex items-center gap-1">
