@@ -8,17 +8,7 @@ import PlanCard from './PlanCard'
 import ServerCard from './ServerCard'
 import InvoicesTable from './InvoicesTable'
 import CancelSubscriptionModal from './CancelSubscriptionModal'
-
-const STATUS_PILL = {
-  active: { cls: 'bg-green-tint text-green-text', label: 'Active' },
-  trialing: { cls: 'bg-blue-tint text-blue-text', label: 'Trialing' },
-  past_due: { cls: 'bg-red-tint text-red-text', label: 'Past due' },
-  canceled: { cls: 'bg-bg text-text-secondary', label: 'Canceled' },
-}
-
-function letterFor(username) {
-  return String(username ?? '').replace(/^@/, '').charAt(0).toUpperCase() || '·'
-}
+import { STATUS_PILL, letterFor } from './subscriptionShared'
 
 export default function SubscriptionDetail() {
   const { id } = useParams()
@@ -51,9 +41,9 @@ export default function SubscriptionDetail() {
             {letterFor(username)}
           </span>
         )}
-        <div className="flex-1">
+        <div className="flex flex-1 flex-wrap items-center gap-2">
           <h2 className="text-lg font-semibold text-text-primary">{username}</h2>
-          <span className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${pill.cls}`}>
+          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${pill.cls}`}>
             {pill.label}
           </span>
         </div>
@@ -63,7 +53,7 @@ export default function SubscriptionDetail() {
       <ServerCard subscription={sub} />
 
       <div className="flex flex-col gap-3">
-        <h3 className="text-base font-semibold text-text-primary">Invoices</h3>
+        <h2 className="text-base font-semibold text-text-primary">Invoices</h2>
         <InvoicesTable
           invoices={invoices}
           emptyMessage="No invoices yet for this subscription."
@@ -72,7 +62,7 @@ export default function SubscriptionDetail() {
 
       <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border bg-bg p-4 md:flex-row md:items-center md:justify-between md:p-6">
         <div>
-          <p className="text-sm font-semibold text-text-primary">Cancel subscription</p>
+          <h2 className="text-base font-semibold text-text-primary">Cancel subscription</h2>
           <p className="mt-0.5 text-xs text-text-secondary">
             Cancel to stop growth and end billing for this account.
           </p>
@@ -81,7 +71,7 @@ export default function SubscriptionDetail() {
           onClick={() => setCancelOpen(true)}
           className="inline-flex h-10 shrink-0 items-center rounded-lg bg-red-tint px-4 text-sm font-medium text-red-text hover:bg-red-tint/80"
         >
-          Cancel...
+          Cancel subscription
         </button>
       </div>
 

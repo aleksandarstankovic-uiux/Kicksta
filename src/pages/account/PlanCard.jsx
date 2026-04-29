@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react'
+import { Layers } from 'lucide-react'
+import CardChip from '@/components/CardChip'
+import InfoTooltip from '@/components/InfoTooltip'
 import ConfirmGrowthPlusModal from './ConfirmGrowthPlusModal'
 
 const PLAN_PRICE = { growth: 29, advanced: 49 }
@@ -12,6 +15,11 @@ function formatDate(iso) {
   })
 }
 
+function daysSince(iso) {
+  const ms = Date.now() - new Date(iso).getTime()
+  return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)))
+}
+
 export default function PlanCard({ subscription }) {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
@@ -19,12 +27,17 @@ export default function PlanCard({ subscription }) {
   const planPrice = PLAN_PRICE[subscription.plan]
   const total = planPrice + (subscription.growthPlus ? 10 : 0)
   const isAdvanced = subscription.plan === 'advanced'
+  const memberDays = daysSince(subscription.startedAt)
 
   return (
     <div className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
-      <h3 className="text-base font-semibold text-text-primary">Plan</h3>
+      <div className="flex items-center gap-2">
+        <CardChip color="blue" icon={Layers} />
+        <h2 className="text-base font-semibold text-text-primary">Plan</h2>
+        <InfoTooltip text="What you pay each month. Upgrade to unlock more growth slots and Welcome DMs." />
+      </div>
 
-      <dl className="mt-3 flex flex-col gap-2 text-sm">
+      <dl className="mt-4 flex flex-col gap-2 text-sm">
         <div className="flex items-center justify-between">
           <dt className="text-text-secondary">{PLAN_LABEL[subscription.plan]} plan</dt>
           <dd className="font-medium text-text-primary">${planPrice}/mo</dd>
@@ -41,8 +54,12 @@ export default function PlanCard({ subscription }) {
         </div>
       </dl>
 
+      <p className="mt-3 text-xs text-text-muted">
+        Subscribed since {formatDate(subscription.startedAt)} · {memberDays} {memberDays === 1 ? 'day' : 'days'}
+      </p>
+
       {subscription.status === 'trialing' && subscription.trialEndsAt && (
-        <p className="mt-3 text-xs text-text-secondary">
+        <p className="mt-1 text-xs text-text-secondary">
           Trial ends {formatDate(subscription.trialEndsAt)}.
         </p>
       )}

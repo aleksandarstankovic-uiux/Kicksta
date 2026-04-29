@@ -1,4 +1,4 @@
-import { Download } from 'lucide-react'
+import { Download, Receipt } from 'lucide-react'
 import { useToasts } from '@/stores/useToasts'
 
 const STATUS_CLS = {
@@ -6,10 +6,24 @@ const STATUS_CLS = {
   failed: 'bg-red-tint text-red-text',
   pending: 'bg-yellow-tint text-yellow-text',
 }
+const STATUS_DOT = {
+  paid: 'bg-green-base',
+  failed: 'bg-red-base',
+  pending: 'bg-yellow-base',
+}
 const STATUS_LABEL = {
   paid: 'Paid',
   failed: 'Failed',
   pending: 'Pending',
+}
+
+function StatusPill({ status }) {
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CLS[status]}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[status]}`} aria-hidden="true" />
+      {STATUS_LABEL[status]}
+    </span>
+  )
 }
 
 function formatDate(iso) {
@@ -30,8 +44,11 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
 
   if (!invoices || invoices.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface p-6 text-center text-sm text-text-secondary shadow-sm">
-        {emptyMessage}
+      <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-8 text-center shadow-sm">
+        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg text-text-muted">
+          <Receipt className="h-5 w-5" />
+        </span>
+        <p className="text-sm text-text-secondary">{emptyMessage}</p>
       </div>
     )
   }
@@ -59,14 +76,12 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
               <td className="px-4 py-3 text-text-secondary">{inv.description}</td>
               <td className="px-4 py-3 font-medium text-text-primary">${inv.amount.toFixed(2)}</td>
               <td className="px-4 py-3">
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CLS[inv.status]}`}>
-                  {STATUS_LABEL[inv.status]}
-                </span>
+                <StatusPill status={inv.status} />
               </td>
               <td className="px-4 py-3 text-right">
                 <button
                   onClick={handleDownload}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-blue-text hover:underline"
+                  className="inline-flex h-10 items-center gap-1 rounded-md px-2 text-sm font-medium text-blue-text hover:bg-bg"
                 >
                   <Download className="h-3.5 w-3.5" /> Download
                 </button>
@@ -86,12 +101,10 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
             </div>
             <p className="truncate text-xs text-text-secondary">{inv.description}</p>
             <div className="flex items-center justify-between gap-3">
-              <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CLS[inv.status]}`}>
-                {STATUS_LABEL[inv.status]}
-              </span>
+              <StatusPill status={inv.status} />
               <button
                 onClick={handleDownload}
-                className="inline-flex items-center gap-1 text-sm font-medium text-blue-text"
+                className="inline-flex h-10 items-center gap-1 rounded-md px-2 text-sm font-medium text-blue-text"
               >
                 <Download className="h-3.5 w-3.5" /> Download
               </button>

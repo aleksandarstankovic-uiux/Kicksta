@@ -2,34 +2,22 @@ import { Link } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 import { useAccounts } from '@/stores/useAccounts'
 import { findServer } from '@/mocks/servers'
-
-const STATUS_PILL = {
-  active: { cls: 'bg-green-tint text-green-text', label: 'Active' },
-  trialing: { cls: 'bg-blue-tint text-blue-text', label: 'Trialing' },
-  past_due: { cls: 'bg-red-tint text-red-text', label: 'Past due' },
-  canceled: { cls: 'bg-bg text-text-secondary', label: 'Canceled' },
-}
-
-function letterFor(username) {
-  return String(username ?? '').replace(/^@/, '').charAt(0).toUpperCase() || '·'
-}
-
-function formatDate(iso) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
+import { invoicesForSubscription } from '@/mocks/invoices'
+import { STATUS_PILL, daysSince, formatDate, letterFor } from './subscriptionShared'
 
 export default function SubscriptionCard({ subscription }) {
   const accounts = useAccounts((s) => s.accounts)
+  const activeAccountId = useAccounts((s) => s.activeId)
   const account = accounts.find((a) => a.id === subscription.accountId)
   const username = account?.username ?? '@unknown'
   const profilePic = account?.profilePic ?? null
   const pill = STATUS_PILL[subscription.status] ?? STATUS_PILL.active
   const server = findServer(subscription.server)
   const planLabel = subscription.plan === 'advanced' ? 'Advanced plan' : 'Growth plan'
+
+  const isActiveAccount = subscription.accountId === activeAccountId
+  const memberDays = daysSince(subscription.startedAt)
+  const invoiceCount = invoicesForSubscription(subscription.id).length
 
   return (
     <Link
@@ -49,8 +37,15 @@ export default function SubscriptionCard({ subscription }) {
           </span>
         )}
         <div className="flex-1">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-text-primary">{username}</p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-text-primary">{username}</p>
+              {isActiveAccount && (
+                <span className="inline-flex rounded-full bg-blue-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-text">
+                  Currently active
+                </span>
+              )}
+            </div>
             <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${pill.cls}`}>
               {pill.label}
             </span>
@@ -68,8 +63,11 @@ export default function SubscriptionCard({ subscription }) {
               </span>
             </p>
           </div>
+          <p className="mt-2 text-xs text-text-muted">
+            {invoiceCount} {invoiceCount === 1 ? 'invoice' : 'invoices'} · Active for {memberDays} {memberDays === 1 ? 'day' : 'days'}
+          </p>
         </div>
-        <ChevronRight className="hidden h-5 w-5 shrink-0 text-text-muted lg:block" />
+        <ChevronRight className="h-5 w-5 shrink-0 self-center text-text-muted" />
       </div>
     </Link>
   )
