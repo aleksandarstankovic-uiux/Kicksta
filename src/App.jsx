@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import DashboardLayout from '@/components/DashboardLayout'
 import SignupLayout from '@/components/SignupLayout'
 import OverviewPage from '@/pages/overview'
@@ -29,7 +29,6 @@ export default function App() {
         <Route path="/targets" element={<TargetsPage />} />
         <Route path="/growth" element={<GrowthPage />} />
         <Route path="/account" element={<AccountPage />}>
-          <Route index element={<Navigate to="/account/profile" replace />} />
           <Route path="profile" element={<ProfilePanel />} />
           <Route path="payment" element={<PaymentPanel />} />
           <Route path="subscriptions" element={<SubscriptionsList />} />
