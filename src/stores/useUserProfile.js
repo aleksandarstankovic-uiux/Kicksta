@@ -17,13 +17,12 @@ const initialName = splitName(mockUser.name)
 // User profile (the human, not the IG account). Edits here propagate
 // to the profile dropdown and Account header. SMS comm pref auto-
 // flips off if the phone number is removed.
-export const useUserProfile = create((set, get) => ({
+export const useUserProfile = create((set) => ({
   firstName: initialName.firstName,
   lastName: initialName.lastName,
   email: mockUser.email,
   phoneCountry: 'US',
   phoneNumber: null,
-  commPrefs: { email: true, sms: false },
 
   setName: ({ firstName, lastName }) => {
     set({ firstName: firstName.trim(), lastName: lastName.trim() })
@@ -41,29 +40,10 @@ export const useUserProfile = create((set, get) => ({
   setPhone: ({ country, number }) => {
     const trimmed = number?.trim() || null
     set({ phoneCountry: country, phoneNumber: trimmed })
-    if (!trimmed) {
-      // Removing the phone number disables the SMS channel.
-      set((state) => ({ commPrefs: { ...state.commPrefs, sms: false } }))
-    }
     useToasts.getState().addToast({
       message: trimmed ? 'Phone number updated.' : 'Phone number removed.',
       tone: 'success',
     })
-  },
-
-  setCommPref: (channel, on) => {
-    // Per spec: at least one channel must remain on. Block toggles
-    // that would turn the last channel off.
-    const current = get().commPrefs
-    const next = { ...current, [channel]: on }
-    if (!next.email && !next.sms) {
-      useToasts.getState().addToast({
-        message: 'At least one contact channel must remain on.',
-        tone: 'error',
-      })
-      return
-    }
-    set({ commPrefs: next })
   },
 
   // Mock password change. Resolves with `{ ok: true }` if `current`
