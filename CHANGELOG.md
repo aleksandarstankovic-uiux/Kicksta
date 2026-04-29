@@ -5,6 +5,47 @@
 
 ---
 
+## 2026-04-29 — Growth polish + cross-page sync
+
+### Changed
+- **Cross-page data sync** — `TargetsOverview` and `GrowthSettingsSnapshot` on the Overview page now subscribe to `useTargetsStore` and `useGrowthConfig` directly. Adding/pausing/removing a target on Targeting, or toggling Mode/Engagement/Filters on Growth, now reflects in real time on Overview.
+- **Top Targets on Overview** — rows now show the same avatar treatment as the Targeting page (`Hash` icon for hashtags, profile pic when available, letter chip otherwise) AND the same colored status pill (`Active` / `Queued` / `Paused` / `Depleted`). The legacy status dot + tooltip + Depleted-only pill is gone.
+- **AccountSwitcher** rewired to a real Zustand store. New `useAccounts` (`accounts`, `activeId`, `setActiveId`) plus a derived `useActiveAccount()` selector. Clicking a different account in the sidebar now writes to the shared store; consumers can subscribe instead of reading the static `mockInstagram` constant.
+- **NotificationBell** now reads from a `useNotifications` store with `markAsRead(id)` + `markAllRead()` actions. Each notification row in the dropdown is a clickable button — tap to mark read; the unread badge dot disappears. New "Mark all read" link in the dropdown header (visible only when unread > 0). Dropdown position changed to `right-0 lg:right-auto lg:left-0` so it opens rightward into the main content area on desktop instead of off the left edge of the narrow sidebar.
+- **Growth page Mode draft** — saved-but-deselected card now keeps a *muted* Check icon as a memory of the prior choice; the staged card gets the solid-blue treatment. Mobile gets a duplicate Save mode + Cancel button row below the option grid (`flex lg:hidden`) so the user can confirm without scrolling back to the header.
+- **Growth page Welcome DM** — chat bubble itself is the affordance now (clickable, with a hover border + shadow); separate "Edit message" button is gone. Helper line below reads "Click the bubble to edit" / "Edit becomes available when on". Bubble hard-truncates to 2 lines (`line-clamp-2` + `maxHeight: '2.85em'` + `overflow-hidden`) — never expands regardless of message length.
+- **Growth page Close Friends Activity** — visual parity with `AudienceReachEstimate`: same `rounded-lg bg-bg p-4` shell, eyebrow + count + "Active" pill on the right + green progress bar + pulsing handle ticker. Off-state shows a 0% bar + "Activity will appear when on".
+- **Filters card** — section group headers gain a small icon prefix (`Users` for "Audience size", `User` for "Account type"). Bottom border between Account Type rows and the Estimated Audience block is now flush (no `pb-4`). Estimated Audience drops the horizontal progress bar in favour of a green/yellow `Healthy reach` health pill (mobile drops the trailing " reach" via `sm:hidden` / `hidden sm:inline`).
+- **FiltersModal** — header gets a yellow `SlidersHorizontal` `CardChip`. Quick presets become bigger card-style buttons (3-col grid) with icon + label + description per preset. Selected preset shows solid blue border + tint and persists across modal open/close (on open, the modal computes which preset matches stored filters and restores `activePreset`). Auto-deselects when any draft field diverges from the active preset's defined values. Range Min/Max inputs render *only* when Custom is picked — compact inline `From [Min w-24] to [Max w-24]` pair instead of full-width inputs that clipped into the next column. `forcedCustom` lifted to modal-level state so picking Custom and typing preset-matching values does *not* snap the dropdown back.
+- **Whitelist + Blacklist modals** — get matching `CardChip` headers (green ShieldCheck / neutral Ban). Modal entry rows now use the same letter-chip + @username + "added Xd ago" recipe as the page cards. New entries prepend (`[entry, ...prev]`) instead of appending so the most recent addition shows at the top.
+- **WelcomeDmModal** header — green `MessageSquare` `CardChip`.
+
+### Created
+- `src/stores/useAccounts.js` — Zustand store for connected IG accounts. `useActiveAccount()` returns the currently selected account.
+- `src/stores/useNotifications.js` — Zustand store for the bell-icon dropdown.
+- `src/pages/growth/audienceReach.js` (already shipped in v7 plan, re-confirming returns now `{ count, health, tone }`).
+
+### Removed
+- **GrowthPlusBanner from Overview** — same banner appearing on both Overview and Growth read as repetitive. Kept only on Growth where the upgrade action is closer to context.
+- **"Within IG limits" pill** from the Mode card header.
+- **`Reset to defaults`** ghost-link footer + `ResetConfirmModal` and the corresponding store reset actions (`resetMode`/`resetEngagement`/`resetFilters`/`resetWhitelist`/`resetBlacklist`). Decision was that the reset mechanic didn't fit the v7 surface.
+- **`AccountStripe`** — added briefly above page titles on Targeting + Growth, then removed at the user's request. The `useAccounts` store stays.
+- The 3-tip stack experiment in the Filters card (reverted to the single `Lightbulb` line).
+
+### Decisions
+- Filter mock seed updated to land on labelled preset values (`followingMin: 500, followingMax: 5000` etc.) so the FiltersModal opens on named options instead of three "Custom…" dropdowns.
+- The active preset is computed against stored filters on every modal open — no sticky session state needed beyond what's in `useGrowthConfig`.
+- Notifications dropdown anchoring is per-breakpoint: right-anchored on mobile (bell at top-right of the page) and left-anchored on desktop (bell at top-right of the narrow sidebar) so it never extends off-screen.
+
+### Deferred / known gaps (from the cross-page audit)
+- **AccountSwitcher → page content propagation** — the store now exists, but Overview's `AccountCard` / metrics / chart / activity feed still read from `mockInstagram`. Switching accounts only updates the sidebar trigger UI today.
+- **System pause state** — Overview's pause/resume button uses local `useState`; doesn't share with the Targeting page's `useSystemStatus` (which is a phase simulator, not a writable store).
+- **Plan-tier reads** — `EngagementCard` / `FiltersCard` / `TargetsHeroCard` still read `mockUser.plan` directly. Will fold into a `useUser` store when the plan upgrade flow lands.
+- **GrowthPlusBanner subscriber metrics** always render `mockGrowthPlusInsights` regardless of subscriber state. Cosmetic-only since users can't subscribe in V1.
+- **Chart predicted bars** still violate PRODUCT.md's "no projected data" rule (acknowledged from earlier sessions).
+
+---
+
 ## 2026-04-28 — Growth page v7 (refinement pass)
 
 ### Changed

@@ -34,7 +34,11 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 
 ### Overview (`/`, `src/pages/overview/index.jsx`)
 
-Single large file (~2000 lines) hosting: greeting + period switcher · TrialBanner (last day) · AccountCard with live status under `@handle` and Pause/Resume CTA · 3 metric cards (Total followers, Followers gained, Follow-back rate) · GrowthChart (5fr) + ActivityFeed (3fr) · GrowthPlusBanner · TargetsOverview + GrowthSettingsSnapshot.
+Single large file (~2000 lines) hosting: greeting + period switcher · TrialBanner (last day) · AccountCard with live status under `@handle` and Pause/Resume CTA · 3 metric cards (Total followers, Followers gained, Follow-back rate) · GrowthChart (5fr) + ActivityFeed (3fr) · TargetsOverview + GrowthSettingsSnapshot.
+
+> **Cross-page sync (2026-04-29):** `TargetsOverview` now subscribes to `useTargetsStore` and `GrowthSettingsSnapshot` to `useGrowthConfig`. Changes made on the Targeting / Growth pages reflect here in real time. The stale `mockTargets` / `mockGrowthConfig` props are gone.
+
+> **GrowthPlusBanner dropped (2026-04-29):** previously sat between the chart and TargetsOverview; removed to avoid the "saw this already" feeling between Overview and Growth. Banner stays only on Growth.
 
 **AccountCard (v4):**
 - Avatar + `@handle` + plan + Trial pills · live status line directly under handle (icon + "Currently following @x" / etc.) with whole-line `animate-pulse` during running phases · `Pause growth` / `Resume growth` CTA on the right (outline ghost when running, filled green when paused). Hidden during `warming_up` / `setup`. Full-name line removed.
@@ -47,6 +51,8 @@ Single large file (~2000 lines) hosting: greeting + period switcher · TrialBann
 
 **ActivityFeed:**
 - Capped at 5 items · Red `LIVE` pill · 7-day trial slice when `period === 'trial'`.
+
+**TargetsOverview rows (2026-04-29):** Avatar treatment matches TargetRow on the Targeting page — `Hash` icon for hashtags, profile pic when available, otherwise a 28×28 letter chip. Status rendering replaces dot+tooltip+depleted-only-pill with a uniform colored status pill (`Active` / `Queued` / `Paused` / `Depleted`) — same recipe as the Targeting page.
 
 ---
 
@@ -159,12 +165,14 @@ src/stores/useLists.js          + resetWhitelist + resetBlacklist
 
 **Desktop sidebar** (`lg:+`, `w-60` or `w-16` collapsed):
 1. Logo + `NotificationBell`
-2. **AccountSwitcher** — avatar (with 12px connection-status dot) + `@handle` + follower count + chevron. Dropdown: 288px fixed (`w-72`), extends past sidebar. Active account row (Check + PlanPill + followers) + other accounts (PlanPill + followers OR red `AlertTriangle` + "Disconnected") + divider + "Add account" → `/signup/connect-instagram`.
+2. **AccountSwitcher** — reads from `useAccounts` (active id + accounts list). Avatar (with 12px connection-status dot) + `@handle` + follower count + chevron. Dropdown: 288px fixed (`w-72`), extends past sidebar. Active account row (Check + PlanPill + followers) + other accounts (PlanPill + followers OR red `AlertTriangle` + "Disconnected") + divider + "Add account" → `/signup/connect-instagram`. Selecting another account writes to the store (consumers can subscribe via `useActiveAccount()`).
 3. Separator (`border-b border-border pb-3`)
 4. Nav tabs: Overview · **Targeting** (label, route stays `/targets`) · Growth
 5. Bottom: Signup flow (dev) · `SystemStatusRow` · Collapse · Logout
 
 **Mobile**: header with `SystemStatusIconButton` + logo + `NotificationBell`; bottom tab bar Overview / Targeting / Growth.
+
+**NotificationBell** — reads from `useNotifications` store (`items`, `markAsRead`, `markAllRead`). Each row is a clickable button — tap to mark read. "Mark all read" link in dropdown header (visible only when unread > 0). Dropdown anchoring is breakpoint-aware: `right-0` on mobile (bell at top-right of page) and `lg:right-auto lg:left-0` on desktop (bell at top-right of narrow sidebar) so it never extends off-screen.
 
 `<ToastContainer />` mounted once at the layout's root for global toasts.
 
@@ -188,9 +196,20 @@ src/stores/useLists.js          + resetWhitelist + resetBlacklist
 - `getWindowSlice(data, period)` — `'trial'` → last 7 · period preset branches
 - `getPeriodLabel`, `isTrialLastDay`, `remainingTime`, `filterByWindow` — same trial-7-day cutoff
 - `formatCount(n)` — `128400 → "128K"` / `12.4M`
+- `formatRelativeShort(iso)` — compact `5d ago` / `2w ago` / `1mo ago` for settings-row timestamps
 - `useSystemStatus()` — shared phase-cycle hook; consumed by Overview AccountLiveStatus + Targeting LiveActivityCard
 - `useToasts.getState().addToast({message, tone, duration})` — fire toasts from any module-level handler
 - Modal animation pattern: `mounted` state + `requestAnimationFrame` x2 → toggle `translate-y-4 → 0` + `opacity-0 → 100` over 200ms
+
+## Stores (Zustand)
+
+- `useGrowthConfig` — Mode + Engagement + Filters config; debounced "Settings saved." toast via `announceSaved()`. Consumed by Growth page cards AND Overview's `GrowthSettingsSnapshot`.
+- `useLists` — whitelist + blacklist; `addEntry`, `removeEntry`, `replaceWhitelist`, `replaceBlacklist`. Consumed by Whitelist/Blacklist cards + modals.
+- `useTargetsStore` — targets list + filter/sort + CRUD. Consumed by Targeting page AND Overview's `TargetsOverview`.
+- `useAccounts` (2026-04-29) — connected IG accounts (`accounts`, `activeId`, `setActiveId`); `useActiveAccount()` selector returns the current account.
+- `useNotifications` (2026-04-29) — bell-icon dropdown items + `markAsRead(id)` / `markAllRead()`.
+- `useToasts` — global toast queue.
+- `useThemeStore` — light/dark; persisted to localStorage.
 
 ---
 
@@ -232,3 +251,4 @@ src/stores/useLists.js          + resetWhitelist + resetBlacklist
 - **2026-04-27 (growth v5)** — Visual cohesion + readability pass: dropped SafetyStrip (safety copy moved into ModeCard footer); grouped Filters under AUDIENCE SIZE / ACCOUNT TYPE with per-row icons; split Lists into separate Whitelist (green ShieldCheck) and Blacklist (neutral Ban) cards each with its own Edit modal; new `LiveActivityStrip` above Growth+ banner; extracted `GrowthPlusBanner` to shared `src/components/` (used by Overview + Growth) with new "Add Growth+" CTA and "Manage subscription" subscriber link; stubbed `/account/growth-plus` route; split `replaceLists` into `replaceWhitelist` + `replaceBlacklist`
 - **2026-04-27 (growth v6)** — Chrome + content depth pass: tinted `CardChip` per card (blue/green/yellow/neutral) replacing flat headers; subtitles dropped, `InfoTooltip` everywhere; ModeCard becomes the hero with within-IG-limits pill (no standalone safety line); EngagementCard embeds `WelcomeDmPreview` chat bubble + `CloseFriendsProgress` bar/ticker when their toggles are on; FiltersModal redesigned (max-w-2xl, 2-col, dropdowns + Custom, bigger pills, NSFW as switch); Whitelist + Blacklist fused into `ListsCard` with two halves; LiveActivityStrip + PresetRangePills + WhitelistCard + BlacklistCard deleted; H1 subtitle removed
 - **2026-04-28 (growth v7)** — Refinement pass: Mode draft+Save (dashed-blue staged style); bigger Welcome DM Edit button; full-width Close Friends segmented; Filters appended `AudienceReachEstimate` (deterministic mock formula); Whitelist/Blacklist letter chips + relative timestamps; FiltersModal range Min/Max always render (no jump on Custom) + Quick presets row; List modals cap entries at `max-h-72` with internal scroll; per-card `Reset to defaults` link + `ResetConfirmModal` with `bg-red-tint text-red-text` button; new store actions `resetMode/resetEngagement/resetFilters/resetWhitelist/resetBlacklist`
+- **2026-04-29 (growth polish + cross-page sync)** — Cross-page sync: Overview's `TargetsOverview` + `GrowthSettingsSnapshot` now subscribe to live stores; Top Targets rows match Targeting (avatars + status pills); GrowthPlusBanner removed from Overview. New stores: `useAccounts` (AccountSwitcher rewired) + `useNotifications` (bell read state, "Mark all read", per-row click-to-read). Notification dropdown anchoring breakpoint-aware. Growth page polish: Mode staged card visual swap, Welcome DM bubble click-to-edit + hard 2-line truncate, Close Friends Activity matches AudienceReachEstimate framing, Filters section icons, Estimated Audience health pill (no bar) with mobile-short label, FiltersModal modal-level `forcedCustom` flag (compact From/To Custom inputs, Quick preset persistence), modal headers gain `CardChip`. Removed: "Within IG limits" pill, all `Reset to defaults` footers + `ResetConfirmModal`, `AccountStripe` (added then removed)
