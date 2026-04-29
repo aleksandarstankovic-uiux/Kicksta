@@ -32,8 +32,8 @@ export default function App() {
           <Route path="profile" element={<ProfilePanel />} />
           <Route path="payment" element={<PaymentPanel />} />
           <Route path="subscriptions" element={<SubscriptionsList />} />
-          <Route path="subscriptions/:id" element={<SubscriptionDetail />} />
         </Route>
+        <Route path="/account/subscriptions/:id" element={<SubscriptionDetail />} />
         <Route path="/account/growth-plus" element={<AccountGrowthPlusPage />} />
       </Route>
 
