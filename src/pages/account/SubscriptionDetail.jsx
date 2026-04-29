@@ -2,6 +2,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useSubscriptions } from '@/stores/useSubscriptions'
 import { useAccounts } from '@/stores/useAccounts'
+import PlanCard from './PlanCard'
 
 const STATUS_PILL = {
   active: { cls: 'bg-green-tint text-green-text', label: 'Active' },
@@ -51,7 +52,7 @@ export default function SubscriptionDetail() {
         </div>
       </div>
 
-      {/* Cards land here in subsequent tasks. */}
+      <PlanCard subscription={sub} />
     </div>
   )
 }
