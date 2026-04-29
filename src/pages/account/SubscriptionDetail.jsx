@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { useSubscriptions } from '@/stores/useSubscriptions'
 import { useAccounts } from '@/stores/useAccounts'
 import PlanCard from './PlanCard'
+import ServerCard from './ServerCard'
 
 const STATUS_PILL = {
   active: { cls: 'bg-green-tint text-green-text', label: 'Active' },
@@ -53,6 +54,8 @@ export default function SubscriptionDetail() {
       </div>
 
       <PlanCard subscription={sub} />
+      <ServerCard subscription={sub} />
+
     </div>
   )
 }
