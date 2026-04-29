@@ -5,6 +5,30 @@
 
 ---
 
+## 2026-04-29 — User settings page
+
+### Created
+- `/account/profile`, `/account/payment`, `/account/subscriptions`, `/account/subscriptions/:id` — full settings area with two-pane shell, inline-edit profile, card-on-file editor, consolidated + per-subscription invoice tables, plan/server/Growth+ controls.
+- Stores: `useUserProfile`, `usePaymentMethod`, `useSubscriptions`.
+- Mocks: `subscriptions.js`, `invoices.js`, `paymentMethod.js`, `servers.js`.
+- Stub modals for Upgrade plan, Add subscription (routes to `/signup/connect-instagram`), Cancel subscription — full flows deferred to their own specs.
+
+### Changed
+- **Sidebar nav swap** — "System status" entry replaced by "Settings" routing to `/account` (gear icon, active across all `/account/*` routes). Mobile top header drops the System Status icon button (kept a same-size spacer to preserve the centered logo).
+- **`/account` redirect** — hitting `/account` now redirects to `/account/profile` via a nested index route. The previous placeholder Account page is gone.
+
+### Decisions
+- Each connected IG account = one subscription; one shared payment method covers all.
+- Plan upgrade, Add subscription, and Cancel subscription ship as stubs in this spec; full flows get their own specs later.
+
+### Deferred / known gaps
+- 6-step cancellation flow (separate spec).
+- In-product upgrade comparison sheet (separate spec).
+- Native Add-subscription flow (currently routes to signup connect-IG).
+- Real email-change verification, real password update, real card processing — all mocked.
+
+---
+
 ## 2026-04-29 — Growth polish + cross-page sync
 
 ### Changed

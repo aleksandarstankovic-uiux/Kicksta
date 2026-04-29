@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useToasts } from '@/stores/useToasts'
 import ConfirmGrowthPlusModal from './ConfirmGrowthPlusModal'
 
 const PLAN_PRICE = { growth: 29, advanced: 49 }
@@ -84,7 +83,6 @@ function UpgradeStubModal({ open, onClose }) {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => setMounted(true))
     })
-    useToasts.getState() // prime store reference (no-op)
   }, [open])
 
   useEffect(() => {
