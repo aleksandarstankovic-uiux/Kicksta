@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useLocation, Link } from 'react-router-dom'
-import { BarChart3, Target, TrendingUp, PanelLeftClose, PanelLeftOpen, LogOut, Bell, AlertTriangle, TrendingUp as GrowthIcon, X, Sparkles, ChevronsUpDown, Plus, Check } from 'lucide-react'
+import { BarChart3, Target, TrendingUp, PanelLeftClose, PanelLeftOpen, LogOut, Bell, AlertTriangle, TrendingUp as GrowthIcon, X, Sparkles, ChevronsUpDown, Plus, Check, Settings as SettingsIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/stores/useNotifications'
 import { useAccounts } from '@/stores/useAccounts'
-import { SystemStatusRow, SystemStatusIconButton } from '@/components/SystemStatus'
 import ToastContainer from '@/components/Toast'
 import kickstaLogo from '@/assets/kicksta-logo.svg'
 import kickstaFullLogo from '@/assets/kicksta-full-logo.svg'
@@ -424,7 +423,25 @@ export default function DashboardLayout() {
             <Sparkles className="h-5 w-5 shrink-0" />
             {!collapsed && 'Signup flow'}
           </Link>
-          <SystemStatusRow collapsed={collapsed} />
+          {/* Settings — replaces System status. Routes to /account, which
+    redirects to /account/profile. Active when path starts with
+    /account so subscription drilldowns also light up the entry. */}
+<NavLink
+  to="/account"
+  title={collapsed ? 'Settings' : undefined}
+  className={({ isActive }) =>
+    cn(
+      'flex items-center rounded-lg text-sm font-medium transition-colors',
+      collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
+      isActive
+        ? 'bg-blue-tint text-blue-text'
+        : 'text-text-secondary hover:bg-bg hover:text-text-primary'
+    )
+  }
+>
+  <SettingsIcon className="h-5 w-5 shrink-0" />
+  {!collapsed && 'Settings'}
+</NavLink>
           <button
             onClick={() => setCollapsed((v) => !v)}
             className={cn(
@@ -460,7 +477,7 @@ export default function DashboardLayout() {
           System status replaces the temporary Signup flow dev link — that
           entry now lives only in the desktop sidebar until V1 ships. */}
       <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-surface px-4 lg:hidden">
-        <SystemStatusIconButton />
+        <div className="h-10 w-10" aria-hidden="true" />
         <img src={kickstaLogo} alt="Kicksta" className="h-8" />
         <NotificationBell />
       </header>
