@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import DashboardLayout from '@/components/DashboardLayout'
 import SignupLayout from '@/components/SignupLayout'
 import OverviewPage from '@/pages/overview'
@@ -6,6 +6,10 @@ import TargetsPage from '@/pages/targets'
 import GrowthPage from '@/pages/growth'
 import AccountPage from '@/pages/account'
 import AccountGrowthPlusPage from '@/pages/accountGrowthPlus'
+import ProfilePanel from '@/pages/account/ProfilePanel'
+import PaymentPanel from '@/pages/account/PaymentPanel'
+import SubscriptionsList from '@/pages/account/SubscriptionsList'
+import SubscriptionDetail from '@/pages/account/SubscriptionDetail'
 import IgPreview from '@/pages/signup/steps/IgPreview'
 import PlanSelection from '@/pages/signup/steps/PlanSelection'
 import Billing from '@/pages/signup/steps/Billing'
@@ -24,7 +28,13 @@ export default function App() {
         <Route path="/" element={<OverviewPage />} />
         <Route path="/targets" element={<TargetsPage />} />
         <Route path="/growth" element={<GrowthPage />} />
-        <Route path="/account" element={<AccountPage />} />
+        <Route path="/account" element={<AccountPage />}>
+          <Route index element={<Navigate to="/account/profile" replace />} />
+          <Route path="profile" element={<ProfilePanel />} />
+          <Route path="payment" element={<PaymentPanel />} />
+          <Route path="subscriptions" element={<SubscriptionsList />} />
+          <Route path="subscriptions/:id" element={<SubscriptionDetail />} />
+        </Route>
         <Route path="/account/growth-plus" element={<AccountGrowthPlusPage />} />
       </Route>
 
