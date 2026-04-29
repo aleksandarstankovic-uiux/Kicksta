@@ -1,9 +1,13 @@
+import { useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useSubscriptions } from '@/stores/useSubscriptions'
 import { useAccounts } from '@/stores/useAccounts'
+import { invoicesForSubscription } from '@/mocks/invoices'
 import PlanCard from './PlanCard'
 import ServerCard from './ServerCard'
+import InvoicesTable from './InvoicesTable'
+import CancelSubscriptionModal from './CancelSubscriptionModal'
 
 const STATUS_PILL = {
   active: { cls: 'bg-green-tint text-green-text', label: 'Active' },
@@ -20,6 +24,7 @@ export default function SubscriptionDetail() {
   const { id } = useParams()
   const sub = useSubscriptions((s) => s.subscriptions.find((x) => x.id === id))
   const accounts = useAccounts((s) => s.accounts)
+  const [cancelOpen, setCancelOpen] = useState(false)
 
   if (!sub) return <Navigate to="/account/subscriptions" replace />
 
@@ -27,6 +32,7 @@ export default function SubscriptionDetail() {
   const username = account?.username ?? '@unknown'
   const profilePic = account?.profilePic ?? null
   const pill = STATUS_PILL[sub.status] ?? STATUS_PILL.active
+  const invoices = invoicesForSubscription(sub.id)
 
   return (
     <div className="flex flex-col gap-6">
@@ -56,6 +62,30 @@ export default function SubscriptionDetail() {
       <PlanCard subscription={sub} />
       <ServerCard subscription={sub} />
 
+      <div className="flex flex-col gap-3">
+        <h3 className="text-base font-semibold text-text-primary">Invoices</h3>
+        <InvoicesTable
+          invoices={invoices}
+          emptyMessage="No invoices yet for this subscription."
+        />
+      </div>
+
+      <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border bg-bg p-4 md:flex-row md:items-center md:justify-between md:p-6">
+        <div>
+          <p className="text-sm font-semibold text-text-primary">Cancel subscription</p>
+          <p className="mt-0.5 text-xs text-text-secondary">
+            Cancel to stop growth and end billing for this account.
+          </p>
+        </div>
+        <button
+          onClick={() => setCancelOpen(true)}
+          className="inline-flex h-10 shrink-0 items-center rounded-lg bg-red-tint px-4 text-sm font-medium text-red-text hover:bg-red-tint/80"
+        >
+          Cancel...
+        </button>
+      </div>
+
+      <CancelSubscriptionModal open={cancelOpen} onClose={() => setCancelOpen(false)} />
     </div>
   )
 }
