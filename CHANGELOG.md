@@ -5,6 +5,31 @@
 
 ---
 
+## 2026-04-29 — Settings page polish
+
+### Changed
+- **Visual parity with Growth/Targeting** — every settings card now opens with a `<CardChip>` + heading + `<InfoTooltip>` (PlanCard / ServerCard / PaymentMethodCard / Subscriptions header / Billing history; ProfilePanel split below). Section headings standardized to `<h2 text-base font-semibold>`.
+- **ProfilePanel split** — was one monolithic card with five rows; now three section cards: **Personal info** (blue User chip: Name / Email / Phone), **Security** (yellow Lock chip: Password — with room for 2FA / sessions), **Communication** (green Bell chip: email + SMS toggles + "Marketing emails are managed separately" link).
+- **Mobile push navigation** — below `lg:`, `/account` itself now renders the SettingsNav as an iOS-style chevron list (icon chip + label + description); tapping pushes forward into the panel, panel adds a "← Settings" back link. Desktop two-pane layout unchanged via a `matchMedia('(min-width: 1024px)')`-gated `<Navigate>` that only fires on wide viewports.
+- **Tap targets** — modal close X bumped from `h-8 w-8` to `h-10 w-10`; ServerCard "Change", InvoicesTable "Download", and ProfilePanel "Edit" links all now h-10 with proper hit areas.
+- **Depth metadata** — SubscriptionCard footer "N invoices · Active for X days"; "Currently active" pill when the card's account matches the AccountSwitcher; PlanCard "Subscribed since <date> · X days"; PaymentMethodCard "Used by N subscriptions · $X/mo total".
+- **Status pills** — InvoicesTable Paid/Failed/Pending pills get color-coded leading dots to match Targeting's status pill recipe.
+- **Empty states** — InvoicesTable empty state gains a Receipt icon chip + roomier padding (was flat centered text).
+- **Copy** — "Cancel..." → "Cancel subscription" per CLAUDE.md confirm-button rule. Subscription detail status pill now sits inline with the username instead of stacked beneath. Cancel danger zone heading promoted to h2 to match the rest.
+
+### Created
+- `src/pages/account/subscriptionShared.js` — extracts `STATUS_PILL`, `letterFor`, `formatDate`, `daysSince` so the list card and detail page consume one definition.
+
+### Removed
+- `useFullName` selector in `useUserProfile.js` (was exported but never consumed; re-add when a profile dropdown surface lands).
+- The hard `<Route index element={<Navigate ... />} />` in App.jsx — replaced by viewport-aware redirect inside `AccountPage`.
+
+### Decisions
+- Mobile push-nav style — `/account` is now a valid mobile stop. Desktop preserves "redirect to Profile by default."
+- Marketing-email management lives behind a future `open-marketing-prefs` event listener; the link is wired even though the listener isn't implemented yet.
+
+---
+
 ## 2026-04-29 — User settings page
 
 ### Created
