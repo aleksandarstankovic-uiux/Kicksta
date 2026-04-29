@@ -58,27 +58,32 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
-      {/* Desktop: real table */}
+      {/* Desktop: real table. Description column truncates so long
+          values never push a row to two lines. */}
       <table className="hidden w-full text-left text-sm md:table">
         <thead className="border-b border-border bg-bg/40 text-xs uppercase tracking-wide text-text-secondary">
           <tr>
-            <th className="px-4 py-3 font-medium">Date</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Date</th>
             <th className="px-4 py-3 font-medium">Description</th>
-            <th className="px-4 py-3 font-medium">Amount</th>
-            <th className="px-4 py-3 font-medium">Status</th>
-            <th className="px-4 py-3 font-medium text-right">Action</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Amount</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium">Status</th>
+            <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Action</th>
           </tr>
         </thead>
         <tbody>
           {sorted.map((inv) => (
             <tr key={inv.id} className="border-b border-border last:border-b-0">
-              <td className="px-4 py-3 text-text-primary">{formatDate(inv.date)}</td>
-              <td className="px-4 py-3 text-text-secondary">{inv.description}</td>
-              <td className="px-4 py-3 font-medium text-text-primary">${inv.amount.toFixed(2)}</td>
+              <td className="whitespace-nowrap px-4 py-3 text-text-primary">{formatDate(inv.date)}</td>
+              <td className="max-w-[40ch] truncate px-4 py-3 text-text-secondary" title={inv.description}>
+                {inv.description}
+              </td>
+              <td className="whitespace-nowrap px-4 py-3 font-medium text-text-primary">
+                ${inv.amount.toFixed(2)}
+              </td>
               <td className="px-4 py-3">
                 <StatusPill status={inv.status} />
               </td>
-              <td className="px-4 py-3 text-right">
+              <td className="whitespace-nowrap px-4 py-3 text-right">
                 <button
                   onClick={handleDownload}
                   className="inline-flex h-10 items-center gap-1 rounded-md px-2 text-sm font-medium text-blue-text hover:bg-bg"
@@ -91,20 +96,24 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
         </tbody>
       </table>
 
-      {/* Mobile: stacked rows */}
+      {/* Mobile: two lines per invoice — date + amount + status on
+          top, description + download on bottom. */}
       <ul className="divide-y divide-border md:hidden">
         {sorted.map((inv) => (
-          <li key={inv.id} className="flex flex-col gap-2 px-4 py-3">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium text-text-primary">{formatDate(inv.date)}</span>
-              <span className="text-sm font-semibold text-text-primary">${inv.amount.toFixed(2)}</span>
+          <li key={inv.id} className="flex flex-col gap-1.5 px-4 py-3">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-medium text-text-primary">{formatDate(inv.date)}</span>
+              <span className="text-text-muted">·</span>
+              <span className="font-semibold text-text-primary">${inv.amount.toFixed(2)}</span>
+              <span className="ml-auto"><StatusPill status={inv.status} /></span>
             </div>
-            <p className="truncate text-xs text-text-secondary">{inv.description}</p>
             <div className="flex items-center justify-between gap-3">
-              <StatusPill status={inv.status} />
+              <p className="truncate text-xs text-text-secondary" title={inv.description}>
+                {inv.description}
+              </p>
               <button
                 onClick={handleDownload}
-                className="inline-flex h-10 items-center gap-1 rounded-md px-2 text-sm font-medium text-blue-text"
+                className="inline-flex h-10 shrink-0 items-center gap-1 rounded-md px-2 text-sm font-medium text-blue-text"
               >
                 <Download className="h-3.5 w-3.5" /> Download
               </button>
