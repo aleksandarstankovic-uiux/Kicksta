@@ -1,14 +1,14 @@
 import { Receipt } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
-import PaymentMethodCard from './PaymentMethodCard'
+import PaymentMethodsCard from './PaymentMethodsCard'
 import InvoicesTable from './InvoicesTable'
 import { mockInvoices } from '@/mocks/invoices'
 
 export default function PaymentPanel() {
   return (
     <div className="flex flex-col gap-6">
-      <PaymentMethodCard />
+      <PaymentMethodsCard />
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <CardChip color="neutral" icon={Receipt} />
