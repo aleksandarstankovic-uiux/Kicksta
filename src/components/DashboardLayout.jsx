@@ -7,6 +7,7 @@ import { useAccounts } from '@/stores/useAccounts'
 import ToastContainer from '@/components/Toast'
 import ProfileDropdown from '@/components/ProfileDropdown'
 import MobileNavDrawer from '@/components/MobileNavDrawer'
+import useDismissOnOutsideClick from '@/hooks/useDismissOnOutsideClick'
 import kickstaLogo from '@/assets/kicksta-logo.svg'
 import kickstaFullLogo from '@/assets/kicksta-full-logo.svg'
 
@@ -27,13 +28,9 @@ export function NotificationBell() {
   const markAllRead = useNotifications((s) => s.markAllRead)
   const unread = items.filter((n) => !n.read).length
 
-  useEffect(() => {
-    function handleClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
-    }
-    if (open) document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [open])
+  // Shared with ProfileDropdown — one click-outside + ESC
+  // implementation across every top-anchored panel in the layout.
+  useDismissOnOutsideClick(ref, open, () => setOpen(false))
 
   return (
     <div ref={ref} className="relative">
@@ -415,7 +412,7 @@ export default function DashboardLayout() {
             dropdown opens upward so its panel doesn't escape the
             viewport when the user is at the bottom of a tall window. */}
         <div className={cn('flex flex-col gap-1 border-t border-border py-3', collapsed ? 'px-2' : 'px-3')}>
-          <ProfileDropdown variant="sidebar-pill" collapsed={collapsed} />
+          <ProfileDropdown collapsed={collapsed} />
           <Link
             to="/signup/ig-preview"
             title={collapsed ? 'Signup flow (dev)' : undefined}

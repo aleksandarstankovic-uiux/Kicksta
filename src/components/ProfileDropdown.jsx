@@ -15,17 +15,16 @@ import { useThemeStore } from '@/stores/useThemeStore'
 import { useAccounts } from '@/stores/useAccounts'
 import useDismissOnOutsideClick from '@/hooks/useDismissOnOutsideClick'
 
-// Top-right account dropdown. Mounted in two places:
-// - Desktop sidebar bottom slot (above Settings), full pill style.
-// - Mobile top header right (next to NotificationBell), avatar-only
-//   trigger.
+// Desktop-only account dropdown anchored in the sidebar bottom slot.
+// Mobile uses MobileNavDrawer instead — the previous "compact"
+// trigger variant for the mobile header was removed when the
+// dropdown duplicated the drawer's contents on small viewports.
 //
-// `variant` selects the trigger UI; the panel layout is identical.
 // All data flows from stores so edits anywhere propagate here for
-// free. The IG connection row (Q3c) is informational — not clickable
-// — but contains an inline "Reconnect" link when the active account
+// free. The IG connection row is informational — not clickable —
+// but contains an inline "Reconnect" link when the active account
 // is disconnected.
-export default function ProfileDropdown({ variant = 'compact', collapsed = false }) {
+export default function ProfileDropdown({ collapsed = false }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -48,35 +47,19 @@ export default function ProfileDropdown({ variant = 'compact', collapsed = false
 
   return (
     <div ref={ref} className="relative">
-      {variant === 'sidebar-pill' ? (
-        <SidebarPillTrigger
-          collapsed={collapsed}
-          fullName={fullName}
-          email={email}
-          initials={initials || '·'}
-          onClick={() => setOpen((v) => !v)}
-        />
-      ) : (
-        <button
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Account menu"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-tint text-sm font-semibold text-blue-text transition-colors hover:opacity-90"
-        >
-          {initials || '·'}
-        </button>
-      )}
+      <SidebarPillTrigger
+        collapsed={collapsed}
+        fullName={fullName}
+        email={email}
+        initials={initials || '·'}
+        onClick={() => setOpen((v) => !v)}
+      />
 
       {open && (
         <div
-          className={
-            variant === 'sidebar-pill'
-              ? // Sidebar variant opens upward + rightward so it doesn't
-                // collide with the top of the bottom slot.
-                'absolute bottom-full left-0 z-50 mb-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-surface shadow-xl'
-              : // Compact (mobile/header) variant opens below + leftward
-                // so it stays on-screen at the top-right corner.
-                'absolute right-0 top-12 z-50 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-surface shadow-xl'
-          }
+          // Opens upward + rightward so the panel doesn't collide
+          // with the top of the bottom sidebar slot.
+          className="absolute bottom-full left-0 z-50 mb-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-surface shadow-xl"
         >
           {/* Identity header */}
           <div className="flex items-center gap-3 border-b border-border px-4 py-3">
@@ -95,8 +78,8 @@ export default function ProfileDropdown({ variant = 'compact', collapsed = false
             <DropdownLink to="/account/billing" icon={CreditCard} label="Plan & billing" onClick={() => setOpen(false)} />
           </div>
 
-          {/* IG connection — Q3c status row. Non-clickable container,
-              inline Reconnect link when disconnected. */}
+          {/* IG connection — informational status row, inline
+              Reconnect link when disconnected. */}
           <div className="flex items-center gap-3 border-t border-border px-4 py-2.5">
             <AtSign className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
             <div className="min-w-0 flex-1">
@@ -206,4 +189,3 @@ function DropdownLink({ to, icon: Icon, label, onClick }) {
     </Link>
   )
 }
-
