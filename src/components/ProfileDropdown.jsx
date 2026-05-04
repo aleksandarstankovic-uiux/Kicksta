@@ -1,0 +1,230 @@
+import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import {
+  User,
+  CreditCard,
+  Instagram,
+  CheckCircle2,
+  AlertTriangle,
+  Sun,
+  Moon,
+  LogOut,
+  Check,
+} from 'lucide-react'
+import { useUserProfile } from '@/stores/useUserProfile'
+import { useThemeStore } from '@/stores/useThemeStore'
+import { useAccounts } from '@/stores/useAccounts'
+import useDismissOnOutsideClick from '@/hooks/useDismissOnOutsideClick'
+
+// Top-right account dropdown. Mounted in two places:
+// - Desktop sidebar bottom slot (above Settings), full pill style.
+// - Mobile top header right (next to NotificationBell), avatar-only
+//   trigger.
+//
+// `variant` selects the trigger UI; the panel layout is identical.
+// All data flows from stores so edits anywhere propagate here for
+// free. The IG connection row (Q3c) is informational — not clickable
+// — but contains an inline "Reconnect" link when the active account
+// is disconnected.
+export default function ProfileDropdown({ variant = 'compact', collapsed = false }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useDismissOnOutsideClick(ref, open, () => setOpen(false))
+
+  const firstName = useUserProfile((s) => s.firstName)
+  const lastName = useUserProfile((s) => s.lastName)
+  const email = useUserProfile((s) => s.email)
+  const fullName = `${firstName} ${lastName}`.trim() || 'Account'
+
+  const theme = useThemeStore((s) => s.theme)
+  const setTheme = useThemeStore((s) => s.setTheme)
+
+  const accounts = useAccounts((s) => s.accounts)
+  const activeId = useAccounts((s) => s.activeId)
+  const activeAccount = accounts.find((a) => a.id === activeId) ?? accounts[0]
+  const isConnected = activeAccount?.connectionState === 'connected'
+
+  const initials = (firstName?.[0] ?? '') + (lastName?.[0] ?? '')
+
+  return (
+    <div ref={ref} className="relative">
+      {variant === 'sidebar-pill' ? (
+        <SidebarPillTrigger
+          collapsed={collapsed}
+          fullName={fullName}
+          email={email}
+          initials={initials || '·'}
+          onClick={() => setOpen((v) => !v)}
+        />
+      ) : (
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Account menu"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-tint text-sm font-semibold text-blue-text transition-colors hover:opacity-90"
+        >
+          {initials || '·'}
+        </button>
+      )}
+
+      {open && (
+        <div
+          className={
+            variant === 'sidebar-pill'
+              ? // Sidebar variant opens upward + rightward so it doesn't
+                // collide with the top of the bottom slot.
+                'absolute bottom-full left-0 z-50 mb-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-surface shadow-xl'
+              : // Compact (mobile/header) variant opens below + leftward
+                // so it stays on-screen at the top-right corner.
+                'absolute right-0 top-12 z-50 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-surface shadow-xl'
+          }
+        >
+          {/* Identity header */}
+          <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-tint text-sm font-semibold text-blue-text">
+              {initials || '·'}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-text-primary">{fullName}</p>
+              <p className="truncate text-xs text-text-secondary">{email}</p>
+            </div>
+          </div>
+
+          {/* Account links */}
+          <div className="flex flex-col py-1">
+            <DropdownLink to="/account/profile" icon={User} label="Account details" onClick={() => setOpen(false)} />
+            <DropdownLink to="/account/payment" icon={CreditCard} label="Plan & billing" onClick={() => setOpen(false)} />
+          </div>
+
+          {/* IG connection — Q3c status row. Non-clickable container,
+              inline Reconnect link when disconnected. */}
+          <div className="flex items-center gap-3 border-t border-border px-4 py-2.5">
+            <Instagram className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-medium text-text-secondary">Instagram</p>
+              {isConnected ? (
+                <p className="flex items-center gap-1 text-sm text-text-primary">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-base" aria-hidden="true" />
+                  <span className="truncate">@{activeAccount?.username}</span>
+                </p>
+              ) : (
+                <p className="flex items-center gap-1 text-sm text-text-primary">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-base" aria-hidden="true" />
+                  <span className="truncate">Disconnected — </span>
+                  <Link
+                    to="/signup/connect-instagram"
+                    onClick={() => setOpen(false)}
+                    className="font-medium text-blue-text hover:underline"
+                  >
+                    Reconnect
+                  </Link>
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Theme toggle — segmented control */}
+          <div className="border-t border-border px-4 py-3">
+            <p className="mb-2 text-xs font-medium text-text-secondary">Theme</p>
+            <div className="flex rounded-lg border border-border bg-bg p-0.5">
+              <ThemeOption
+                active={theme === 'light'}
+                icon={Sun}
+                label="Light"
+                onClick={() => setTheme('light')}
+              />
+              <ThemeOption
+                active={theme === 'dark'}
+                icon={Moon}
+                label="Dark"
+                onClick={() => setTheme('dark')}
+              />
+            </div>
+          </div>
+
+          {/* Log out */}
+          <div className="border-t border-border py-1">
+            <button
+              type="button"
+              onClick={() => {
+                // V1: stub. Replace with real auth.signOut() when backend lands.
+                setOpen(false)
+              }}
+              className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm font-medium text-text-primary hover:bg-bg"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              Log out
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Trigger inside the desktop sidebar bottom slot. Reads as a row
+// of nav so it visually belongs with the Settings/Collapse/Logout
+// stack below the main tabs.
+function SidebarPillTrigger({ collapsed, fullName, email, initials, onClick }) {
+  if (collapsed) {
+    return (
+      <button
+        onClick={onClick}
+        title={fullName}
+        aria-label="Account menu"
+        className="flex h-10 w-full items-center justify-center rounded-lg text-sm font-semibold text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
+      >
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-tint text-xs text-blue-text">
+          {initials}
+        </span>
+      </button>
+    )
+  }
+  return (
+    <button
+      onClick={onClick}
+      aria-label="Account menu"
+      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-bg"
+    >
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-tint text-xs font-semibold text-blue-text">
+        {initials}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-text-primary">{fullName}</p>
+        <p className="truncate text-xs text-text-secondary">{email}</p>
+      </div>
+    </button>
+  )
+}
+
+function DropdownLink({ to, icon: Icon, label, onClick }) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg"
+    >
+      <Icon className="h-4 w-4 shrink-0 text-text-secondary" />
+      {label}
+    </Link>
+  )
+}
+
+function ThemeOption({ active, icon: Icon, label, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+        active
+          ? 'bg-surface text-text-primary shadow-sm'
+          : 'text-text-secondary hover:text-text-primary'
+      }`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+      {active && <Check className="ml-0.5 h-3 w-3" aria-hidden="true" />}
+    </button>
+  )
+}

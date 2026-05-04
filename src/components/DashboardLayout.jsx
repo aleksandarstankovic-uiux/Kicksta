@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { useNotifications } from '@/stores/useNotifications'
 import { useAccounts } from '@/stores/useAccounts'
 import ToastContainer from '@/components/Toast'
+import ProfileDropdown from '@/components/ProfileDropdown'
 import kickstaLogo from '@/assets/kicksta-logo.svg'
 import kickstaFullLogo from '@/assets/kicksta-full-logo.svg'
 
@@ -408,10 +409,12 @@ export default function DashboardLayout() {
           ))}
         </nav>
 
-        {/* Bottom — signup flow (dev) + system status + collapse toggle + logout.
-            System status sits directly above Collapse so the dot indicator
-            stays close to the other bottom controls. */}
+        {/* Bottom — profile dropdown (account-level actions) + signup
+            dev shortcut + Settings + collapse + logout. The profile
+            dropdown opens upward so its panel doesn't escape the
+            viewport when the user is at the bottom of a tall window. */}
         <div className={cn('flex flex-col gap-1 border-t border-border py-3', collapsed ? 'px-2' : 'px-3')}>
+          <ProfileDropdown variant="sidebar-pill" collapsed={collapsed} />
           <Link
             to="/signup/ig-preview"
             title={collapsed ? 'Signup flow (dev)' : undefined}
@@ -423,25 +426,26 @@ export default function DashboardLayout() {
             <Sparkles className="h-5 w-5 shrink-0" />
             {!collapsed && 'Signup flow'}
           </Link>
-          {/* Settings — replaces System status. Routes to /account, which
-    redirects to /account/profile. Active when path starts with
-    /account so subscription drilldowns also light up the entry. */}
-<NavLink
-  to="/account"
-  title={collapsed ? 'Settings' : undefined}
-  className={({ isActive }) =>
-    cn(
-      'flex items-center rounded-lg text-sm font-medium transition-colors',
-      collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
-      isActive
-        ? 'bg-blue-tint text-blue-text'
-        : 'text-text-secondary hover:bg-bg hover:text-text-primary'
-    )
-  }
->
-  <SettingsIcon className="h-5 w-5 shrink-0" />
-  {!collapsed && 'Settings'}
-</NavLink>
+          {/* Settings — main Kicksta-account access (kept per refactor
+              decision Q1; the profile dropdown above is the additional
+              path, not a replacement). Active when path starts with
+              /account so subscription drilldowns also light up the entry. */}
+          <NavLink
+            to="/account"
+            title={collapsed ? 'Settings' : undefined}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center rounded-lg text-sm font-medium transition-colors',
+                collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
+                isActive
+                  ? 'bg-blue-tint text-blue-text'
+                  : 'text-text-secondary hover:bg-bg hover:text-text-primary'
+              )
+            }
+          >
+            <SettingsIcon className="h-5 w-5 shrink-0" />
+            {!collapsed && 'Settings'}
+          </NavLink>
           <button
             onClick={() => setCollapsed((v) => !v)}
             className={cn(
@@ -473,13 +477,18 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      {/* Mobile: top bar with system status (left) + logo (center) + bell (right).
-          System status replaces the temporary Signup flow dev link — that
-          entry now lives only in the desktop sidebar until V1 ships. */}
+      {/* Mobile: top bar. Left slot is reserved for the hamburger
+          drawer trigger (Session 3 of the layout refactor — for now
+          a same-size spacer keeps the logo centered). Right slot
+          stacks the notification bell next to the new profile
+          dropdown. */}
       <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-surface px-4 lg:hidden">
         <div className="h-10 w-10" aria-hidden="true" />
         <img src={kickstaLogo} alt="Kicksta" className="h-8" />
-        <NotificationBell />
+        <div className="flex items-center gap-1">
+          <NotificationBell />
+          <ProfileDropdown variant="compact" />
+        </div>
       </header>
 
       {/* Main content */}
