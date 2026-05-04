@@ -2,12 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowUpDown, Check, ChevronDown } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 
+// Two buckets total: Active (anything still in rotation —
+// active / queued / paused / depleted) and Archived (soft-
+// deleted via removeTarget, restorable). Active is the default
+// landing view.
 const FILTERS = [
-  { value: 'all', label: 'All' },
   { value: 'active', label: 'Active' },
-  { value: 'queued', label: 'Queued' },
-  { value: 'paused', label: 'Paused' },
-  { value: 'depleted', label: 'Depleted' },
+  { value: 'archived', label: 'Archived' },
 ]
 
 const SORTS = [
@@ -20,12 +21,16 @@ const SORTS = [
 export default function FilterRow() {
   const { filter, sort, setFilter, setSort, targets } = useTargetsStore()
 
+  // Counts mirror the bucket semantics in `filterTargets`: active =
+  // everything except archived; archived = status === 'archived'.
   const counts = useMemo(() => {
-    const base = { all: targets.length, active: 0, queued: 0, paused: 0, depleted: 0 }
+    let active = 0
+    let archived = 0
     for (const t of targets) {
-      if (base[t.status] !== undefined) base[t.status] += 1
+      if (t.status === 'archived') archived += 1
+      else active += 1
     }
-    return base
+    return { active, archived }
   }, [targets])
 
   return (

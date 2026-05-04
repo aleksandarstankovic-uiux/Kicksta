@@ -6,6 +6,7 @@ const statusDotClass = {
   queued: 'bg-blue-base',
   paused: 'bg-text-muted',
   depleted: 'bg-yellow-base',
+  archived: 'bg-text-muted',
 }
 
 const statusPillClass = {
@@ -13,6 +14,7 @@ const statusPillClass = {
   queued: 'bg-blue-tint text-blue-text',
   paused: 'bg-bg text-text-secondary',
   depleted: 'bg-yellow-tint text-yellow-text',
+  archived: 'bg-bg text-text-muted',
 }
 
 const statusLabel = {
@@ -20,6 +22,7 @@ const statusLabel = {
   queued: 'Queued',
   paused: 'Paused',
   depleted: 'Depleted',
+  archived: 'Archived',
 }
 
 function rateToneClass(rate, depleted) {

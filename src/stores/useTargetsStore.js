@@ -5,14 +5,19 @@ import { mockTargets } from '@/mocks/targets'
 // and optimistic — real API wiring can replace the bodies later without
 // changing the store's shape.
 //
-// Filter buckets mirror the target status values plus an "all" shortcut.
-// Sort modes are explicit so the UI can show the current choice.
+// Filter buckets are 'active' (active + queued + paused + depleted —
+// anything still in rotation) and 'archived' (removed targets,
+// kept around so the user can restore them).
+//
+// `removeTarget` archives instead of hard-deleting, mirroring how
+// most dashboards treat "Delete" — soft delete, restorable, but
+// hidden from the default Active view.
 
 const nextId = () => `t_${Math.random().toString(36).slice(2, 8)}`
 
 export const useTargetsStore = create((set) => ({
   targets: mockTargets,
-  filter: 'all',
+  filter: 'active',
   sort: 'priority',
 
   setFilter: (filter) => set({ filter }),
@@ -48,19 +53,34 @@ export const useTargetsStore = create((set) => ({
       ),
     })),
 
+  // Soft-delete: flip status to 'archived'. Targets stay in the
+  // store so the user can restore them from the Archived bucket.
   removeTarget: (id) =>
     set((state) => ({
-      targets: state.targets.filter((t) => t.id !== id),
+      targets: state.targets.map((t) =>
+        t.id === id ? { ...t, status: 'archived' } : t,
+      ),
+    })),
+
+  // Restore an archived target back to 'queued' so it re-enters
+  // rotation on the user's next pass.
+  restoreTarget: (id) =>
+    set((state) => ({
+      targets: state.targets.map((t) =>
+        t.id === id ? { ...t, status: 'queued' } : t,
+      ),
     })),
 }))
 
 // Priority order used by the default sort — keeps actionable rows (active,
-// queued) above rows the user has already dealt with (paused, depleted).
+// queued) above rows the user has already dealt with (paused, depleted),
+// with archived rows always last.
 export const STATUS_PRIORITY = {
   active: 0,
   queued: 1,
   paused: 2,
   depleted: 3,
+  archived: 4,
 }
 
 export function sortTargets(targets, sort) {
@@ -86,6 +106,7 @@ export function sortTargets(targets, sort) {
 }
 
 export function filterTargets(targets, filter) {
-  if (filter === 'all') return targets
-  return targets.filter((t) => t.status === filter)
+  if (filter === 'archived') return targets.filter((t) => t.status === 'archived')
+  // Active bucket = anything still in rotation (i.e. not archived).
+  return targets.filter((t) => t.status !== 'archived')
 }

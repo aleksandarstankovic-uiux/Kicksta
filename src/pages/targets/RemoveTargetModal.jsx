@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 
-// Destructive-action confirmation. Bottom sheet on mobile, centered
-// modal on desktop. Primary button uses the action name ("Remove
-// target") per CLAUDE.md — never "Confirm" or "Yes".
+// Soft-delete confirmation. The store's `removeTarget` flips the
+// target's status to `archived` rather than hard-deleting; users
+// can restore from the Archived bucket. Bottom sheet on mobile,
+// centered modal on desktop. Primary button uses the action name
+// ("Remove target") per CLAUDE.md — never "Confirm" or "Yes".
 export default function RemoveTargetModal({ target, onClose }) {
   const removeTarget = useTargetsStore((s) => s.removeTarget)
 
@@ -39,7 +41,7 @@ export default function RemoveTargetModal({ target, onClose }) {
           Remove this target?
         </h2>
         <p className="mt-2 text-sm text-text-secondary">
-          {target.value} will no longer be used for growth. You can add it again later.
+          {target.value} will move to your Archive and stop being used for growth. You can restore it from there at any time.
         </p>
 
         <div className="mt-6 flex flex-col-reverse gap-4 lg:flex-row lg:justify-end">

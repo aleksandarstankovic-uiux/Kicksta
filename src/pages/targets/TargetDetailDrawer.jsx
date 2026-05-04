@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Hash, Pause, Play, Trash2, X } from 'lucide-react'
+import { Hash, Pause, Play, RotateCcw, Trash2, X } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { formatCount } from '@/utils/formatCount'
 import HealthPill from './HealthPill'
@@ -21,6 +21,7 @@ const statusLabel = {
 export default function TargetDetailDrawer({ target, onClose, onRequestRemove }) {
   const pauseTarget = useTargetsStore((s) => s.pauseTarget)
   const resumeTarget = useTargetsStore((s) => s.resumeTarget)
+  const restoreTarget = useTargetsStore((s) => s.restoreTarget)
 
   const [mounted, setMounted] = useState(false)
 
@@ -65,6 +66,12 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
 
   const handleRemove = () => onRequestRemove(target)
 
+  const handleRestore = () => {
+    restoreTarget(target.id)
+    onClose()
+  }
+
+  const isArchived = target.status === 'archived'
   const canPauseOrResume =
     target.status === 'active' || target.status === 'paused'
 
@@ -134,7 +141,16 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
         </div>
 
         <div className="mt-5 flex gap-3 px-5">
-          {canPauseOrResume ? (
+          {isArchived ? (
+            <button
+              type="button"
+              onClick={handleRestore}
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-blue-base text-sm font-medium text-white hover:opacity-90"
+            >
+              <RotateCcw className="h-4 w-4" aria-hidden="true" />
+              Restore target
+            </button>
+          ) : canPauseOrResume ? (
             <>
               <button
                 type="button"

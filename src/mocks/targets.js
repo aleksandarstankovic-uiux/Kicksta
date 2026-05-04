@@ -103,4 +103,26 @@ export const mockTargets = [
     followBackCount: 78, // 8%
     addedAt: '2026-03-08T00:00:00Z',
   },
+  // Two archived seed entries so the Archived bucket isn't empty
+  // on first load — demonstrates the restore action.
+  {
+    id: 't_011',
+    type: 'account',
+    value: '@stale.influencer',
+    status: 'archived',
+    followers: 12_400,
+    followedCount: 410,
+    followBackCount: 22, // 5%
+    addedAt: '2026-02-12T00:00:00Z',
+  },
+  {
+    id: 't_012',
+    type: 'hashtag',
+    value: '#cardiokings',
+    status: 'archived',
+    posts: 89_000,
+    followedCount: 320,
+    followBackCount: 17, // 5%
+    addedAt: '2026-02-22T00:00:00Z',
+  },
 ]

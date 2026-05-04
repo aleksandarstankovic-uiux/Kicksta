@@ -65,10 +65,8 @@ function EmptyNoTargets() {
 }
 
 const FILTER_EMPTY_COPY = {
-  active: 'No active targets.',
-  queued: 'No queued targets.',
-  paused: 'No paused targets.',
-  depleted: 'No depleted targets.',
+  active: 'No active targets — add one to start growing.',
+  archived: 'Nothing in archive yet.',
 }
 
 function EmptyForFilter({ filter }) {
