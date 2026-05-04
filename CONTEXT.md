@@ -225,6 +225,7 @@ src/stores/useLists.js          + resetWhitelist + resetBlacklist
 8. **Manage subscription** link routes to `/account` (no-op destination).
 9. **Mode/Engagement → Filter consistency** — Mode + Engagement auto-save inline; Filters + Lists require modal Save (intentional per v4 design).
 10. **No unsaved-changes confirmation** on FiltersModal/ListsModal Cancel.
+11. **Chrome-level System Status surface deferred (2026-04-30).** PRODUCT.md mandates "system status always visible with timestamps." Decision parked for review later — for now the Overview page's existing surfaces (AccountCard pause/resume, connection dot, warming-up block, `InstagramConnectionBanner`) are the only system-status signals the user sees. `src/components/SystemStatus.jsx`, `src/hooks/useSystemStatus.js`, and `src/mocks/systemStatus.js` remain on disk, unmounted. **Revisit when:** users start asking "is Kicksta doing anything?" again, OR a separate spec lands for a chrome-level live-activity ticker.
 
 ---
 
