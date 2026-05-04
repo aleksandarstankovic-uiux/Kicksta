@@ -35,7 +35,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { mockInstagram } from '@/mocks/instagram'
+import { useAccounts } from '@/stores/useAccounts'
 import { mockUser, PLAN_CATALOG } from '@/mocks/user'
 import {
   mockGrowthDaily,
@@ -1622,7 +1622,13 @@ export default function OverviewPage() {
   // we have <=7 days of signal and no meaningful historical windows.
   const [selectedPeriod, setSelectedPeriod] = useState('7d')
 
-  const connection = mockInstagram
+  // IG connection sources from the AccountSwitcher's active
+  // account so every surface (this page, the dropdown, the drawer
+  // banner) stays in lockstep when the user switches accounts.
+  // Falls back to the first account if `activeId` is stale.
+  const accounts = useAccounts((s) => s.accounts)
+  const activeId = useAccounts((s) => s.activeId)
+  const connection = accounts.find((a) => a.id === activeId) ?? accounts[0]
   const user = mockUser
   const isDisconnected = connection.connectionState === 'disconnected'
 

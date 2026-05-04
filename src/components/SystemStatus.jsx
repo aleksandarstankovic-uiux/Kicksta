@@ -10,7 +10,7 @@ import {
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { mockInstagram } from '@/mocks/instagram'
+import { useAccounts } from '@/stores/useAccounts'
 import { mockUser } from '@/mocks/user'
 import { mockTargets } from '@/mocks/targets'
 import { mockGrowthConfig } from '@/mocks/growthConfig'
@@ -26,7 +26,9 @@ import { mockGrowthConfig } from '@/mocks/growthConfig'
 //   - SystemStatusIconButton       → mobile header 40×40 icon
 
 function useStatusChecks() {
-  const connection = mockInstagram
+  const accounts = useAccounts((s) => s.accounts)
+  const activeId = useAccounts((s) => s.activeId)
+  const connection = accounts.find((a) => a.id === activeId) ?? accounts[0]
   const user = mockUser
 
   const connectionConfig = {
