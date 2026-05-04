@@ -1248,14 +1248,14 @@ function PeriodSwitcher({ period, onPeriodChange, disabled = false }) {
 }
 
 function ActivityFeed({ items, period, customRange }) {
-  // Filter to the active window, sort newest-first, then cap at 5 so
-  // mobile and desktop show the same slice — on desktop the scrollable
-  // list let longer history through, which made the two surfaces feel
-  // inconsistent.
+  // Filter to the active window and sort newest-first. The list
+  // overflows on purpose so the card scrolls — `min-h-0
+  // overflow-y-auto` on the <ul> below caps the visible height to
+  // the parent grid row and keeps the most recent entries pinned
+  // at the top.
   const visible = filterByWindow(items, period, customRange)
     .slice()
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 5)
 
   return (
     // h-full + min-h-0 lets the card stretch to the chart's height on
