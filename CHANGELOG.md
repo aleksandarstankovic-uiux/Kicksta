@@ -5,6 +5,18 @@
 
 ---
 
+## 2026-05-04 — Navigation cleanup (dedupe single sources)
+
+### Changed
+- **Log out**: removed the standalone Log out button from the bottom of the desktop sidebar. ProfileDropdown is now the single source for sign-out on desktop (mobile keeps it in the drawer).
+- **IG connection status**: removed the informational "Instagram — @handle / Disconnected" row from ProfileDropdown. The sidebar AccountSwitcher's per-account status dot is the single source for connection state.
+- **Add account / Add subscription**: removed the "Add subscription" button + `AddSubscriptionModal` from `/account/billing`. The sidebar AccountSwitcher (and the mobile drawer's account list) is now the single path for connecting a new Instagram account; subscriptions are read-only on the billing panel.
+
+### Removed
+- `src/pages/account/AddSubscriptionModal.jsx`.
+
+---
+
 ## 2026-04-30 — Targeting / Engagement split
 
 ### Changed

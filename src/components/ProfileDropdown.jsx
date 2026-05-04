@@ -3,16 +3,12 @@ import { Link } from 'react-router-dom'
 import {
   User,
   CreditCard,
-  AtSign,
-  CheckCircle2,
-  AlertTriangle,
   Sun,
   Moon,
   LogOut,
 } from 'lucide-react'
 import { useUserProfile } from '@/stores/useUserProfile'
 import { useThemeStore } from '@/stores/useThemeStore'
-import { useAccounts } from '@/stores/useAccounts'
 import useDismissOnOutsideClick from '@/hooks/useDismissOnOutsideClick'
 
 // Desktop-only account dropdown anchored in the sidebar bottom slot.
@@ -21,9 +17,8 @@ import useDismissOnOutsideClick from '@/hooks/useDismissOnOutsideClick'
 // dropdown duplicated the drawer's contents on small viewports.
 //
 // All data flows from stores so edits anywhere propagate here for
-// free. The IG connection row is informational — not clickable —
-// but contains an inline "Reconnect" link when the active account
-// is disconnected.
+// free. The IG connection state is surfaced by the sidebar
+// AccountSwitcher (per-account dot) — not duplicated here.
 export default function ProfileDropdown({ collapsed = false }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
@@ -37,11 +32,6 @@ export default function ProfileDropdown({ collapsed = false }) {
 
   const theme = useThemeStore((s) => s.theme)
   const toggleTheme = useThemeStore((s) => s.toggleTheme)
-
-  const accounts = useAccounts((s) => s.accounts)
-  const activeId = useAccounts((s) => s.activeId)
-  const activeAccount = accounts.find((a) => a.id === activeId) ?? accounts[0]
-  const isConnected = activeAccount?.connectionState === 'connected'
 
   const initials = (firstName?.[0] ?? '') + (lastName?.[0] ?? '')
 
@@ -76,33 +66,6 @@ export default function ProfileDropdown({ collapsed = false }) {
           <div className="flex flex-col py-1">
             <DropdownLink to="/account/profile" icon={User} label="Account details" onClick={() => setOpen(false)} />
             <DropdownLink to="/account/billing" icon={CreditCard} label="Plan & billing" onClick={() => setOpen(false)} />
-          </div>
-
-          {/* IG connection — informational status row, inline
-              Reconnect link when disconnected. */}
-          <div className="flex items-center gap-3 border-t border-border px-4 py-2.5">
-            <AtSign className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-text-secondary">Instagram</p>
-              {isConnected ? (
-                <p className="flex items-center gap-1 text-sm text-text-primary">
-                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-base" aria-hidden="true" />
-                  <span className="truncate">@{activeAccount?.username}</span>
-                </p>
-              ) : (
-                <p className="flex items-center gap-1 text-sm text-text-primary">
-                  <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-base" aria-hidden="true" />
-                  <span className="truncate">Disconnected — </span>
-                  <Link
-                    to="/signup/connect-instagram"
-                    onClick={() => setOpen(false)}
-                    className="font-medium text-blue-text hover:underline"
-                  >
-                    Reconnect
-                  </Link>
-                </p>
-              )}
-            </div>
           </div>
 
           {/* Theme toggle — single row that flips on click. Calls

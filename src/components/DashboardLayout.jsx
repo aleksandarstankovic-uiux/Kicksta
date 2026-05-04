@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useLocation, Link } from 'react-router-dom'
-import { BarChart3, Target, TrendingUp, PanelLeftClose, PanelLeftOpen, LogOut, Bell, AlertTriangle, TrendingUp as GrowthIcon, X, Sparkles, ChevronsUpDown, Plus, Check, Settings as SettingsIcon } from 'lucide-react'
+import { BarChart3, Target, TrendingUp, PanelLeftClose, PanelLeftOpen, Bell, AlertTriangle, TrendingUp as GrowthIcon, X, Sparkles, ChevronsUpDown, Plus, Check, Settings as SettingsIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/stores/useNotifications'
 import { useAccounts } from '@/stores/useAccounts'
@@ -460,17 +460,6 @@ export default function DashboardLayout() {
                 Collapse
               </>
             )}
-          </button>
-          <button
-            onClick={() => {}}
-            className={cn(
-              'flex items-center rounded-lg text-sm font-medium text-text-secondary transition-colors hover:bg-bg hover:text-text-primary',
-              collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'
-            )}
-            title={collapsed ? 'Log out' : undefined}
-          >
-            <LogOut className="h-5 w-5 shrink-0" />
-            {!collapsed && 'Log out'}
           </button>
         </div>
       </aside>

@@ -1,12 +1,10 @@
-import { useState } from 'react'
-import { Plus, Layers, Receipt } from 'lucide-react'
+import { Layers, Receipt } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 import { useSubscriptions } from '@/stores/useSubscriptions'
 import { mockInvoices } from '@/mocks/invoices'
 import PaymentMethodsCard from './PaymentMethodsCard'
 import SubscriptionCard from './SubscriptionCard'
-import AddSubscriptionModal from './AddSubscriptionModal'
 import InvoicesTable from './InvoicesTable'
 
 // Merged Plan & billing panel — replaces the previous two-panel
@@ -20,31 +18,23 @@ import InvoicesTable from './InvoicesTable'
 // shell entirely.
 export default function BillingPanel() {
   const subs = useSubscriptions((s) => s.subscriptions)
-  const [addSubOpen, setAddSubOpen] = useState(false)
 
   return (
     <div className="flex flex-col gap-6">
       <PaymentMethodsCard />
 
-      {/* Subscriptions */}
+      {/* Subscriptions — read-only here. New subscriptions are
+          created by connecting a new Instagram account from the
+          sidebar AccountSwitcher (single source for adding
+          accounts). */}
       <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <CardChip color="blue" icon={Layers} />
-            <h2 className="text-base font-semibold text-text-primary">Subscriptions</h2>
-            <span className="inline-flex rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
-              {subs.length}
-            </span>
-            <InfoTooltip text="One subscription per connected Instagram account. Each one bills against your primary payment method." />
-          </div>
-          <button
-            onClick={() => setAddSubOpen(true)}
-            aria-label="Add subscription"
-            className="inline-flex h-10 shrink-0 items-center gap-1 rounded-lg bg-blue-base px-3 text-sm font-medium text-white hover:opacity-90"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Add subscription</span>
-          </button>
+        <div className="flex items-center gap-2">
+          <CardChip color="blue" icon={Layers} />
+          <h2 className="text-base font-semibold text-text-primary">Subscriptions</h2>
+          <span className="inline-flex rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
+            {subs.length}
+          </span>
+          <InfoTooltip text="One subscription per connected Instagram account. Each one bills against your primary payment method." />
         </div>
         <div className="flex flex-col gap-3">
           {subs.map((sub) => (
@@ -66,7 +56,6 @@ export default function BillingPanel() {
         />
       </div>
 
-      <AddSubscriptionModal open={addSubOpen} onClose={() => setAddSubOpen(false)} />
     </div>
   )
 }
