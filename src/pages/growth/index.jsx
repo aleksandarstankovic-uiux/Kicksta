@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { mockUser } from '@/mocks/user'
 import ModeCard from './ModeCard'
-import EngagementCard from './EngagementCard'
+import WelcomeDmCard from './WelcomeDmCard'
+import CloseFriendsCard from './CloseFriendsCard'
 import FiltersCard from './FiltersCard'
 import FiltersModal from './FiltersModal'
 import WhitelistCard from './WhitelistCard'
@@ -47,7 +48,8 @@ export default function GrowthPage() {
           progress regardless of toggle state), so the page never
           shifts when toggles flip. */}
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <EngagementCard onRequestUpgrade={openUpgrade} />
+        <WelcomeDmCard onRequestUpgrade={openUpgrade} />
+        <CloseFriendsCard onRequestUpgrade={openUpgrade} />
         <FiltersCard onEdit={() => setFiltersOpen(true)} />
         <WhitelistCard onEdit={() => setWhitelistOpen(true)} />
         <BlacklistCard onEdit={() => setBlacklistOpen(true)} />

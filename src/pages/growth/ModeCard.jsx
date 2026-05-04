@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Check, Settings2, UserMinus, UserPlus, Zap } from 'lucide-react'
+import { Check, Heart, Settings2, UserMinus, UserPlus, Zap } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
+import SettingSwitch from '@/components/SettingSwitch'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 
@@ -62,6 +63,8 @@ function SaveCancelButtons({ onCancel, onSave }) {
 export default function ModeCard() {
   const savedMode = useGrowthConfig((s) => s.config.mode)
   const setMode = useGrowthConfig((s) => s.setMode)
+  const likeAfterFollow = useGrowthConfig((s) => s.config.likeAfterFollow)
+  const toggleLikeAfterFollow = useGrowthConfig((s) => s.toggleLikeAfterFollow)
 
   const [draft, setDraft] = useState(savedMode)
 
@@ -162,6 +165,20 @@ export default function ModeCard() {
           <SaveCancelButtons onCancel={handleCancel} onSave={handleSave} />
         </div>
       )}
+
+      {/* Like-after-follow — moved out of the deleted EngagementCard.
+          Conceptually part of the follow action ("like a few of their
+          posts after following"), so it belongs with Mode rather than
+          as a standalone tactic card. */}
+      <div className="mt-4 border-t border-border pt-4">
+        <SettingSwitch
+          icon={Heart}
+          title="Like after follow"
+          description="Like a few of their recent posts after following — boosts the follow-back rate."
+          checked={likeAfterFollow}
+          onChange={() => toggleLikeAfterFollow()}
+        />
+      </div>
     </section>
   )
 }
