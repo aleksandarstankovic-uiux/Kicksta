@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-04-30 — Targeting / Engagement split
+
+### Changed
+- **`/growth` → `/engagement`** with 301 redirect. Engagement page is single-column with two cards (Welcome DM + Close Friends) plus the parked GrowthPlusBanner at the bottom.
+- **`/targets` → `/targeting`** with 301 redirect. Targeting page now hosts a `Targets` (default) / `Settings` tab strip via `?tab=settings` search param.
+- **EngagementCard split** into `WelcomeDmCard.jsx` + `CloseFriendsCard.jsx`. Like-after-follow row absorbed into `ModeCard.jsx` as a follow-time action.
+- **`FiltersCard` + `FiltersModal`** renamed to **`AudienceFiltersCard` + `AudienceFiltersModal`** to disambiguate from the `FilterRow` Active/Archived bucket pills on the Targets tab.
+- **Sidebar / mobile bottom tab / hamburger drawer** label updated: `Growth` → `Engagement`. `Targeting` label unchanged; route updated.
+
+### Created
+- `src/pages/targeting/TargetsTab.jsx` — extracted operational view (hero + filter row + list + modals).
+- `src/pages/targeting/SettingsTab.jsx` — Mode + Audience filters + Whitelist + Blacklist.
+- `src/pages/engagement/WelcomeDmCard.jsx`, `src/pages/engagement/CloseFriendsCard.jsx` — extracted from EngagementCard.
+
+### Removed
+- `src/pages/growth/` (whole folder).
+- `src/pages/growth/EngagementCard.jsx` (split into the two cards above).
+
+---
+
 ## 2026-04-30 — Layout refactor (per `docs/MIGRATION.md`)
 
 ### Created
