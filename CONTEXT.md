@@ -14,6 +14,53 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 
 ---
 
+## Resume context (2026-04-30)
+
+**State of the working tree:** clean. All work committed. No worktrees in flight. Working directly on `main`.
+
+**Restore tags currently in place:**
+- `pre-settings-page-2026-04-29` — before user-settings-page work (`/account/*` build-out)
+- `pre-settings-fixes-2026-04-29` — before settings-fixes polish
+- `pre-targeting-engagement-split-2026-04-30` — before the most recent split (latest restore point)
+
+If anything's regressed, hard-reset to the relevant tag.
+
+**Last shipped (most recent first):**
+- **Targeting / Engagement split** (8 commits, ending `32c8e50`) — `/growth` → `/engagement`, `/targets` → `/targeting` with `Targets` (default) + `Settings` tabs (`?tab=settings`). EngagementCard split into `WelcomeDmCard` + `CloseFriendsCard`. Like-after-follow inside `ModeCard`. `FiltersCard/Modal` renamed `AudienceFiltersCard/Modal`. `src/pages/growth/` deleted; `src/pages/targets/` → `src/pages/targeting/`. Old routes 301-redirect. Sidebar / drawer / bottom-tab labels: Growth → Engagement.
+- Mock-data consolidation (`mockInstagram` collapsed into `useAccounts`)
+- Layout refactor (theme prefers-color-scheme reverted to light default; ProfileDropdown; MobileNavDrawer; IG-disconnected banner; `/account/billing` merge; CLAUDE.md hamburger rule relaxed)
+- Settings-page polish + fixes (one outer card, modal-only edits, multi-card payment store, `/account/subscriptions/:id` standalone)
+- User settings page initial build (`/account/*` panels, `useUserProfile`/`usePaymentMethods`/`useSubscriptions` stores)
+
+**Pending specs queue (in agreed priority order):**
+
+1. **Navigation cleanup** — drop duplicate Log out (sidebar bottom + ProfileDropdown both have it), drop the duplicate "Add account" path (AccountSwitcher + Plan & billing). Pick a single source for the IG status surface (AccountSwitcher dot vs. ProfileDropdown row). User pre-approved my proposal; needs spec + plan + execution.
+2. **Settings (mobile + billing history)** —
+   - Mobile nav: drop the menu-screen, replace with top segmented strip (option (a) decided).
+   - Billing history mobile: card-based rows + max-height scroll inside the card.
+   - Server placement: parked, user said "we will come back to that later." DO NOT move the Server card on its own — wait for explicit instruction.
+3. **Overview small fixes** — subtitle "How your account is growing." below the H1 + activity feed mobile cap (max-height ~5 rows, scrollable inside the card).
+4. **Targeting popup polish** — small pulsing "currently being processed" indicator on one TargetRow; "last 5 interactions" section inside `TargetDetailDrawer`; demote drawer buttons to ghost-bordered (Pause/Resume) + text-color (Remove) + ghost-bordered Restore — keep 44px tap targets but visually less inviting; spacing cleanup (`rounded-b-xl` artifact on TargetsHeroCard now that LiveActivityCard is gone).
+5. **Targeting modals visual identity (deeper brainstorm)** — Add target / Whitelist / Blacklist modals are bland; user wants color-coded chip headers per modal, suggestion chips with avatars, empty-state illustrations, etc. Needs its own brainstorm round before spec.
+6. **GrowthPlusBanner placement (revisit prompt)** — currently parked at the bottom of the Engagement page. User asked me to prompt them about its final home once everything else above is done. **Don't decide unilaterally** — surface this question before closing out the broader refactor pass.
+
+**Open architectural decisions still locked in but not yet implemented:**
+- Navigation cleanup proposal (approved verbally, needs spec)
+- ProfileDropdown's IG status row vs. AccountSwitcher's status dot — pick one and remove the other in the nav cleanup spec
+- Settings server location — explicitly parked
+
+**Deferred (from earlier sessions, not in this queue but worth knowing):**
+- Chrome-level System Status surface (PRODUCT.md says "always visible with timestamps") — see deferred-items list, item 11
+- Cancel subscription 6-step modal flow (fully spec'd in PRODUCT.md, currently a stub modal)
+- Upgrade plan UX (currently a stub modal)
+- In-product Add subscription flow (currently bounces to `/signup/connect-instagram`)
+- Per-subscription card override (separate spec eventually)
+- Real auth, real card processing, real email verification — all V1 mocks
+
+**Skill usage hint for the next session:** when in doubt about whether to ship or brainstorm, prefer brainstorming first via `superpowers:brainstorming` for anything user-facing. The refactor work has been spec → plan → subagent-driven exec.
+
+---
+
 ## Design-system conventions
 
 - **Color meaning** — green = growth/healthy/positive action (e.g. following) · blue = informational (trial, warming up, supporting actions) · yellow = action-needed (depleted target, low follow-back, setup) · red = connection errors only · purple = Growth+ surface

@@ -6,6 +6,29 @@
 
 ---
 
+## Status (updated 2026-04-30, late session)
+
+**All six original sessions executed and shipped.** This document is now historical — it records the prep + plan that motivated the refactor. Subsequent layout work (Targeting/Engagement split + ongoing pending specs) lives in its own spec/plan files under `docs/superpowers/`.
+
+| Session | Status | Commit |
+|---|---|---|
+| 1 — Theme init | ✅ Shipped (then reverted to light default) | `47e31cd` → `49cd368` |
+| 2 — ProfileDropdown + theme toggle | ✅ Shipped | `cea0118` |
+| 3 — MobileNavDrawer (hamburger) | ✅ Shipped | `9d57a1a` |
+| 4 — IG-disconnected reconnect banner | ✅ Shipped | `0ce2c8f` |
+| 5 — `/account/billing` merge | ✅ Shipped | `6e64ca2` |
+| 6 — Docs (CHANGELOG, CONTEXT, hamburger rule update) | ✅ Shipped | `b23df4d` |
+
+**Follow-on work since this doc was written:**
+- Mock-data consolidation (`mockInstagram` → `useAccounts`) — `3362758`
+- Layout cleanup pass (drop dead code, share dismiss hook) — `e520299`
+- System Status surface deferred — `33230f8`
+- Targeting / Engagement split (own spec at `docs/superpowers/specs/2026-04-30-targeting-engagement-split-design.md`) — 8 commits ending `32c8e50`
+
+**For the current resume context** (what's pending, in what order), see `CONTEXT.md` → "Resume context" section.
+
+---
+
 ## Decisions locked
 
 | # | Topic | Decision |
