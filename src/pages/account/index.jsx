@@ -1,25 +1,16 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useOutlet, useLocation, Link } from 'react-router-dom'
-import { ChevronLeft } from 'lucide-react'
+import { Navigate, useOutlet, useLocation } from 'react-router-dom'
 import SettingsNav from './SettingsNav'
+import SettingsTabs from './SettingsTabs'
 import PasswordModal from './PasswordModal'
 import EditNameModal from './EditNameModal'
 import EditEmailModal from './EditEmailModal'
 import EditPhoneModal from './EditPhoneModal'
 
-// Detects desktop on first paint. The two-pane layout only makes
-// sense at `lg:` and up; below that we use iOS-style push navigation
-// where `/account` is the menu and `/account/<panel>` is a forward
-// stop, with each panel owning its own H1 + back arrow.
-function useIsDesktop() {
-  const [isDesktop] = useState(() =>
-    typeof window === 'undefined'
-      ? true
-      : window.matchMedia('(min-width: 1024px)').matches,
-  )
-  return isDesktop
-}
-
+// Mobile no longer has a "menu screen". `/account` always redirects
+// to `/account/profile` — every settings panel is reachable via the
+// `SettingsTabs` segmented strip pinned at the top on mobile, or the
+// `SettingsNav` rail in the two-pane layout on desktop.
 const PANEL_TITLE = {
   '/account/profile': 'Profile',
   '/account/billing': 'Billing',
@@ -33,7 +24,6 @@ export default function AccountPage() {
 
   const outlet = useOutlet()
   const childActive = !!outlet
-  const isDesktop = useIsDesktop()
   const { pathname } = useLocation()
 
   useEffect(() => {
@@ -49,67 +39,46 @@ export default function AccountPage() {
     }
   }, [])
 
-  // Desktop redirect: hitting `/account` raw on a wide viewport
-  // pushes to `/account/profile` so the right pane has content.
-  if (!childActive && isDesktop) {
+  // Always redirect raw `/account` to `/account/profile` — no
+  // mobile menu screen. Desktop already did this; mobile now matches.
+  if (!childActive) {
     return <Navigate to="/account/profile" replace />
   }
 
   const panelTitle = PANEL_TITLE[pathname] ?? 'Settings'
-  const showMobilePanelHeader = childActive && !isDesktop
-  const showMobileMenuHeader = !childActive && !isDesktop
-  const showDesktopHeader = isDesktop
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
       {/* Desktop header — "Settings" + subtitle anchored by the
           left-side nav rail. Always visible on lg+. */}
-      {showDesktopHeader && (
-        <header>
-          <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
-            Settings
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            Manage your account, payments, and subscriptions.
-          </p>
-        </header>
-      )}
+      <header className="hidden lg:block">
+        <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
+          Settings
+        </h1>
+        <p className="mt-1 text-sm text-text-secondary">
+          Manage your account, payments, and subscriptions.
+        </p>
+      </header>
 
-      {/* Mobile menu header — `/account` itself. Just "Settings"
-          H1, no subtitle, list rendered as content. */}
-      {showMobileMenuHeader && (
-        <header>
-          <h1 className="text-lg font-semibold leading-snug text-text-primary">
-            Settings
-          </h1>
-        </header>
-      )}
+      {/* Mobile header — panel title only. No back arrow because
+          there's no menu screen to return to; the segmented strip
+          below switches between panels in place. */}
+      <header className="lg:hidden">
+        <h1 className="text-lg font-semibold leading-snug text-text-primary">
+          {panelTitle}
+        </h1>
+      </header>
 
-      {/* Mobile panel header — back-arrow icon button + panel
-          title. Replaces "Settings" + subtitle once a panel is
-          active on mobile. */}
-      {showMobilePanelHeader && (
-        <header className="flex items-center gap-2">
-          <Link
-            to="/account"
-            aria-label="Back to settings"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="text-lg font-semibold leading-snug text-text-primary">
-            {panelTitle}
-          </h1>
-        </header>
-      )}
+      {/* Mobile segmented strip — pinned just under the H1. */}
+      <div className="mt-4 lg:hidden">
+        <SettingsTabs />
+      </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[200px_1fr]">
-        <aside className={`${childActive ? 'hidden lg:block' : ''} lg:sticky lg:top-6 lg:self-start`}>
+        <aside className="hidden lg:sticky lg:top-6 lg:block lg:self-start">
           <SettingsNav />
         </aside>
-        <section className={childActive ? '' : 'hidden lg:block'}>
-          {outlet}
-        </section>
+        <section>{outlet}</section>
       </div>
 
       <PasswordModal open={passwordOpen} onClose={() => setPasswordOpen(false)} />

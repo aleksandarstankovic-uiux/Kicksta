@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { User, CreditCard, ChevronRight } from 'lucide-react'
+import { User, CreditCard } from 'lucide-react'
 
 const items = [
   { to: '/account/profile', label: 'Profile', icon: User },
@@ -19,10 +19,11 @@ function isItemActive(currentPath, itemPath) {
   return currentPath === itemPath
 }
 
-// Selected style matches the main sidebar nav in DashboardLayout —
-// `bg-blue-tint text-blue-text` over the whole pill. Mobile uses
-// the same recipe with a trailing chevron so it reads as a push-
-// nav row.
+// Desktop sidebar rail for /account/* — selected style matches the
+// main sidebar nav in DashboardLayout (`bg-blue-tint text-blue-text`
+// over the whole pill). Mobile uses `SettingsTabs` (segmented strip)
+// instead, so this component is rendered behind a `lg:block` gate
+// in the page shell.
 export default function SettingsNav() {
   const { pathname } = useLocation()
 
@@ -42,7 +43,6 @@ export default function SettingsNav() {
           >
             <Icon className="h-5 w-5 shrink-0" />
             <span className="flex-1">{label}</span>
-            <ChevronRight className="h-4 w-4 shrink-0 text-text-muted lg:hidden" aria-hidden="true" />
           </NavLink>
         )
       })}

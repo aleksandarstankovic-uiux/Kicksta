@@ -5,6 +5,17 @@
 
 ---
 
+## 2026-05-04 — Settings mobile shell + billing history cards
+
+### Changed
+- **Mobile `/account/*` shell**: removed the "menu screen" pattern. `/account` now redirects to `/account/profile` on every viewport. Each settings panel renders with a segmented strip pinned just under the H1 (Profile · Billing). The mobile back-arrow header is gone — the strip switches panels in place.
+- **Billing history (mobile)**: each invoice is now its own bordered card with its own shadow (rather than rows inside a single shell). The list is wrapped in a `max-h-[480px] overflow-y-auto` container so long histories scroll inside the card without pushing the page.
+
+### Created
+- `src/pages/account/SettingsTabs.jsx` — mobile-only segmented strip for the settings shell.
+
+---
+
 ## 2026-05-04 — Navigation cleanup (dedupe single sources)
 
 ### Changed

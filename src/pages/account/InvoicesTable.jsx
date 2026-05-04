@@ -70,63 +70,74 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
   const sorted = [...invoices].sort((a, b) => new Date(b.date) - new Date(a.date))
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
-      {/* Desktop: real table. The description column has a fixed
-          width via table-layout:auto + the inner <span> applying
-          truncate, so long descriptions never push the row taller. */}
-      <table className="hidden w-full text-left text-sm md:table">
-        <thead className="border-b border-border bg-bg/40 text-xs uppercase tracking-wide text-text-secondary">
-          <tr>
-            <th className="whitespace-nowrap px-4 py-3 font-medium">Date</th>
-            <th className="w-full px-4 py-3 font-medium">Description</th>
-            <th className="whitespace-nowrap px-4 py-3 font-medium">Amount</th>
-            <th className="whitespace-nowrap px-4 py-3 font-medium">Status</th>
-            <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((inv) => (
-            <tr key={inv.id} className="border-b border-border last:border-b-0">
-              <td className="whitespace-nowrap px-4 py-3 text-text-primary">{formatDate(inv.date)}</td>
-              <td className="px-4 py-3 text-text-secondary">
-                <span className="block max-w-[28ch] truncate" title={inv.description}>
-                  {inv.description}
-                </span>
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 font-medium text-text-primary">
-                ${inv.amount.toFixed(2)}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3">
-                <StatusPill status={inv.status} />
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-right">
-                <DownloadButton onClick={handleDownload} />
-              </td>
+    <>
+      {/* Desktop: real table inside a single bordered shell. The
+          description column has a fixed width via table-layout:auto
+          + the inner <span> applying truncate, so long descriptions
+          never push the row taller. */}
+      <div className="hidden overflow-hidden rounded-xl border border-border bg-surface shadow-sm md:block">
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-border bg-bg/40 text-xs uppercase tracking-wide text-text-secondary">
+            <tr>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Date</th>
+              <th className="w-full px-4 py-3 font-medium">Description</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Amount</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">Status</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {sorted.map((inv) => (
+              <tr key={inv.id} className="border-b border-border last:border-b-0">
+                <td className="whitespace-nowrap px-4 py-3 text-text-primary">{formatDate(inv.date)}</td>
+                <td className="px-4 py-3 text-text-secondary">
+                  <span className="block max-w-[28ch] truncate" title={inv.description}>
+                    {inv.description}
+                  </span>
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 font-medium text-text-primary">
+                  ${inv.amount.toFixed(2)}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3">
+                  <StatusPill status={inv.status} />
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 text-right">
+                  <DownloadButton onClick={handleDownload} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Mobile: two lines per invoice — date + amount + status on
-          top, description + download on bottom. */}
-      <ul className="divide-y divide-border md:hidden">
-        {sorted.map((inv) => (
-          <li key={inv.id} className="flex flex-col gap-1.5 px-4 py-3">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="font-medium text-text-primary">{formatDate(inv.date)}</span>
-              <span className="text-text-muted">·</span>
-              <span className="font-semibold text-text-primary">${inv.amount.toFixed(2)}</span>
-              <span className="ml-auto"><StatusPill status={inv.status} /></span>
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <p className="min-w-0 flex-1 truncate text-xs text-text-secondary" title={inv.description}>
-                {inv.description}
-              </p>
-              <DownloadButton onClick={handleDownload} />
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+      {/* Mobile: each invoice is its own card so rows read as
+          discrete records rather than cells in a list. The wrapper
+          gets a max-height + overflow-y-auto so a long history
+          doesn't push the page; ~5 cards visible before scroll
+          (each card ~84px tall + 12px gap). */}
+      <div className="max-h-[480px] overflow-y-auto pr-1 md:hidden">
+        <ul className="flex flex-col gap-3">
+          {sorted.map((inv) => (
+            <li
+              key={inv.id}
+              className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3 shadow-sm"
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <span className="font-medium text-text-primary">{formatDate(inv.date)}</span>
+                <span className="text-text-muted">·</span>
+                <span className="font-semibold text-text-primary">${inv.amount.toFixed(2)}</span>
+                <span className="ml-auto"><StatusPill status={inv.status} /></span>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <p className="min-w-0 flex-1 truncate text-xs text-text-secondary" title={inv.description}>
+                  {inv.description}
+                </p>
+                <DownloadButton onClick={handleDownload} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
   )
 }
