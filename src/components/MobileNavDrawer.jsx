@@ -30,7 +30,7 @@ import { useAccounts } from '@/stores/useAccounts'
 const NAV_TABS = [
   { to: '/', icon: BarChart3, label: 'Overview', end: true },
   { to: '/targets', icon: Target, label: 'Targeting' },
-  { to: '/growth', icon: TrendingUp, label: 'Growth' },
+  { to: '/engagement', icon: TrendingUp, label: 'Engagement' },
   { to: '/account', icon: SettingsIcon, label: 'Settings' },
 ]
 

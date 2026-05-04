@@ -335,7 +335,7 @@ function AccountSwitcher({ collapsed }) {
 const tabs = [
   { to: '/', icon: BarChart3, label: 'Overview' },
   { to: '/targets', icon: Target, label: 'Targeting' },
-  { to: '/growth', icon: TrendingUp, label: 'Growth' },
+  { to: '/engagement', icon: TrendingUp, label: 'Engagement' },
 ]
 
 export default function DashboardLayout() {
