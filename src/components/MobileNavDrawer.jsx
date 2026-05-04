@@ -7,7 +7,7 @@ import {
   Settings as SettingsIcon,
   User,
   CreditCard,
-  Instagram,
+  AtSign,
   CheckCircle2,
   AlertTriangle,
   Sun,
@@ -175,7 +175,7 @@ export default function MobileNavDrawer() {
 
           {/* IG connection — non-clickable status row (Q3c) */}
           <div className="mx-3 mb-2 flex items-center gap-3 rounded-lg border border-border bg-bg/50 px-3 py-2.5">
-            <Instagram className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
+            <AtSign className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-medium text-text-secondary">Instagram</p>
               {isConnected ? (
