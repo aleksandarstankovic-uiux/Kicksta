@@ -6,6 +6,7 @@ import { useNotifications } from '@/stores/useNotifications'
 import { useAccounts } from '@/stores/useAccounts'
 import ToastContainer from '@/components/Toast'
 import ProfileDropdown from '@/components/ProfileDropdown'
+import MobileNavDrawer from '@/components/MobileNavDrawer'
 import kickstaLogo from '@/assets/kicksta-logo.svg'
 import kickstaFullLogo from '@/assets/kicksta-full-logo.svg'
 
@@ -477,13 +478,11 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      {/* Mobile: top bar. Left slot is reserved for the hamburger
-          drawer trigger (Session 3 of the layout refactor — for now
-          a same-size spacer keeps the logo centered). Right slot
-          stacks the notification bell next to the new profile
-          dropdown. */}
+      {/* Mobile: top bar. Hamburger (full primary nav + account
+          items) lives left; logo centered; bell + profile dropdown
+          stacked right. */}
       <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-surface px-4 lg:hidden">
-        <div className="h-10 w-10" aria-hidden="true" />
+        <MobileNavDrawer />
         <img src={kickstaLogo} alt="Kicksta" className="h-8" />
         <div className="flex items-center gap-1">
           <NotificationBell />
