@@ -1260,9 +1260,10 @@ function ActivityFeed({ items, period, customRange }) {
   return (
     // h-full + min-h-0 lets the card stretch to the chart's height on
     // lg: and clip the scrollable list instead of pushing the column
-    // taller. Mobile stacks below the chart and behaves as a natural
-    // card (h-full resolves to content height there).
-    <div className="flex h-full min-h-0 flex-col rounded-xl border border-border bg-surface p-4 lg:p-6">
+    // taller. On mobile the card cap at `max-h-[420px]` so a long
+    // history scrolls inside the card (~5 rows visible) instead of
+    // pushing the page.
+    <div className="flex h-full max-h-[420px] min-h-0 flex-col rounded-xl border border-border bg-surface p-4 lg:max-h-none lg:p-6">
       {/* Title on the left, Live pill pinned to the right — the pill
           (red-tint bg + red-text) keeps the live signal readable without
           stealing the card's chrome. */}
@@ -1657,10 +1658,15 @@ export default function OverviewPage() {
             on the right. PeriodSwitcher is hidden while on trial since
             there's only ever <=7 days of data and the metrics are
             automatically scoped to the "Trial period". */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
-            {getGreeting()}, {user.name?.split(' ')[0] || 'there'} 👋
-          </h1>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <div className="min-w-0">
+            <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
+              {getGreeting()}, {user.name?.split(' ')[0] || 'there'} 👋
+            </h1>
+            <p className="mt-1 text-sm text-text-secondary">
+              How your account is growing.
+            </p>
+          </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:shrink-0">
             <TrialProgress user={user} />
             <PeriodSwitcher

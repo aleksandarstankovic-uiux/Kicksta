@@ -5,6 +5,14 @@
 
 ---
 
+## 2026-05-04 — Overview small fixes
+
+### Changed
+- **Overview H1**: added a `How your account is growing.` subtitle directly under the greeting. Header row now stacks H1 + subtitle on the left, period switcher / trial pill on the right.
+- **Activity feed (mobile)**: capped the card at `max-h-[420px]` so a long event history scrolls inside the card (~5 rows visible) rather than pushing the page. Desktop layout is unchanged — the card still stretches to the chart's height on lg+.
+
+---
+
 ## 2026-05-04 — Settings mobile shell + billing history cards
 
 ### Changed
