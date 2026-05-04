@@ -52,7 +52,7 @@ function GroupHeader({ icon: Icon, children }) {
   )
 }
 
-export default function FiltersCard({ onEdit }) {
+export default function AudienceFiltersCard({ onEdit }) {
   const filters = useGrowthConfig((s) => s.config.filters)
   const genderLocked = mockUser.plan !== 'advanced'
 
@@ -62,8 +62,8 @@ export default function FiltersCard({ onEdit }) {
         <div className="flex items-center gap-3">
           <CardChip color="yellow" icon={SlidersHorizontal} />
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-semibold text-text-primary">Filters</h2>
-            <InfoTooltip text="Who Kicksta targets." />
+            <h2 className="text-base font-semibold text-text-primary">Audience filters</h2>
+            <InfoTooltip text="Who Kicksta is allowed to interact with." />
           </div>
         </div>
         <button

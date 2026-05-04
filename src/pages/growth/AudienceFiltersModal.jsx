@@ -240,7 +240,7 @@ function ColumnHeader({ icon: Icon, children }) {
   )
 }
 
-export default function FiltersModal({ open, onClose, onRequestUpgrade }) {
+export default function AudienceFiltersModal({ open, onClose, onRequestUpgrade }) {
   const [mounted, setMounted] = useState(false)
 
   const storedFilters = useGrowthConfig((s) => s.config.filters)

@@ -3,8 +3,8 @@ import { mockUser } from '@/mocks/user'
 import ModeCard from './ModeCard'
 import WelcomeDmCard from './WelcomeDmCard'
 import CloseFriendsCard from './CloseFriendsCard'
-import FiltersCard from './FiltersCard'
-import FiltersModal from './FiltersModal'
+import AudienceFiltersCard from './AudienceFiltersCard'
+import AudienceFiltersModal from './AudienceFiltersModal'
 import WhitelistCard from './WhitelistCard'
 import WhitelistModal from './WhitelistModal'
 import BlacklistCard from './BlacklistCard'
@@ -50,7 +50,7 @@ export default function GrowthPage() {
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <WelcomeDmCard onRequestUpgrade={openUpgrade} />
         <CloseFriendsCard onRequestUpgrade={openUpgrade} />
-        <FiltersCard onEdit={() => setFiltersOpen(true)} />
+        <AudienceFiltersCard onEdit={() => setFiltersOpen(true)} />
         <WhitelistCard onEdit={() => setWhitelistOpen(true)} />
         <BlacklistCard onEdit={() => setBlacklistOpen(true)} />
       </div>
@@ -59,7 +59,7 @@ export default function GrowthPage() {
         <GrowthPlusBanner isSubscribed={mockUser.growthPlusSubscribed} />
       </div>
 
-      <FiltersModal
+      <AudienceFiltersModal
         open={filtersOpen}
         onClose={() => setFiltersOpen(false)}
         onRequestUpgrade={openUpgrade}
