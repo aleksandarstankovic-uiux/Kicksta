@@ -4,6 +4,7 @@ import SignupLayout from '@/components/SignupLayout'
 import OverviewPage from '@/pages/overview'
 import TargetsPage from '@/pages/targets'
 import GrowthPage from '@/pages/growth'
+import EngagementPage from '@/pages/engagement'
 import AccountPage from '@/pages/account'
 import AccountGrowthPlusPage from '@/pages/accountGrowthPlus'
 import ProfilePanel from '@/pages/account/ProfilePanel'
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/" element={<OverviewPage />} />
         <Route path="/targets" element={<TargetsPage />} />
         <Route path="/growth" element={<GrowthPage />} />
+        <Route path="/engagement" element={<EngagementPage />} />
         <Route path="/account" element={<AccountPage />}>
           <Route path="profile" element={<ProfilePanel />} />
           <Route path="billing" element={<BillingPanel />} />
