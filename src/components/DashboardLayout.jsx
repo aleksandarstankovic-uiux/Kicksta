@@ -478,16 +478,16 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      {/* Mobile: top bar. Hamburger (full primary nav + account
-          items) lives left; logo centered; bell + profile dropdown
-          stacked right. */}
+      {/* Mobile: top bar. Hamburger (primary nav + account
+          switcher + profile actions) lives left; logo centered;
+          notification bell right. The profile dropdown was
+          previously also mounted here on the right but conflicted
+          with the same items inside the drawer — drawer is the
+          single source on mobile. */}
       <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-surface px-4 lg:hidden">
         <MobileNavDrawer />
         <img src={kickstaLogo} alt="Kicksta" className="h-8" />
-        <div className="flex items-center gap-1">
-          <NotificationBell />
-          <ProfileDropdown variant="compact" />
-        </div>
+        <NotificationBell />
       </header>
 
       {/* Main content */}
