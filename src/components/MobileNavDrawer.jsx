@@ -170,7 +170,7 @@ export default function MobileNavDrawer() {
           <SectionLabel>Account</SectionLabel>
           <div className="flex flex-col gap-1 px-3 pb-2">
             <DrawerLink to="/account/profile" icon={User} label="Account details" />
-            <DrawerLink to="/account/payment" icon={CreditCard} label="Plan & billing" />
+            <DrawerLink to="/account/billing" icon={CreditCard} label="Plan & billing" />
           </div>
 
           {/* IG connection — non-clickable status row (Q3c) */}

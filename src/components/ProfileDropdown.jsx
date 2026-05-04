@@ -93,7 +93,7 @@ export default function ProfileDropdown({ variant = 'compact', collapsed = false
           {/* Account links */}
           <div className="flex flex-col py-1">
             <DropdownLink to="/account/profile" icon={User} label="Account details" onClick={() => setOpen(false)} />
-            <DropdownLink to="/account/payment" icon={CreditCard} label="Plan & billing" onClick={() => setOpen(false)} />
+            <DropdownLink to="/account/billing" icon={CreditCard} label="Plan & billing" onClick={() => setOpen(false)} />
           </div>
 
           {/* IG connection — Q3c status row. Non-clickable container,

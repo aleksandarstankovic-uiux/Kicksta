@@ -1,18 +1,20 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { User, CreditCard, Layers, ChevronRight } from 'lucide-react'
+import { User, CreditCard, ChevronRight } from 'lucide-react'
 
 const items = [
   { to: '/account/profile', label: 'Profile', icon: User },
-  { to: '/account/payment', label: 'Payment', icon: CreditCard },
-  { to: '/account/subscriptions', label: 'Subscriptions', icon: Layers },
+  { to: '/account/billing', label: 'Billing', icon: CreditCard },
 ]
 
-// Highlights the Subscriptions row when the user is deep in
-// /account/subscriptions/:id so the secondary nav stays consistent
-// with the breadcrumb the user sees.
-function isSubActive(currentPath, itemPath) {
-  if (itemPath === '/account/subscriptions') {
-    return currentPath.startsWith('/account/subscriptions')
+// Billing is active for /account/billing AND for the standalone
+// /account/subscriptions/:id detail page (the rail shouldn't lose
+// orientation just because the user drilled into a subscription).
+function isItemActive(currentPath, itemPath) {
+  if (itemPath === '/account/billing') {
+    return (
+      currentPath === '/account/billing' ||
+      currentPath.startsWith('/account/subscriptions')
+    )
   }
   return currentPath === itemPath
 }
@@ -27,7 +29,7 @@ export default function SettingsNav() {
   return (
     <nav className="flex flex-col gap-1">
       {items.map(({ to, label, icon: Icon }) => {
-        const active = isSubActive(pathname, to)
+        const active = isItemActive(pathname, to)
         return (
           <NavLink
             key={to}

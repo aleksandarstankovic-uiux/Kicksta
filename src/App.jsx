@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import DashboardLayout from '@/components/DashboardLayout'
 import SignupLayout from '@/components/SignupLayout'
 import OverviewPage from '@/pages/overview'
@@ -7,8 +7,7 @@ import GrowthPage from '@/pages/growth'
 import AccountPage from '@/pages/account'
 import AccountGrowthPlusPage from '@/pages/accountGrowthPlus'
 import ProfilePanel from '@/pages/account/ProfilePanel'
-import PaymentPanel from '@/pages/account/PaymentPanel'
-import SubscriptionsList from '@/pages/account/SubscriptionsList'
+import BillingPanel from '@/pages/account/BillingPanel'
 import SubscriptionDetail from '@/pages/account/SubscriptionDetail'
 import IgPreview from '@/pages/signup/steps/IgPreview'
 import PlanSelection from '@/pages/signup/steps/PlanSelection'
@@ -30,8 +29,11 @@ export default function App() {
         <Route path="/growth" element={<GrowthPage />} />
         <Route path="/account" element={<AccountPage />}>
           <Route path="profile" element={<ProfilePanel />} />
-          <Route path="payment" element={<PaymentPanel />} />
-          <Route path="subscriptions" element={<SubscriptionsList />} />
+          <Route path="billing" element={<BillingPanel />} />
+          {/* Back-compat redirects — /payment + /subscriptions
+              merged into /billing in the layout refactor. */}
+          <Route path="payment" element={<Navigate to="/account/billing" replace />} />
+          <Route path="subscriptions" element={<Navigate to="/account/billing" replace />} />
         </Route>
         <Route path="/account/subscriptions/:id" element={<SubscriptionDetail />} />
         <Route path="/account/growth-plus" element={<AccountGrowthPlusPage />} />

@@ -22,8 +22,7 @@ function useIsDesktop() {
 
 const PANEL_TITLE = {
   '/account/profile': 'Profile',
-  '/account/payment': 'Payment',
-  '/account/subscriptions': 'Subscriptions',
+  '/account/billing': 'Billing',
 }
 
 export default function AccountPage() {

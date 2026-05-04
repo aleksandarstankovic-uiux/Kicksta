@@ -16,7 +16,7 @@ export default function SubscriptionDetail() {
   const accounts = useAccounts((s) => s.accounts)
   const [cancelOpen, setCancelOpen] = useState(false)
 
-  if (!sub) return <Navigate to="/account/subscriptions" replace />
+  if (!sub) return <Navigate to="/account/billing" replace />
 
   const account = accounts.find((a) => a.id === sub.accountId)
   const username = account?.username ?? '@unknown'
@@ -31,7 +31,7 @@ export default function SubscriptionDetail() {
           pill have room. Username truncates if needed. */}
       <div className="flex items-center gap-2 sm:gap-3">
         <Link
-          to="/account/subscriptions"
+          to="/account/billing"
           aria-label="Back to subscriptions"
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-text-secondary hover:bg-bg hover:text-text-primary sm:h-11 sm:w-11"
         >
