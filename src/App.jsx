@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import DashboardLayout from '@/components/DashboardLayout'
 import SignupLayout from '@/components/SignupLayout'
 import OverviewPage from '@/pages/overview'
-import TargetsPage from '@/pages/targets'
+import TargetingPage from '@/pages/targeting'
 import EngagementPage from '@/pages/engagement'
 import AccountPage from '@/pages/account'
 import AccountGrowthPlusPage from '@/pages/accountGrowthPlus'
@@ -25,7 +25,8 @@ export default function App() {
       {/* Dashboard shell */}
       <Route element={<DashboardLayout />}>
         <Route path="/" element={<OverviewPage />} />
-        <Route path="/targets" element={<TargetsPage />} />
+        <Route path="/targeting" element={<TargetingPage />} />
+        <Route path="/targets" element={<Navigate to="/targeting" replace />} />
         <Route path="/growth" element={<Navigate to="/engagement" replace />} />
         <Route path="/engagement" element={<EngagementPage />} />
         <Route path="/account" element={<AccountPage />}>
