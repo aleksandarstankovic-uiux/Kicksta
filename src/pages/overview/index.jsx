@@ -52,6 +52,7 @@ import { useSystemStatus } from '@/hooks/useSystemStatus'
 import { useToasts } from '@/stores/useToasts'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
+import InstagramConnectionBanner from '@/components/InstagramConnectionBanner'
 
 // --- Helpers ---
 
@@ -617,27 +618,6 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
           row instead. */}
       <div className="mt-3 sm:hidden">
         <AccountPauseCTA status={systemStatus} onPauseToggle={onPauseToggle} className="w-full" />
-      </div>
-    </div>
-  )
-}
-
-function DisconnectedBanner() {
-  return (
-    <div className="rounded-xl border border-red-base/20 bg-red-tint p-4">
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-base/10">
-          <AlertTriangle className="h-5 w-5 text-red-text" />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold text-text-primary">Instagram disconnected</h3>
-          <p className="mt-1 text-sm leading-relaxed text-text-secondary">
-            Your Instagram session ended. This is normal after a password change or security prompt — your account is safe. Reconnect to continue growing.
-          </p>
-          <button className="mt-3 inline-flex h-10 items-center justify-center rounded-lg bg-red-base px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90">
-            Reconnect Instagram
-          </button>
-        </div>
       </div>
     </div>
   )
@@ -1728,10 +1708,13 @@ export default function OverviewPage() {
           </div>
         )}
 
-        {/* Disconnected Banner */}
+        {/* Disconnected Banner — sources from useAccounts so it
+            reflects the AccountSwitcher's currently-active account.
+            Wrapped in `mt-4` only when the active account actually
+            is disconnected so we don't leave an orphan gap. */}
         {isDisconnected && (
           <div className="mt-4">
-            <DisconnectedBanner />
+            <InstagramConnectionBanner />
           </div>
         )}
 
