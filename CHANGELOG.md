@@ -5,6 +5,35 @@
 
 ---
 
+## 2026-04-30 — Layout refactor (per `docs/MIGRATION.md`)
+
+### Created
+- **`src/components/ProfileDropdown.jsx`** — top-right account dropdown. Two trigger variants: `sidebar-pill` (desktop sidebar bottom — full pill with avatar + name + email, opens upward) and `compact` (mobile header right — 40×40 avatar trigger, opens below + leftward). Five rows: identity header, Account details, Plan & billing, IG connection status row (non-clickable, inline Reconnect link when disconnected — Q3c), Theme segmented control (Light / Dark), Log out (V1 stub).
+- **`src/components/MobileNavDrawer.jsx`** — left-anchored hamburger drawer for mobile. Three sections: Navigate (Overview · Targeting · Growth · Settings), Account (Account details, Plan & billing, IG connection status), System (Theme + Log out). Closes on backdrop click, ESC, route change, or X. Body scroll-locks while open; focus moves to the panel and back to the trigger.
+- **`src/components/InstagramConnectionBanner.jsx`** — persistent reconnect banner on Overview when the active IG account is disconnected. Calm copy lifted verbatim from PRODUCT.md Problem 4. Replaces the inline `DisconnectedBanner` subcomponent that previously lived inside `pages/overview/index.jsx`.
+- **`src/hooks/useDismissOnOutsideClick.js`** — shared click-outside + ESC dismissal hook. Used by `ProfileDropdown`. (Optional refactor target for `NotificationBell` — pre-existing duplicate logic, deferred.)
+- **`src/pages/account/BillingPanel.jsx`** — merged Plan & billing page (replaces `PaymentPanel.jsx` + `SubscriptionsList.jsx`).
+
+### Changed
+- **`useThemeStore.getInitialTheme()`** — now consults `window.matchMedia('(prefers-color-scheme: dark)')` when nothing is stored (was hard-defaulting to `'light'`). Stored choice still wins.
+- **`DashboardLayout.jsx`** desktop sidebar: profile dropdown sits at the top of the bottom slot (above the Settings entry); mobile header: hamburger trigger replaces the empty 40×40 spacer on the left, profile dropdown sits next to the bell on the right.
+- **`/account/payment` and `/account/subscriptions`** — both routes now redirect to `/account/billing`. Old deep links keep working.
+- **`SettingsNav`** — two items instead of three (Profile + Billing). Billing's active-state matcher returns true for `/account/billing` AND `/account/subscriptions/:id` so the rail stays consistent on the standalone subscription detail.
+- **`pages/account/index.jsx`** `PANEL_TITLE` map — drops `/account/payment` and `/account/subscriptions`, adds `/account/billing` → `'Billing'`.
+- **`SubscriptionDetail`** back arrow now returns to `/account/billing` (was `/account/subscriptions`, which no longer exists as a list page).
+- **`CLAUDE.md`** Never list — hamburger is no longer banned outright; it's now banned **as the only mobile nav**. Pairing with the bottom tab bar is explicitly allowed (see `MobileNavDrawer.jsx`).
+
+### Removed
+- `src/pages/account/PaymentPanel.jsx` and `src/pages/account/SubscriptionsList.jsx` — superseded by `BillingPanel.jsx`.
+- The inline `DisconnectedBanner` subcomponent inside `pages/overview/index.jsx` — superseded by the shared `InstagramConnectionBanner` so the IG status visible across the dropdown, the drawer, and the Overview banner all subscribe to the same `useAccounts` source.
+
+### Decisions
+- Sidebar Settings entry stays — it's the main Kicksta-account access on desktop. Profile dropdown is the additional path, not the replacement.
+- Hamburger drawer uses the hybrid model: full primary nav inside the drawer AND the bottom tab bar stays for the three primary tabs. Settings is reachable via the drawer only on mobile.
+- IG connection inside the dropdown / drawer is a non-clickable status row, with an inline "Reconnect" link only when disconnected.
+
+---
+
 ## 2026-04-29 — Settings page fixes
 
 ### Changed

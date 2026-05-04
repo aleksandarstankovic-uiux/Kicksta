@@ -436,7 +436,8 @@ Write classes in this order: `layout → spacing → sizing → color → typogr
 
 **Never:**
 - Radio buttons · Placeholder-only labels · Arbitrary Tailwind values (`w-[237px]`)
-- Hamburger menu · Centered modals on mobile · Touch targets < 44px
+- Centered modals on mobile · Touch targets < 44px
+- Hamburger menu **as the only mobile nav** (acceptable when paired with the bottom tab bar — see `MobileNavDrawer.jsx`)
 - Countdown timers · Fake activity alerts · Warning colors for non-errors
 - Filler phrases ("Simply", "Just", "In order to", "Please note")
 - Empty/blank/flat states without explanation
