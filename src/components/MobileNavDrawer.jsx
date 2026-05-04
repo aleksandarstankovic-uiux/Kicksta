@@ -15,7 +15,6 @@ import {
   LogOut,
   X,
   Menu,
-  Check,
 } from 'lucide-react'
 import { useUserProfile } from '@/stores/useUserProfile'
 import { useThemeStore } from '@/stores/useThemeStore'
@@ -48,7 +47,7 @@ export default function MobileNavDrawer() {
   const initials = (firstName?.[0] ?? '') + (lastName?.[0] ?? '')
 
   const theme = useThemeStore((s) => s.theme)
-  const setTheme = useThemeStore((s) => s.setTheme)
+  const toggleTheme = useThemeStore((s) => s.toggleTheme)
 
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
@@ -200,29 +199,26 @@ export default function MobileNavDrawer() {
 
           {/* System */}
           <SectionLabel>System</SectionLabel>
-          <div className="flex flex-col gap-2 px-3 pb-3">
-            <p className="text-xs font-medium text-text-secondary">Theme</p>
-            <div className="flex rounded-lg border border-border bg-bg p-0.5">
-              <ThemeOption
-                active={theme === 'light'}
-                icon={Sun}
-                label="Light"
-                onClick={() => setTheme('light')}
-              />
-              <ThemeOption
-                active={theme === 'dark'}
-                icon={Moon}
-                label="Dark"
-                onClick={() => setTheme('dark')}
-              />
-            </div>
+          <div className="flex flex-col gap-1 px-3 pb-3">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-text-primary transition-colors hover:bg-bg"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
+              ) : (
+                <Moon className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
+              )}
+              {theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            </button>
             <button
               type="button"
               onClick={() => {
                 // V1 stub — replace with auth.signOut() when backend lands.
                 setOpen(false)
               }}
-              className="mt-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               Log out
@@ -254,21 +250,3 @@ function DrawerLink({ to, icon: Icon, label }) {
   )
 }
 
-function ThemeOption({ active, icon: Icon, label, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-        active
-          ? 'bg-surface text-text-primary shadow-sm'
-          : 'text-text-secondary hover:text-text-primary'
-      }`}
-    >
-      <Icon className="h-3.5 w-3.5" />
-      {label}
-      {active && <Check className="ml-0.5 h-3 w-3" aria-hidden="true" />}
-    </button>
-  )
-}

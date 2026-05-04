@@ -9,7 +9,6 @@ import {
   Sun,
   Moon,
   LogOut,
-  Check,
 } from 'lucide-react'
 import { useUserProfile } from '@/stores/useUserProfile'
 import { useThemeStore } from '@/stores/useThemeStore'
@@ -38,7 +37,7 @@ export default function ProfileDropdown({ variant = 'compact', collapsed = false
   const fullName = `${firstName} ${lastName}`.trim() || 'Account'
 
   const theme = useThemeStore((s) => s.theme)
-  const setTheme = useThemeStore((s) => s.setTheme)
+  const toggleTheme = useThemeStore((s) => s.toggleTheme)
 
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
@@ -123,24 +122,22 @@ export default function ProfileDropdown({ variant = 'compact', collapsed = false
             </div>
           </div>
 
-          {/* Theme toggle — segmented control */}
-          <div className="border-t border-border px-4 py-3">
-            <p className="mb-2 text-xs font-medium text-text-secondary">Theme</p>
-            <div className="flex rounded-lg border border-border bg-bg p-0.5">
-              <ThemeOption
-                active={theme === 'light'}
-                icon={Sun}
-                label="Light"
-                onClick={() => setTheme('light')}
-              />
-              <ThemeOption
-                active={theme === 'dark'}
-                icon={Moon}
-                label="Dark"
-                onClick={() => setTheme('dark')}
-              />
-            </div>
-          </div>
+          {/* Theme toggle — single row that flips on click. Calls
+              the existing `toggleTheme` action so the active value
+              reads from the store on every render and the button
+              label always shows the *target* theme. */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="flex w-full items-center gap-3 border-t border-border px-4 py-2.5 text-left text-sm font-medium text-text-primary transition-colors hover:bg-bg"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
+            ) : (
+              <Moon className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
+            )}
+            {theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          </button>
 
           {/* Log out */}
           <div className="border-t border-border py-1">
@@ -210,21 +207,3 @@ function DropdownLink({ to, icon: Icon, label, onClick }) {
   )
 }
 
-function ThemeOption({ active, icon: Icon, label, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-        active
-          ? 'bg-surface text-text-primary shadow-sm'
-          : 'text-text-secondary hover:text-text-primary'
-      }`}
-    >
-      <Icon className="h-3.5 w-3.5" />
-      {label}
-      {active && <Check className="ml-0.5 h-3 w-3" aria-hidden="true" />}
-    </button>
-  )
-}
