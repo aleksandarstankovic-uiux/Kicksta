@@ -21,13 +21,27 @@ export default function SettingsTab() {
   const closeUpgrade = () => setUpgradeFeature(null)
 
   return (
-    <div className="flex flex-col gap-4">
-      <ModeCard />
-      <AudienceFiltersCard onEdit={() => setFiltersOpen(true)} />
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <WhitelistCard onEdit={() => setWhitelistOpen(true)} />
-        <BlacklistCard onEdit={() => setBlacklistOpen(true)} />
-      </div>
+    <div className="flex flex-col gap-6">
+      {/* Engine — how Kicksta runs the follow loop. */}
+      <section>
+        <SectionHeading>Engine</SectionHeading>
+        <ModeCard />
+      </section>
+
+      {/* Audience — who Kicksta is allowed to interact with. */}
+      <section>
+        <SectionHeading>Audience</SectionHeading>
+        <AudienceFiltersCard onEdit={() => setFiltersOpen(true)} />
+      </section>
+
+      {/* Lists — explicit allow/block surfaces, parallel pair on lg+. */}
+      <section>
+        <SectionHeading>Lists</SectionHeading>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <WhitelistCard onEdit={() => setWhitelistOpen(true)} />
+          <BlacklistCard onEdit={() => setBlacklistOpen(true)} />
+        </div>
+      </section>
 
       <AudienceFiltersModal
         open={filtersOpen}
@@ -42,5 +56,18 @@ export default function SettingsTab() {
         feature={upgradeFeature ?? 'gender_filter'}
       />
     </div>
+  )
+}
+
+// Small uppercase section heading shared by every group on the
+// Settings tab. Same recipe as the inline labels used elsewhere
+// (e.g. `RECENT DMS SENT` on the Engagement page) so the page reads
+// as a coherent stack of related groups rather than a junk drawer
+// of standalone cards.
+function SectionHeading({ children }) {
+  return (
+    <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+      {children}
+    </p>
   )
 }
