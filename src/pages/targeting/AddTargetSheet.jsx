@@ -200,12 +200,12 @@ export default function AddTargetSheet({ open, onClose }) {
         </div>
 
         {/* Scrollable body with min-height so the sheet doesn't flicker. */}
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="flex-1 overflow-y-auto px-4 py-5">
           <div className="min-h-[360px]">
             {/* Account/Hashtag pill switcher — same recipe as the
                 page-level tabs. Switching type clears any in-flight
                 input/match state so the user starts fresh. */}
-            <div className="mt-4 flex gap-1 rounded-full bg-bg p-1">
+            <div className="flex gap-1 rounded-full bg-bg p-1">
               {[
                 { value: 'account', label: 'Account', icon: AtSign },
                 { value: 'hashtag', label: 'Hashtag', icon: Hash },
@@ -236,7 +236,7 @@ export default function AddTargetSheet({ open, onClose }) {
             </div>
 
             {/* Input */}
-            <div className="relative mt-4">
+            <div className="relative mt-5">
               <label htmlFor="target-input" className="text-sm font-medium text-text-primary">
                 {type === 'account' ? 'Username' : 'Hashtag'}
               </label>
@@ -312,7 +312,7 @@ export default function AddTargetSheet({ open, onClose }) {
 
             {/* Preview card — only after a match is picked. */}
             {pickedMatch && !duplicate && (
-              <div className="mt-3 flex items-center gap-3 rounded-lg border border-border bg-bg p-3">
+              <div className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-bg p-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-sm font-semibold text-text-secondary">
                   {type === 'hashtag' ? (
                     <Hash className="h-4 w-4" aria-hidden="true" />
@@ -336,7 +336,7 @@ export default function AddTargetSheet({ open, onClose }) {
 
             {/* Suggestions — always visible so the user keeps a browse
                 surface even while typeahead is showing results. */}
-            <div className="mt-5">
+            <div className="mt-6">
               <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
                 Suggestions
               </p>

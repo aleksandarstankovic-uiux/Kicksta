@@ -47,8 +47,10 @@ export default function TargetingPage() {
         </p>
       </header>
 
-      {/* Pill switcher — same recipe reused inside AddTargetSheet. */}
-      <div className="mt-4 flex gap-1 rounded-full bg-bg p-1">
+      {/* Pill switcher — same recipe reused inside AddTargetSheet.
+          Wrapped on a white surface with a border so the strip
+          feels grounded on the page background instead of floating. */}
+      <div className="mt-4 flex gap-1 rounded-full border border-border bg-surface p-1 shadow-sm">
         {TABS.map((t) => {
           const selected = activeTab === t.value
           const Icon = t.icon
