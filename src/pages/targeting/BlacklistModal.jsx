@@ -132,7 +132,7 @@ export default function BlacklistModal({ open, onClose }) {
       >
         <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
           <div className="flex items-center gap-3">
-            <CardChip color="neutral" icon={Ban} />
+            <CardChip color="yellow" icon={Ban} />
             <h2 className="text-base font-semibold text-text-primary">Edit blacklist</h2>
           </div>
           <button
