@@ -91,7 +91,7 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
               focus, an animate-ping halo radiates from it to mirror the
               desktop pill ring. */}
           <span
-            aria-label={statusLabel[target.status]}
+            aria-label={isProcessing ? 'Following from this target' : statusLabel[target.status]}
             className="relative inline-flex h-2 w-2 shrink-0 items-center justify-center md:hidden"
           >
             {isProcessing && (
@@ -130,7 +130,7 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
                 : ''
             }`}
           >
-            {statusLabel[target.status]}
+            {isProcessing ? 'Following…' : statusLabel[target.status]}
           </span>
         </div>
         {subline && (
