@@ -76,34 +76,35 @@ export default function AudienceFiltersCard({ onEdit }) {
         </button>
       </div>
 
-      <div className="mt-4">
-        <GroupHeader icon={Users}>Audience size</GroupHeader>
-        <div className="mt-1 flex flex-col divide-y divide-border">
-          <Row
-            label="Following count"
-            value={rangeFor(filters.followingMin, filters.followingMax, 'following')}
-          />
-          <Row
-            label="Follower count"
-            value={rangeFor(filters.followerMin, filters.followerMax, 'followers')}
-          />
-          <Row
-            label="Media count"
-            value={rangeFor(filters.mediaMin, filters.mediaMax, 'posts')}
-          />
+      <div className="mt-4 grid gap-4 border-b border-border pb-4 lg:grid-cols-2 lg:gap-6 lg:divide-x lg:divide-border lg:pb-0">
+        <div className="lg:pr-6">
+          <GroupHeader icon={Users}>Audience size</GroupHeader>
+          <div className="mt-1 flex flex-col divide-y divide-border">
+            <Row
+              label="Following count"
+              value={rangeFor(filters.followingMin, filters.followingMax, 'following')}
+            />
+            <Row
+              label="Follower count"
+              value={rangeFor(filters.followerMin, filters.followerMax, 'followers')}
+            />
+            <Row
+              label="Media count"
+              value={rangeFor(filters.mediaMin, filters.mediaMax, 'posts')}
+            />
+          </div>
         </div>
-      </div>
-
-      <div className="mt-4 border-b border-border">
-        <GroupHeader icon={User}>Account type</GroupHeader>
-        <div className="mt-1 flex flex-col divide-y divide-border">
-          <Row label="Account privacy" value={privacyLabel(filters.accountPrivacy)} />
-          <Row
-            label="Gender target"
-            value={genderLabel(filters.genderTarget)}
-            locked={genderLocked}
-          />
-          <Row label="Exclude NSFW" value={filters.excludeNsfw ? 'On' : 'Off'} />
+        <div>
+          <GroupHeader icon={User}>Account type</GroupHeader>
+          <div className="mt-1 flex flex-col divide-y divide-border">
+            <Row label="Account privacy" value={privacyLabel(filters.accountPrivacy)} />
+            <Row
+              label="Gender target"
+              value={genderLabel(filters.genderTarget)}
+              locked={genderLocked}
+            />
+            <Row label="Exclude NSFW" value={filters.excludeNsfw ? 'On' : 'Off'} />
+          </div>
         </div>
       </div>
 
