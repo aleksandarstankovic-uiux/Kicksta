@@ -4,10 +4,13 @@ import TargetsTab from './TargetsTab'
 import SettingsTab from './SettingsTab'
 
 // Targeting page hosts two tabs (Targets default, Settings) via a
-// `?tab=settings` search param. The page subtitle stays constant —
-// each tab carries its own descriptor as a sub-line inside its
-// switcher button, so users see what each tab does without having
-// to commit to it first.
+// `?tab=settings` search param.
+//
+// Switcher pattern: connected tabs. The active tab is a `bg-surface`
+// card with rounded top corners + an open bottom edge (achieved via
+// `-mb-px` overlapping the parent's bottom border). The active tab
+// reads as physically attached to the content surface below — the
+// universal "tabs" affordance.
 const TABS = [
   {
     value: 'targets',
@@ -51,13 +54,19 @@ export default function TargetingPage() {
         </p>
       </header>
 
-      {/* Switcher — each button stacks `Label` + descriptor sub-line.
-          Container uses `bg-bg` (page tone) + a stronger border so it
-          reads as a grounded control rather than a floating white card.
-          Active pill = `bg-blue-tint text-blue-text` (same recipe as
-          the sidebar nav active state). Rounded-2xl to fit the taller
-          stacked content — rounded-full would clamp into a stadium. */}
-      <div className="mt-4 flex gap-1 rounded-2xl border border-border-strong bg-bg p-1">
+      {/* Connected-tab strip. Container has a `border-b` running
+          across the full width — the baseline. Each tab is a
+          rounded-top card. The active tab fills with `bg-surface`,
+          carries a top/left/right border, and uses `-mb-px` so its
+          bottom overlaps the baseline (giving the illusion of a
+          tab attached to the content surface below). Inactive tabs
+          are flat on the page and slightly muted.
+
+          Mobile (<md): the descriptor sub-line is hidden so each
+          tab is `[icon] Label` only — fits comfortably in two
+          ~150px halves of a phone viewport. Desktop (md+) shows
+          the full stacked label + descriptor. */}
+      <div className="mt-5 flex gap-1 border-b border-border">
         {TABS.map((t) => {
           const selected = activeTab === t.value
           const Icon = t.icon
@@ -66,29 +75,33 @@ export default function TargetingPage() {
               key={t.value}
               type="button"
               onClick={() => setTab(t.value)}
-              className={`flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors ${
+              aria-current={selected ? 'page' : undefined}
+              className={`-mb-px flex flex-1 items-center gap-3 rounded-t-xl border px-4 py-3 text-left transition-colors md:py-3.5 ${
                 selected
-                  ? 'bg-blue-tint shadow-sm'
-                  : 'hover:bg-surface'
+                  ? 'border-border border-b-surface bg-surface shadow-sm'
+                  : 'border-transparent text-text-secondary hover:bg-bg/60'
               }`}
             >
               <Icon
-                className={`h-6 w-6 shrink-0 ${
-                  selected ? 'text-blue-text' : 'text-text-secondary'
+                className={`h-5 w-5 shrink-0 md:h-6 md:w-6 ${
+                  selected ? 'text-blue-text' : 'text-text-muted'
                 }`}
                 aria-hidden="true"
               />
               <span className="flex min-w-0 flex-col gap-0.5">
                 <span
                   className={`text-sm font-semibold ${
-                    selected ? 'text-blue-text' : 'text-text-primary'
+                    selected ? 'text-text-primary' : 'text-text-secondary'
                   }`}
                 >
                   {t.label}
                 </span>
+                {/* Descriptor sub-line — desktop only. On mobile the
+                    label alone is enough; the page subtitle above
+                    carries the broader context. */}
                 <span
-                  className={`text-xs leading-snug ${
-                    selected ? 'text-blue-text/80' : 'text-text-secondary'
+                  className={`hidden text-xs leading-snug md:inline ${
+                    selected ? 'text-text-secondary' : 'text-text-muted'
                   }`}
                 >
                   {t.description}
