@@ -166,17 +166,23 @@ export default function ModeCard() {
         </div>
       )}
 
-      {/* Like-after-follow — moved out of the deleted EngagementCard.
-          Conceptually part of the follow action ("like a few of their
-          posts after following"), so it belongs with Mode rather than
-          as a standalone tactic card. */}
+      {/* Like-after-follow — disabled when the saved mode is
+          `unfollow_only` (no follows means no follow-related likes).
+          Reads from `savedMode` (not `draft`) so the disabled state
+          reflects the actually-saved engine setting; staging a new
+          mode doesn't grey the row until the user hits Save. */}
       <div className="mt-4 border-t border-border pt-4">
         <SettingSwitch
           icon={Heart}
           title="Like after follow"
-          description="Like a few of their recent posts after following — boosts the follow-back rate."
+          description={
+            savedMode === 'unfollow_only'
+              ? "Disabled — Kicksta isn't following anyone in this mode."
+              : 'Like a few of their recent posts after following — boosts the follow-back rate.'
+          }
           checked={likeAfterFollow}
           onChange={() => toggleLikeAfterFollow()}
+          disabled={savedMode === 'unfollow_only'}
         />
       </div>
     </section>
