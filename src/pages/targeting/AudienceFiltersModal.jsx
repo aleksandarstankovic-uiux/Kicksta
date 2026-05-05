@@ -349,10 +349,17 @@ export default function AudienceFiltersModal({ open, onClose, onRequestUpgrade }
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
           <div className="flex items-center gap-3">
             <CardChip color="yellow" icon={SlidersHorizontal} />
-            <h2 className="text-base font-semibold text-text-primary">Edit filters</h2>
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold leading-tight text-text-primary">
+                Edit filters
+              </h2>
+              <p className="mt-0.5 text-xs leading-relaxed text-text-secondary">
+                Tune who Kicksta is allowed to follow.
+              </p>
+            </div>
           </div>
           <button
             type="button"

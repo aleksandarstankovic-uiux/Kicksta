@@ -130,8 +130,8 @@ export default function WhitelistModal({ open, onClose }) {
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
-        <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-3.5">
-          <div className="flex items-start gap-3">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
+          <div className="flex items-center gap-3">
             <CardChip color="green" icon={ShieldCheck} />
             <div className="min-w-0">
               <h2 className="text-base font-semibold leading-tight text-text-primary">

@@ -175,16 +175,17 @@ export default function AddTargetSheet({ open, onClose }) {
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
-        {/* Header — chip + title stacked over a one-line subtitle. */}
-        <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3.5">
-          <div className="flex items-start gap-3">
+        {/* Header — chip + title stacked over a one-line subtitle.
+            Icon vertically centered with the title+subtitle stack. */}
+        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3.5">
+          <div className="flex items-center gap-3">
             <CardChip color="blue" icon={Crosshair} />
             <div className="min-w-0">
               <h2 className="text-base font-semibold leading-tight text-text-primary">
                 Add a target
               </h2>
               <p className="mt-0.5 text-xs leading-relaxed text-text-secondary">
-                Pick any Instagram account or hashtag — Kicksta follows its audience.
+                Pick an account or hashtag to follow.
               </p>
             </div>
           </div>
