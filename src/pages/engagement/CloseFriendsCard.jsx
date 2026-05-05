@@ -101,7 +101,7 @@ function CloseFriendsState() {
   return (
     <div className="mt-3 border-t border-border pt-3">
       <p className="flex items-center gap-1.5 text-xs text-text-secondary">
-        <Star className="h-3.5 w-3.5 text-purple-base" aria-hidden="true" />
+        <Star className="h-3.5 w-3.5 text-purple-text" aria-hidden="true" />
         Currently {count} in close friends
       </p>
 
