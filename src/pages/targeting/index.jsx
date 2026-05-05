@@ -5,8 +5,9 @@ import SettingsTab from './SettingsTab'
 
 // Targeting page hosts two tabs (Targets default, Settings) via a
 // `?tab=settings` search param. The tab strip is the page's primary
-// mode toggle — rendered as an underlined tab-bar so it reads as a
-// view switcher, not a faded segmented pill. Same recipe is reused
+// mode toggle — rendered as a heavy pill switcher so the active view
+// reads instantly. Active pill uses the same `bg-blue-tint text-blue-text`
+// recipe the sidebar nav uses for current-view. Same recipe is reused
 // inside AddTargetSheet for the account/hashtag toggle.
 const TABS = [
   { value: 'targets', label: 'Targets', icon: Crosshair },
@@ -46,8 +47,8 @@ export default function TargetingPage() {
         </p>
       </header>
 
-      {/* Underlined tab-bar — same recipe reused inside AddTargetSheet. */}
-      <div className="mt-4 flex border-b border-border">
+      {/* Pill switcher — same recipe reused inside AddTargetSheet. */}
+      <div className="mt-4 flex gap-1 rounded-full bg-bg p-1">
         {TABS.map((t) => {
           const selected = activeTab === t.value
           const Icon = t.icon
@@ -56,10 +57,10 @@ export default function TargetingPage() {
               key={t.value}
               type="button"
               onClick={() => setTab(t.value)}
-              className={`-mb-px inline-flex h-11 flex-1 items-center justify-center gap-2 border-b-2 px-4 text-sm font-medium transition-colors ${
+              className={`inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm transition-colors ${
                 selected
-                  ? 'border-blue-base text-text-primary'
-                  : 'border-transparent text-text-secondary hover:text-text-primary'
+                  ? 'bg-blue-tint font-semibold text-blue-text shadow-sm'
+                  : 'font-medium text-text-secondary hover:text-text-primary'
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />

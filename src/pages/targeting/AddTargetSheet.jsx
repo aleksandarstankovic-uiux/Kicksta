@@ -201,10 +201,10 @@ export default function AddTargetSheet({ open, onClose }) {
         {/* Scrollable body with min-height so the sheet doesn't flicker. */}
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <div className="min-h-[360px]">
-            {/* Account/Hashtag tab-bar — same underlined recipe as the
+            {/* Account/Hashtag pill switcher — same recipe as the
                 page-level tabs. Switching type clears any in-flight
                 input/match state so the user starts fresh. */}
-            <div className="mt-4 flex border-b border-border">
+            <div className="mt-4 flex gap-1 rounded-full bg-bg p-1">
               {[
                 { value: 'account', label: 'Account', icon: AtSign },
                 { value: 'hashtag', label: 'Hashtag', icon: Hash },
@@ -221,10 +221,10 @@ export default function AddTargetSheet({ open, onClose }) {
                       setMatches([])
                       setPickedMatch(null)
                     }}
-                    className={`-mb-px inline-flex h-11 flex-1 items-center justify-center gap-2 border-b-2 px-4 text-sm font-medium transition-colors ${
+                    className={`inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm transition-colors ${
                       selected
-                        ? 'border-blue-base text-text-primary'
-                        : 'border-transparent text-text-secondary hover:text-text-primary'
+                        ? 'bg-blue-tint font-semibold text-blue-text shadow-sm'
+                        : 'font-medium text-text-secondary hover:text-text-primary'
                     }`}
                   >
                     <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
