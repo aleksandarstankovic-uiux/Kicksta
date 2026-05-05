@@ -181,7 +181,7 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
             <button
               type="button"
               onClick={handleRestore}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-blue-base text-sm font-medium text-white hover:opacity-90"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-blue-base/30 text-sm font-medium text-blue-text hover:bg-blue-tint/40"
             >
               <RotateCcw className="h-4 w-4" aria-hidden="true" />
               Restore target
@@ -191,7 +191,7 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
               <button
                 type="button"
                 onClick={handlePauseResume}
-                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-blue-tint text-sm font-medium text-blue-text hover:opacity-90"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg border border-blue-base/30 text-sm font-medium text-blue-text hover:bg-blue-tint/40"
               >
                 {target.status === 'active' ? (
                   <>
@@ -208,7 +208,7 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
               <button
                 type="button"
                 onClick={handleRemove}
-                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-red-tint text-sm font-medium text-red-text hover:opacity-90"
+                className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg text-sm font-medium text-red-text hover:bg-red-tint/40"
               >
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
                 Remove
@@ -218,7 +218,7 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
             <button
               type="button"
               onClick={handleRemove}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-red-tint text-sm font-medium text-red-text hover:opacity-90"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg text-sm font-medium text-red-text hover:bg-red-tint/40"
             >
               <Trash2 className="h-4 w-4" aria-hidden="true" />
               Remove
