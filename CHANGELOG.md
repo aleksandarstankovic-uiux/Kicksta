@@ -5,6 +5,18 @@
 
 ---
 
+## 2026-05-05 — Targeting modals visual identity
+
+### Changed
+- **`AddTargetSheet`**: header now leads with a blue `<CardChip color="blue" icon={Crosshair} />` so the modal has a recognizable identity anchor. Suggestion chips in account mode render real `profilePic` images (with letter fallback) and a 1px ring, so the chip reads as an avatar rather than a flat tile.
+- **`BlacklistModal`**: chip swapped from `color="neutral"` to `color="yellow"` (`Ban` icon unchanged). Caution-tone identity that doesn't false-alarm the red error palette.
+- **Empty states**: `WhitelistModal` and `BlacklistModal` now render a centered icon-block (56px tinted circle + headline + subline) when the list is empty. Replaces the bare-text "No accounts … yet." line.
+
+### Mocks
+- `src/mocks/suggestedTargets.js` — first 3 entries get pravatar URLs so the avatar branch is visible in dev; last 2 stay null so the fallback branch is exercised.
+
+---
+
 ## 2026-05-05 — Targeting popup polish
 
 ### Changed
