@@ -76,7 +76,7 @@ export default function AudienceFiltersCard({ onEdit }) {
         </button>
       </div>
 
-      <div className="mt-4 grid gap-4 border-b border-border pb-4 lg:grid-cols-2 lg:gap-6 lg:divide-x lg:divide-border lg:pb-0">
+      <div className="mt-4 grid gap-4 lg:grid-cols-2 lg:gap-6 lg:divide-x lg:divide-border">
         <div className="lg:pr-6">
           <GroupHeader icon={Users}>Audience size</GroupHeader>
           <div className="mt-1 flex flex-col divide-y divide-border">

@@ -39,7 +39,7 @@ export default function WhitelistCard({ onEdit }) {
       ) : (
         <ul className="mt-2 flex flex-col">
           {whitelist.map((e) => (
-            <li key={e.id} className="flex items-center gap-3 py-1.5">
+            <li key={e.id} className="flex items-center gap-3 py-2">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg text-xs font-semibold text-text-secondary">
                 {letterFor(e.username)}
               </span>

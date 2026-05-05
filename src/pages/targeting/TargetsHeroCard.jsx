@@ -11,23 +11,25 @@ export default function TargetsHeroCard({ onAddTarget }) {
 
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-surface">
-      <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:gap-6 lg:p-5">
-        {/* Left: icon + headline (with inline slot count) + explanation */}
-        <div className="flex flex-1 items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-tint text-blue-text">
-            <Crosshair className="h-5 w-5" aria-hidden="true" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="flex items-baseline gap-2 text-lg font-semibold leading-tight text-text-primary">
+      <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:gap-6 lg:p-5">
+        {/* Left: chip + headline (inline with slot count) on one
+            row, subtitle below. Chip vertically aligns with the
+            title text — no offset against a stacked H2. */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-tint text-blue-text">
+              <Crosshair className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <h2 className="flex min-w-0 items-baseline gap-2 text-lg font-semibold leading-tight text-text-primary">
               Targets
               <span className="text-sm font-normal text-text-muted">
                 {totalCount}/{maxSlots}
               </span>
             </h2>
-            <p className="mt-1 text-sm leading-relaxed text-text-secondary">
-              Accounts and hashtags Kicksta follows to grow your audience.
-            </p>
           </div>
+          <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+            Accounts and hashtags Kicksta follows to grow your audience.
+          </p>
         </div>
 
         {/* Right: CTA only */}
