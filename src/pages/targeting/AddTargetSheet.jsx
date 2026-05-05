@@ -201,38 +201,38 @@ export default function AddTargetSheet({ open, onClose }) {
         {/* Scrollable body with min-height so the sheet doesn't flicker. */}
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <div className="min-h-[360px]">
-{/* Account/Hashtag tab-bar — same underlined recipe as the page-level
-    tabs. Switching type clears any in-flight input/match state so the
-    user starts fresh in the new mode. */}
-<div className="mt-4 flex border-b border-border">
-  {[
-    { value: 'account', label: 'Account', icon: AtSign },
-    { value: 'hashtag', label: 'Hashtag', icon: Hash },
-  ].map((t) => {
-    const selected = type === t.value
-    const Icon = t.icon
-    return (
-      <button
-        key={t.value}
-        type="button"
-        onClick={() => {
-          setType(t.value)
-          setInput('')
-          setMatches([])
-          setPickedMatch(null)
-        }}
-        className={`-mb-px inline-flex h-11 flex-1 items-center justify-center gap-2 border-b-2 px-4 text-sm font-medium transition-colors ${
-          selected
-            ? 'border-blue-base text-text-primary'
-            : 'border-transparent text-text-secondary hover:text-text-primary'
-        }`}
-      >
-        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-        {t.label}
-      </button>
-    )
-  })}
-</div>
+            {/* Account/Hashtag tab-bar — same underlined recipe as the
+                page-level tabs. Switching type clears any in-flight
+                input/match state so the user starts fresh. */}
+            <div className="mt-4 flex border-b border-border">
+              {[
+                { value: 'account', label: 'Account', icon: AtSign },
+                { value: 'hashtag', label: 'Hashtag', icon: Hash },
+              ].map((t) => {
+                const selected = type === t.value
+                const Icon = t.icon
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => {
+                      setType(t.value)
+                      setInput('')
+                      setMatches([])
+                      setPickedMatch(null)
+                    }}
+                    className={`-mb-px inline-flex h-11 flex-1 items-center justify-center gap-2 border-b-2 px-4 text-sm font-medium transition-colors ${
+                      selected
+                        ? 'border-blue-base text-text-primary'
+                        : 'border-transparent text-text-secondary hover:text-text-primary'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {t.label}
+                  </button>
+                )
+              })}
+            </div>
 
             {/* Input */}
             <div className="relative mt-4">
