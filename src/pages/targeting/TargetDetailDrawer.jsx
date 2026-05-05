@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Hash, Pause, Play, RotateCcw, Trash2, X } from 'lucide-react'
+import { Hash, Pause, Play, RotateCcw, Target as TargetIcon, Trash2, UserPlus, X } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { formatCount } from '@/utils/formatCount'
+import { formatRelativeTime } from '@/utils/formatRelativeTime'
+import { mockTargetInteractions } from '@/mocks/targetInteractions'
 import HealthPill from './HealthPill'
 
 const statusPillClass = {
@@ -57,6 +59,7 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
     target.followedCount > 0
       ? Math.round((target.followBackCount / target.followedCount) * 100)
       : null
+  const interactions = (mockTargetInteractions[target.id] ?? []).slice(0, 5)
 
   const handlePauseResume = () => {
     if (target.status === 'active') pauseTarget(target.id)
@@ -138,6 +141,39 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
           <StatChip label="Followed" value={target.followedCount} />
           <StatChip label="Follow-backs" value={target.followBackCount} />
           <StatChip label="Rate" value={rate == null ? '—' : `${rate}%`} />
+        </div>
+
+        {/* Recent activity — the last few interactions the engine has
+            logged for this target. Same icon vocabulary as the Overview
+            Activity feed (UserPlus = follow-back, TargetIcon = follow). */}
+        <div className="mt-5 px-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+            Recent activity
+          </p>
+          {interactions.length === 0 ? (
+            <p className="py-3 text-center text-xs text-text-muted">No activity yet</p>
+          ) : (
+            <ul className="mt-2 flex flex-col">
+              {interactions.map((event) => (
+                <li
+                  key={event.id}
+                  className="flex items-center gap-2 py-2 text-sm"
+                >
+                  {event.type === 'follow_back' ? (
+                    <UserPlus className="h-4 w-4 shrink-0 text-green-text" aria-hidden="true" />
+                  ) : (
+                    <TargetIcon className="h-4 w-4 shrink-0 text-blue-text" aria-hidden="true" />
+                  )}
+                  <span className="min-w-0 truncate font-medium text-text-primary">
+                    {event.username}
+                  </span>
+                  <span className="ml-auto shrink-0 text-xs text-text-muted">
+                    {formatRelativeTime(event.createdAt)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="mt-5 flex gap-3 px-5">
