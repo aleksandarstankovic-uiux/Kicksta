@@ -5,6 +5,21 @@
 
 ---
 
+## 2026-05-05 — Engagement enrichment
+
+### Created
+- `src/pages/engagement/EngagementStatsCard.jsx` — stats hero card with three tiles (DMs sent / DM open rate / Close Friends), each showing the current value and a ↑/↓ delta vs last week.
+- `src/mocks/engagementStats.js` — static aggregate metrics for the hero.
+- `src/mocks/welcomeDmHistory.js` — recent welcome DMs list.
+- `src/mocks/closeFriendsState.js` — current Close Friends count + add/remove activity log.
+
+### Changed
+- **`/engagement` page**: stats hero card now mounts as the first child of the card stack — page no longer reads as "two cards floating on whitespace."
+- **`WelcomeDmCard`**: when the toggle is on (Advanced plan), the card now renders a "RECENT DMS SENT" subsection below the existing chat bubble — up to 5 rows showing recipient handle + relative time. Hidden when the toggle is off or on Growth.
+- **`CloseFriendsCard`**: when the toggle is on (Advanced), the card now renders a current-count line ("Currently 23 in close friends") and a "RECENT" sublist showing mixed add (`+`, green) and remove (`–`, gray) events. Hidden when the toggle is off or on Growth.
+
+---
+
 ## 2026-05-05 — Targeting refresh
 
 ### Changed
