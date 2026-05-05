@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Crosshair, Hash, X } from 'lucide-react'
+import { AtSign, Crosshair, Hash, X } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useToasts } from '@/stores/useToasts'
 import { mockSuggestedTargets } from '@/mocks/suggestedTargets'
@@ -200,31 +200,38 @@ export default function AddTargetSheet({ open, onClose }) {
               audience — those are the users most likely to follow you back.
             </p>
 
-            {/* Toggle (no eyebrow label). */}
-            <div className="mt-4 flex rounded-full bg-bg p-1">
-              {['account', 'hashtag'].map((t) => {
-                const selected = type === t
-                return (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => {
-                      setType(t)
-                      setInput('')
-                      setMatches([])
-                      setPickedMatch(null)
-                    }}
-                    className={`inline-flex h-9 flex-1 items-center justify-center rounded-full px-4 text-xs font-medium capitalize transition-colors ${
-                      selected
-                        ? 'bg-surface text-text-primary shadow-sm'
-                        : 'text-text-secondary'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                )
-              })}
-            </div>
+{/* Account/Hashtag tab-bar — same underlined recipe as the page-level
+    tabs. Switching type clears any in-flight input/match state so the
+    user starts fresh in the new mode. */}
+<div className="mt-4 flex border-b border-border">
+  {[
+    { value: 'account', label: 'Account', icon: AtSign },
+    { value: 'hashtag', label: 'Hashtag', icon: Hash },
+  ].map((t) => {
+    const selected = type === t.value
+    const Icon = t.icon
+    return (
+      <button
+        key={t.value}
+        type="button"
+        onClick={() => {
+          setType(t.value)
+          setInput('')
+          setMatches([])
+          setPickedMatch(null)
+        }}
+        className={`-mb-px inline-flex h-11 flex-1 items-center justify-center gap-2 border-b-2 px-4 text-sm font-medium transition-colors ${
+          selected
+            ? 'border-blue-base text-text-primary'
+            : 'border-transparent text-text-secondary hover:text-text-primary'
+        }`}
+      >
+        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+        {t.label}
+      </button>
+    )
+  })}
+</div>
 
             {/* Input */}
             <div className="relative mt-4">
