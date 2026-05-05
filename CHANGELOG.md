@@ -5,6 +5,17 @@
 
 ---
 
+## 2026-05-05 — Targeting page-level polish
+
+### Changed
+- **Targeting page tab strip**: replaced the heavy pill switcher with a connected-tab pattern. Container has a baseline border running across; the active tab fills `bg-surface`, carries top + side borders, and uses `-mb-px border-b-surface` to overlap the baseline so it visually attaches to the content surface below. Each tab stacks `Label` + descriptor sub-line on desktop; mobile drops the sub-line to keep buttons compact.
+- **Settings tab**: cards grouped under three section headings — `Engine` (Mode), `Audience` (Audience filters), `Lists` (Whitelist + Blacklist). Wrapping `<section>` blocks with a uniform `gap-6` rhythm replace the loose `gap-4` card stack so the tab reads as related groups instead of a junk drawer.
+- **`TargetRow` processing state**: the row whose target is currently being processed gets `bg-green-tint/30` (deepens to `/50` on hover/focus). The pulsing pill alone was easy to miss when scanning a long list.
+- **AddTargetSheet suggestions**: replaced the wrap-flex of tiny chips with a 1/2-col grid of bordered rows showing avatar + handle + count subline (followers / posts). Same suggestion data; same picker behavior — just more signal per chip.
+- **AddTargetSheet vertical rhythm**: body padding `py-4` → `py-5`; standardized section gaps (`mt-5` between pill and input, `mt-4` between input and preview, `mt-6` before Suggestions).
+
+---
+
 ## 2026-05-05 — Targeting + engagement polish (round 2)
 
 ### Changed
