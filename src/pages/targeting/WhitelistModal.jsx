@@ -215,9 +215,18 @@ export default function WhitelistModal({ open, onClose }) {
 
           <div className="mt-4 flex max-h-72 flex-col divide-y divide-border overflow-y-auto">
             {draft.length === 0 && (
-              <p className="py-4 text-center text-sm text-text-muted">
-                No accounts whitelisted yet.
-              </p>
+              <div className="flex flex-col items-center gap-2 py-8 text-center">
+                <span
+                  aria-hidden="true"
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-green-tint text-green-base"
+                >
+                  <ShieldCheck className="h-7 w-7" />
+                </span>
+                <p className="text-sm font-medium text-text-primary">Whitelist is empty</p>
+                <p className="max-w-[240px] text-xs text-text-secondary">
+                  Add usernames above to keep them safe from automatic unfollows.
+                </p>
+              </div>
             )}
             {draft.map((e) => (
               <div key={e.id} className="flex items-center gap-3 py-2.5">
