@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import EngagementStatsCard from './EngagementStatsCard'
 import WelcomeDmCard from './WelcomeDmCard'
 import CloseFriendsCard from './CloseFriendsCard'
 import GrowthPlusBanner from '@/components/GrowthPlusBanner'
@@ -31,6 +32,7 @@ export default function EngagementPage() {
       </header>
 
       <div className="mt-4 flex flex-col gap-4">
+        <EngagementStatsCard />
         <WelcomeDmCard onRequestUpgrade={openUpgrade} />
         <CloseFriendsCard onRequestUpgrade={openUpgrade} />
       </div>
