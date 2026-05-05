@@ -1,5 +1,6 @@
 import { ChevronRight, Hash, Star } from 'lucide-react'
 import { formatCount } from '@/utils/formatCount'
+import { useTargetsStore } from '@/stores/useTargetsStore'
 
 const statusDotClass = {
   active: 'bg-green-base',
@@ -34,6 +35,8 @@ function rateToneClass(rate, depleted) {
 
 export default function TargetRow({ target, isTop, isFirst, onOpen }) {
   const depleted = target.status === 'depleted'
+  const processingId = useTargetsStore((s) => s.processingId)
+  const isProcessing = target.status === 'active' && target.id === processingId
   const isHashtag = target.type === 'hashtag'
   const handleStart = target.value.replace(/^[@#]/, '')
   const avatarLetter = handleStart.charAt(0).toUpperCase()
@@ -84,11 +87,23 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
       {/* Name + subline */}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex min-w-0 items-center gap-2">
-          {/* Mobile-only status dot */}
+          {/* Mobile-only status dot. When this row is the engine's current
+              focus, an animate-ping halo radiates from it to mirror the
+              desktop pill ring. */}
           <span
             aria-label={statusLabel[target.status]}
-            className={`inline-block h-2 w-2 shrink-0 rounded-full md:hidden ${statusDotClass[target.status]}`}
-          />
+            className="relative inline-flex h-2 w-2 shrink-0 items-center justify-center md:hidden"
+          >
+            {isProcessing && (
+              <span
+                aria-hidden="true"
+                className="absolute inline-flex h-full w-full rounded-full bg-green-base opacity-60 animate-ping"
+              />
+            )}
+            <span
+              className={`relative inline-block h-2 w-2 rounded-full ${statusDotClass[target.status]}`}
+            />
+          </span>
 
           <span
             className={`truncate text-sm font-medium ${
@@ -109,6 +124,10 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
           <span
             className={`hidden shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide md:inline ${
               statusPillClass[target.status]
+            } ${
+              isProcessing
+                ? 'ring-2 ring-green-base/50 ring-offset-1 ring-offset-surface animate-pulse'
+                : ''
             }`}
           >
             {statusLabel[target.status]}
