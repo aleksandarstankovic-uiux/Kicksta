@@ -65,9 +65,13 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
           onOpen(target)
         }
       }}
-      className={`group flex min-h-[64px] cursor-pointer items-center gap-3 py-3 pl-4 pr-3 transition-colors hover:bg-bg focus:bg-bg focus:outline-none ${
+      className={`group relative flex min-h-[64px] cursor-pointer items-center gap-3 py-3 pl-4 pr-3 transition-colors hover:bg-bg focus:bg-bg focus:outline-none ${
         isFirst ? '' : 'border-t border-border'
-      } ${depleted ? 'bg-bg/60' : ''}`}
+      } ${depleted ? 'bg-bg/60' : ''} ${
+        isProcessing
+          ? 'bg-green-tint/30 hover:bg-green-tint/50 focus:bg-green-tint/50'
+          : ''
+      }`}
     >
       {/* Avatar / hashtag icon */}
       <div
