@@ -4,20 +4,24 @@ import TargetsTab from './TargetsTab'
 import SettingsTab from './SettingsTab'
 
 // Targeting page hosts two tabs (Targets default, Settings) via a
-// `?tab=settings` search param. The tab strip is the page's primary
-// mode toggle — rendered as a heavy pill switcher so the active view
-// reads instantly. Active pill uses the same `bg-blue-tint text-blue-text`
-// recipe the sidebar nav uses for current-view. Same recipe is reused
-// inside AddTargetSheet for the account/hashtag toggle.
+// `?tab=settings` search param. The page subtitle stays constant —
+// each tab carries its own descriptor as a sub-line inside its
+// switcher button, so users see what each tab does without having
+// to commit to it first.
 const TABS = [
-  { value: 'targets', label: 'Targets', icon: Crosshair },
-  { value: 'settings', label: 'Settings', icon: SlidersHorizontal },
+  {
+    value: 'targets',
+    label: 'Targets',
+    icon: Crosshair,
+    description: 'Accounts and hashtags Kicksta follows.',
+  },
+  {
+    value: 'settings',
+    label: 'Settings',
+    icon: SlidersHorizontal,
+    description: 'Rules for picking who to follow.',
+  },
 ]
-
-const SUBTITLE = {
-  targets: 'The accounts and hashtags Kicksta is following from.',
-  settings: 'How Kicksta picks who to follow.',
-}
 
 export default function TargetingPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -43,14 +47,17 @@ export default function TargetingPage() {
           Targeting
         </h1>
         <p className="mt-1 text-sm text-text-secondary">
-          {SUBTITLE[activeTab]}
+          Manage who Kicksta targets and how.
         </p>
       </header>
 
-      {/* Pill switcher — same recipe reused inside AddTargetSheet.
-          Wrapped on a white surface with a border so the strip
-          feels grounded on the page background instead of floating. */}
-      <div className="mt-4 flex gap-1 rounded-full border border-border bg-surface p-1 shadow-sm">
+      {/* Switcher — each button stacks `Label` + descriptor sub-line.
+          Container uses `bg-bg` (page tone) + a stronger border so it
+          reads as a grounded control rather than a floating white card.
+          Active pill = `bg-blue-tint text-blue-text` (same recipe as
+          the sidebar nav active state). Rounded-2xl to fit the taller
+          stacked content — rounded-full would clamp into a stadium. */}
+      <div className="mt-4 flex gap-1 rounded-2xl border border-border-strong bg-bg p-1">
         {TABS.map((t) => {
           const selected = activeTab === t.value
           const Icon = t.icon
@@ -59,14 +66,34 @@ export default function TargetingPage() {
               key={t.value}
               type="button"
               onClick={() => setTab(t.value)}
-              className={`inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm transition-colors ${
+              className={`flex flex-1 items-start gap-3 rounded-xl px-4 py-3 text-left transition-colors ${
                 selected
-                  ? 'bg-blue-tint font-semibold text-blue-text shadow-sm'
-                  : 'font-medium text-text-secondary hover:text-text-primary'
+                  ? 'bg-blue-tint shadow-sm'
+                  : 'hover:bg-surface'
               }`}
             >
-              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {t.label}
+              <Icon
+                className={`mt-0.5 h-4 w-4 shrink-0 ${
+                  selected ? 'text-blue-text' : 'text-text-secondary'
+                }`}
+                aria-hidden="true"
+              />
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span
+                  className={`text-sm font-semibold ${
+                    selected ? 'text-blue-text' : 'text-text-primary'
+                  }`}
+                >
+                  {t.label}
+                </span>
+                <span
+                  className={`text-xs leading-snug ${
+                    selected ? 'text-blue-text/80' : 'text-text-secondary'
+                  }`}
+                >
+                  {t.description}
+                </span>
+              </span>
             </button>
           )
         })}
