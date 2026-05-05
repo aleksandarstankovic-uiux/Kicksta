@@ -1,15 +1,22 @@
 import { useSearchParams } from 'react-router-dom'
+import { Crosshair, SlidersHorizontal } from 'lucide-react'
 import TargetsTab from './TargetsTab'
 import SettingsTab from './SettingsTab'
 
 // Targeting page hosts two tabs (Targets default, Settings) via a
-// `?tab=settings` search param. No nested routes — the tabs are a
-// mode toggle on a single page, not co-equal sub-views, so a
-// search param fits better than React Router children.
+// `?tab=settings` search param. The tab strip is the page's primary
+// mode toggle — rendered as an underlined tab-bar so it reads as a
+// view switcher, not a faded segmented pill. Same recipe is reused
+// inside AddTargetSheet for the account/hashtag toggle.
 const TABS = [
-  { value: 'targets', label: 'Targets' },
-  { value: 'settings', label: 'Settings' },
+  { value: 'targets', label: 'Targets', icon: Crosshair },
+  { value: 'settings', label: 'Settings', icon: SlidersHorizontal },
 ]
+
+const SUBTITLE = {
+  targets: 'The accounts and hashtags Kicksta is following from.',
+  settings: 'How Kicksta picks who to follow.',
+}
 
 export default function TargetingPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -35,26 +42,27 @@ export default function TargetingPage() {
           Targeting
         </h1>
         <p className="mt-1 text-sm text-text-secondary">
-          Manage who Kicksta targets and how.
+          {SUBTITLE[activeTab]}
         </p>
       </header>
 
-      {/* Segmented tab strip — same recipe as the AddTargetSheet's
-          account/hashtag toggle. Same on desktop and mobile. */}
-      <div className="mt-4 flex rounded-full bg-bg p-1">
+      {/* Underlined tab-bar — same recipe reused inside AddTargetSheet. */}
+      <div className="mt-4 flex border-b border-border">
         {TABS.map((t) => {
           const selected = activeTab === t.value
+          const Icon = t.icon
           return (
             <button
               key={t.value}
               type="button"
               onClick={() => setTab(t.value)}
-              className={`inline-flex h-9 flex-1 items-center justify-center rounded-full px-4 text-xs font-medium transition-colors ${
+              className={`-mb-px inline-flex h-11 flex-1 items-center justify-center gap-2 border-b-2 px-4 text-sm font-medium transition-colors ${
                 selected
-                  ? 'bg-surface text-text-primary shadow-sm'
-                  : 'text-text-secondary hover:text-text-primary'
+                  ? 'border-blue-base text-text-primary'
+                  : 'border-transparent text-text-secondary hover:text-text-primary'
               }`}
             >
+              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
               {t.label}
             </button>
           )
