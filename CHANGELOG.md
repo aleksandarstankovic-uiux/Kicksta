@@ -5,6 +5,21 @@
 
 ---
 
+## 2026-05-05 — Targeting + engagement polish (round 2)
+
+### Changed
+- **Targeting page tabs + AddTargetSheet toggle**: replaced the underlined tab-bar with a heavy pill switcher. `h-12` rounded-full container, active state uses the sidebar nav recipe (`bg-blue-tint text-blue-text shadow-sm`).
+- **All four modals** (`AddTargetSheet`, `WhitelistModal`, `BlacklistModal`, `AudienceFiltersModal`): header outer container changed from `items-start` to `items-center` so the chip vertically aligns with the title+subtitle stack.
+- **AddTargetSheet subtitle**: shortened to "Pick an account or hashtag to follow." (was 2 lines on narrow viewports).
+- **AudienceFiltersModal**: gained a subtitle ("Tune who Kicksta is allowed to follow.") for consistency with the other three modals.
+- **`TargetsHeroCard`**: chip and "Targets 12/30" share one row now; subtitle drops below. Previously the chip aligned with a two-line stack.
+- **`AudienceFiltersCard`**: dropped the bottom hairline above the audience-reach estimate. The lg+ vertical divider between the two columns is enough.
+- **`WhitelistCard` / `BlacklistCard`**: row padding `py-1.5` → `py-2` (matches the Recent DMs row spacing on `/engagement`).
+- **`WelcomeDmCard` + `CloseFriendsCard`**: dropped the standalone SettingSwitch row (it duplicated the header). Toggle moved to the upper-right of the card; subtitle now sits under the H2 (mirrors the modal header pattern).
+- **Close Friends segmented control**: each button leads with a `Plus` (add) or `Minus` (remove) icon so the active mode reads at a glance.
+
+---
+
 ## 2026-05-05 — Engagement enrichment
 
 ### Created
