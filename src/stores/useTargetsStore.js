@@ -17,6 +17,11 @@ const nextId = () => `t_${Math.random().toString(36).slice(2, 8)}`
 
 export const useTargetsStore = create((set) => ({
   targets: mockTargets,
+  // V1 mock: id of the target the engine is "currently working on".
+  // Read by TargetRow to render a pulse halo on the active row's
+  // status pill / mobile dot. Real engine wiring will replace this
+  // initial pick with a server-driven value.
+  processingId: mockTargets.find((t) => t.status === 'active')?.id ?? null,
   filter: 'active',
   sort: 'priority',
 
