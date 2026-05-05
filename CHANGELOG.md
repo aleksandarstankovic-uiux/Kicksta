@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-05-05 — Targeting popup polish
+
+### Changed
+- **`TargetRow`**: the active target whose id matches `useTargetsStore.processingId` now renders a pulsing ring around its desktop status pill and an `animate-ping` halo around its mobile status dot. Surfaces the engine's current focus without crowding existing chrome.
+- **`TargetDetailDrawer`**: new "RECENT ACTIVITY" section between stat chips and action buttons. Up to 5 rows per target, icon-encoded (UserPlus = follow-back, Target = follow), pulled from the new `mocks/targetInteractions.js`.
+- **`TargetDetailDrawer` action buttons**: demoted to a graduated hierarchy. Pause / Resume / Restore → ghost-bordered. Remove → text-only. All keep the 48px tap target.
+- **`TargetsHeroCard`**: `rounded-b-xl` → `rounded-xl` so all four corners match.
+
+### Created
+- `src/utils/formatRelativeTime.js` — extracted from `src/pages/overview/index.jsx`, reused by Overview and Targeting.
+- `src/mocks/targetInteractions.js` — per-target interaction history feeding the drawer's recent-activity list.
+
+### Store
+- `useTargetsStore.processingId` — V1 mock field. Initial value: id of the first `active` target. No setter (real engine wiring will replace).
+
+---
+
 ## 2026-05-04 — Overview small fixes
 
 ### Changed
