@@ -66,14 +66,14 @@ export default function TargetingPage() {
               key={t.value}
               type="button"
               onClick={() => setTab(t.value)}
-              className={`flex flex-1 items-start gap-3 rounded-xl px-4 py-3 text-left transition-colors ${
+              className={`flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors ${
                 selected
                   ? 'bg-blue-tint shadow-sm'
                   : 'hover:bg-surface'
               }`}
             >
               <Icon
-                className={`mt-0.5 h-4 w-4 shrink-0 ${
+                className={`h-6 w-6 shrink-0 ${
                   selected ? 'text-blue-text' : 'text-text-secondary'
                 }`}
                 aria-hidden="true"
