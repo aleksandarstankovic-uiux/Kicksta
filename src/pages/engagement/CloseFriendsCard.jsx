@@ -1,10 +1,12 @@
-import { Star } from 'lucide-react'
+import { Minus, Plus, Star } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import SettingSwitch from '@/components/SettingSwitch'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 import CloseFriendsProgress from './CloseFriendsProgress'
+import { formatRelativeTime } from '@/utils/formatRelativeTime'
+import { mockCloseFriendsState } from '@/mocks/closeFriendsState'
 
 // Close Friends Adder — auto-manage the IG Close Friends list as
 // followers come and go. Advanced plan only.
@@ -83,8 +85,55 @@ export default function CloseFriendsCard({ onRequestUpgrade }) {
             })}
           </div>
           <CloseFriendsProgress mode={cfMode} enabled={showCfControls} />
+          {showCfControls && <CloseFriendsState />}
         </div>
       </div>
     </section>
+  )
+}
+
+// Live state of the Close Friends list — current count + a chronological
+// log of recent adds/removes. Only mounts when the toggle is on AND the
+// user is on Advanced (the parent gates this with `showCfControls`).
+function CloseFriendsState() {
+  const { count, recent } = mockCloseFriendsState
+  const items = recent.slice(0, 5)
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      <p className="flex items-center gap-1.5 text-xs text-text-secondary">
+        <Star className="h-3.5 w-3.5 text-purple-base" aria-hidden="true" />
+        Currently {count} in close friends
+      </p>
+
+      <p className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+        Recent
+      </p>
+      {items.length === 0 ? (
+        <p className="py-3 text-center text-xs text-text-muted">
+          No recent activity yet.
+        </p>
+      ) : (
+        <ul className="mt-2 flex flex-col">
+          {items.map((event) => (
+            <li
+              key={event.id}
+              className="flex items-center gap-2 py-2 text-sm"
+            >
+              {event.type === 'add' ? (
+                <Plus className="h-4 w-4 shrink-0 text-green-text" aria-hidden="true" />
+              ) : (
+                <Minus className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
+              )}
+              <span className="min-w-0 truncate font-medium text-text-primary">
+                {event.username}
+              </span>
+              <span className="ml-auto shrink-0 text-xs text-text-muted">
+                {formatRelativeTime(event.createdAt)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
