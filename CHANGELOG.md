@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-05-05 — Targeting refresh
+
+### Changed
+- **Page tab strip + AddTargetSheet toggle**: replaced the rounded-pill segmented controls with an underlined tab-bar (icon + label, blue underline on the active tab). Page subtitle swaps per-tab — Targets reads "The accounts and hashtags Kicksta is following from."; Settings reads "How Kicksta picks who to follow."
+- **`AudienceFiltersCard`**: at `lg:` the two internal sections (`Audience size`, `Account type`) split into a 2-column grid with a vertical hairline divider. Mobile stacks unchanged.
+- **`ModeCard`**: the Like-after-follow row disables when saved mode is `unfollow_only` (no follows means no follow-related likes). Description swaps to "Disabled — Kicksta isn't following anyone in this mode."
+- **`SettingSwitch`**: new `disabled` prop independent of `locked`. Renders the row at `opacity-60`, applies a real HTML `disabled` attribute to the switch button, and ignores clicks. Used by ModeCard's like-after-follow row.
+- **`TargetRow`**: the processing row's pill text changes from `ACTIVE` → `FOLLOWING…` (typographic ellipsis) so the live signal describes the action, not just the state. Mobile dot's `aria-label` swaps in lockstep.
+- **`BlacklistModal`**: chip reverts from yellow to neutral (gray) to match the page-level `BlacklistCard`. Empty-state circle reverts to `bg-bg text-text-secondary`.
+- **All three modal headers**: helper text moved out of the body and into the header as a subtitle below the H2. Close buttons standardized at `h-9 w-9`.
+
+---
+
 ## 2026-05-05 — Targeting modals visual identity
 
 ### Changed
