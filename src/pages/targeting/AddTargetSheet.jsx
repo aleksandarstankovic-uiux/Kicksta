@@ -343,8 +343,14 @@ export default function AddTargetSheet({ open, onClose }) {
                       onClick={() => handlePickSuggestion(s)}
                       className="inline-flex items-center gap-2 rounded-full border border-border bg-surface py-1 pl-1 pr-3 text-xs text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
                     >
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-[11px] font-semibold text-text-secondary">
-                        {isHashtag ? <Hash className="h-3.5 w-3.5" aria-hidden="true" /> : letter}
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-[11px] font-semibold text-text-secondary ring-1 ring-border">
+                        {isHashtag ? (
+                          <Hash className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : s.profilePic ? (
+                          <img src={s.profilePic} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          letter
+                        )}
                       </span>
                       <span className="truncate">{label}</span>
                     </button>
