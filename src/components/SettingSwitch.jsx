@@ -1,10 +1,17 @@
 // Shared switch primitive used by every toggle on the Growth page and
 // anywhere else a consistent "setting with a switch" row is needed.
 //
-// Supports a `locked` prop that renders the row in a subdued state with
-// an `Advanced` pill next to the title. When locked, clicking anywhere
-// on the row calls `onLockedTap` (the page-level upgrade sheet opener)
-// and does NOT call `onChange`.
+// Two non-default modes:
+//   - `locked`   — paywall state. Renders the row in a subdued style
+//                  with an `Advanced` pill next to the title; clicking
+//                  the row routes to the page-level upgrade flow via
+//                  `onLockedTap`. Does NOT call `onChange`.
+//   - `disabled` — "this setting doesn't apply right now" state.
+//                  Renders the row at opacity-60, the switch button
+//                  has a real `disabled` attribute, and clicks are
+//                  ignored entirely (no upgrade affordance, no
+//                  onChange call). Independent of `locked` — the two
+//                  flags can be combined, with `disabled` winning.
 
 export default function SettingSwitch({
   title,
@@ -13,10 +20,12 @@ export default function SettingSwitch({
   checked,
   onChange,
   locked = false,
+  disabled = false,
   planLabel = 'Advanced',
   onLockedTap,
 }) {
   const handleToggle = () => {
+    if (disabled) return
     if (locked) {
       onLockedTap?.()
       return
@@ -27,9 +36,9 @@ export default function SettingSwitch({
   return (
     <div
       className={`flex items-center gap-3 py-3 ${
-        locked ? 'cursor-pointer' : ''
-      }`}
-      onClick={locked ? handleToggle : undefined}
+        locked && !disabled ? 'cursor-pointer' : ''
+      } ${disabled ? 'opacity-60' : ''}`}
+      onClick={locked && !disabled ? handleToggle : undefined}
     >
       {/* Left zone: optional icon + title + pill + description. */}
       <div className="flex min-w-0 flex-1 items-start gap-2.5">
@@ -62,14 +71,14 @@ export default function SettingSwitch({
         type="button"
         role="switch"
         aria-checked={checked}
-        disabled={locked}
+        disabled={locked || disabled}
         onClick={(e) => {
           e.stopPropagation()
           handleToggle()
         }}
         className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors ${
-          locked
-            ? 'cursor-pointer bg-border opacity-60'
+          locked || disabled
+            ? 'cursor-not-allowed bg-border opacity-60'
             : checked
               ? 'bg-green-base'
               : 'bg-border'
