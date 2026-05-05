@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Hash, X } from 'lucide-react'
+import { Crosshair, Hash, X } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useToasts } from '@/stores/useToasts'
 import { mockSuggestedTargets } from '@/mocks/suggestedTargets'
 import { mockSuggestedHashtags } from '@/mocks/suggestedHashtags'
 import { searchTargets } from '@/mocks/targetSearch'
 import { formatCount } from '@/utils/formatCount'
+import CardChip from '@/components/CardChip'
 import HealthPill from './HealthPill'
 
 // v3.2: removed the TARGETING eyebrow + the "start typing" helper under
@@ -175,8 +176,11 @@ export default function AddTargetSheet({ open, onClose }) {
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="text-base font-semibold text-text-primary">Add a target</h2>
+        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+          <div className="flex items-center gap-3">
+            <CardChip color="blue" icon={Crosshair} />
+            <h2 className="text-base font-semibold text-text-primary">Add a target</h2>
+          </div>
           <button
             type="button"
             aria-label="Close"
