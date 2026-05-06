@@ -199,13 +199,14 @@ export default function AddTargetSheet({ open, onClose }) {
           </button>
         </div>
 
-        {/* Scrollable body with min-height so the sheet doesn't flicker. */}
-        <div className="flex-1 overflow-y-auto px-4 py-5">
+        {/* Scrollable body. */}
+        <div className="flex-1 overflow-y-auto px-4 py-4">
           <div className="min-h-[360px]">
-            {/* Account/Hashtag pill switcher — same recipe as the
-                page-level tabs. Switching type clears any in-flight
-                input/match state so the user starts fresh. */}
-            <div className="flex gap-1 rounded-full bg-bg p-1">
+            {/* Account/Hashtag pill switcher — matches the page-level
+                Targets/Settings switcher recipe (compact intrinsic
+                width, dark-fill active state). Switching type clears
+                any in-flight input/match state so the user starts fresh. */}
+            <div className="inline-flex gap-1 rounded-full border border-border bg-bg p-1">
               {[
                 { value: 'account', label: 'Account', icon: AtSign },
                 { value: 'hashtag', label: 'Hashtag', icon: Hash },
@@ -222,9 +223,9 @@ export default function AddTargetSheet({ open, onClose }) {
                       setMatches([])
                       setPickedMatch(null)
                     }}
-                    className={`inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm transition-colors ${
+                    className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm transition-colors ${
                       selected
-                        ? 'bg-blue-tint font-semibold text-blue-text shadow-sm'
+                        ? 'bg-text-primary font-semibold text-bg shadow-sm'
                         : 'font-medium text-text-secondary hover:text-text-primary'
                     }`}
                   >
