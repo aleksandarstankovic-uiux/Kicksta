@@ -23,7 +23,7 @@ export default function TargetsHeroCard({ onAddTarget }) {
     <section className="rounded-xl border border-border border-l-4 border-l-blue-base bg-surface px-5 py-4 lg:px-6 lg:py-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold text-text-primary lg:text-lg">
+          <h2 className="text-base font-semibold text-text-primary">
             Audience sources
           </h2>
           <div className="mt-2 flex items-center gap-3">
@@ -40,7 +40,7 @@ export default function TargetsHeroCard({ onAddTarget }) {
                 style={{ width: `${fillPct}%` }}
               />
             </div>
-            <span className="shrink-0 text-sm tabular-nums text-text-secondary">
+            <span className="shrink-0 text-xs tabular-nums text-text-secondary">
               {totalCount} of {maxSlots} used
             </span>
           </div>
@@ -48,9 +48,9 @@ export default function TargetsHeroCard({ onAddTarget }) {
         <button
           type="button"
           onClick={onAddTarget}
-          className="inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-base px-6 text-base font-semibold text-white shadow-sm transition-opacity hover:opacity-90 sm:w-auto"
+          className="inline-flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-base px-5 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90 sm:w-auto"
         >
-          <Plus className="h-5 w-5" aria-hidden="true" />
+          <Plus className="h-4 w-4" aria-hidden="true" />
           Add target
         </button>
       </div>
