@@ -36,42 +36,50 @@ export default function TargetingPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
-      <header>
-        <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
-          Targeting
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Manage who Kicksta targets and how.
-        </p>
+      {/* Header — title + subtitle on the left, switcher pinned to
+          the right on sm+. Stacks on mobile (switcher drops below the
+          subtitle, still left-aligned) so the H1 always wins the top
+          slot regardless of viewport. */}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <div className="min-w-0">
+          <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
+            Targeting
+          </h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Manage who Kicksta targets and how.
+          </p>
+        </div>
+
+        {/* Compact intrinsic-width pill switcher. Active tab fills
+            with `bg-text-primary text-bg` for maximum contrast —
+            distinct from sidebar nav (bg-blue-tint) and primary CTAs
+            (bg-blue-base) so the page-level switcher carries its own
+            visual identity. */}
+        <div className="inline-flex shrink-0 gap-1 self-start rounded-full border border-border bg-bg p-1">
+          {TABS.map((t) => {
+            const selected = activeTab === t.value
+            const Icon = t.icon
+            return (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => setTab(t.value)}
+                aria-current={selected ? 'page' : undefined}
+                className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm transition-colors ${
+                  selected
+                    ? 'bg-text-primary font-semibold text-bg shadow-sm'
+                    : 'font-medium text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                {t.label}
+              </button>
+            )
+          })}
+        </div>
       </header>
 
-      {/* Compact intrinsic-width pill switcher. Container reads as a
-          contained control via `bg-bg + border`. Active tab fills with
-          `bg-text-primary text-bg` for maximum contrast. */}
-      <div className="mt-5 inline-flex gap-1 rounded-full border border-border bg-bg p-1">
-        {TABS.map((t) => {
-          const selected = activeTab === t.value
-          const Icon = t.icon
-          return (
-            <button
-              key={t.value}
-              type="button"
-              onClick={() => setTab(t.value)}
-              aria-current={selected ? 'page' : undefined}
-              className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm transition-colors ${
-                selected
-                  ? 'bg-text-primary font-semibold text-bg shadow-sm'
-                  : 'font-medium text-text-secondary hover:text-text-primary'
-              }`}
-            >
-              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {t.label}
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="mt-4">
+      <div className="mt-5">
         {activeTab === 'targets' ? <TargetsTab /> : <SettingsTab />}
       </div>
     </div>
