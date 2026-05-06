@@ -6,24 +6,15 @@ import SettingsTab from './SettingsTab'
 // Targeting page hosts two tabs (Targets default, Settings) via a
 // `?tab=settings` search param.
 //
-// Switcher pattern: connected tabs. The active tab is a `bg-surface`
-// card with rounded top corners + an open bottom edge (achieved via
-// `-mb-px` overlapping the parent's bottom border). The active tab
-// reads as physically attached to the content surface below — the
-// universal "tabs" affordance.
+// Switcher pattern: compact intrinsic-width pill anchored below the
+// page header — the canonical "view selector" slot used by Linear /
+// Notion / Airtable. Active state uses `bg-text-primary text-bg`
+// (dark fill, white text) — the dashboard's third active recipe,
+// reserved for page-level switchers so it can't be confused with
+// `bg-blue-tint` (sidebar nav) or `bg-blue-base` (primary CTAs).
 const TABS = [
-  {
-    value: 'targets',
-    label: 'Targets',
-    icon: Crosshair,
-    description: 'Accounts and hashtags Kicksta follows.',
-  },
-  {
-    value: 'settings',
-    label: 'Settings',
-    icon: SlidersHorizontal,
-    description: 'Rules for picking who to follow.',
-  },
+  { value: 'targets', label: 'Targets', icon: Crosshair },
+  { value: 'settings', label: 'Settings', icon: SlidersHorizontal },
 ]
 
 export default function TargetingPage() {
@@ -54,19 +45,10 @@ export default function TargetingPage() {
         </p>
       </header>
 
-      {/* Connected-tab strip. Container has a `border-b` running
-          across the full width — the baseline. Each tab is a
-          rounded-top card. The active tab fills with `bg-surface`,
-          carries a top/left/right border, and uses `-mb-px` so its
-          bottom overlaps the baseline (giving the illusion of a
-          tab attached to the content surface below). Inactive tabs
-          are flat on the page and slightly muted.
-
-          Mobile (<md): the descriptor sub-line is hidden so each
-          tab is `[icon] Label` only — fits comfortably in two
-          ~150px halves of a phone viewport. Desktop (md+) shows
-          the full stacked label + descriptor. */}
-      <div className="mt-5 flex gap-1 border-b border-border">
+      {/* Compact intrinsic-width pill switcher. Container reads as a
+          contained control via `bg-bg + border`. Active tab fills with
+          `bg-text-primary text-bg` for maximum contrast. */}
+      <div className="mt-5 inline-flex gap-1 rounded-full border border-border bg-bg p-1">
         {TABS.map((t) => {
           const selected = activeTab === t.value
           const Icon = t.icon
@@ -76,37 +58,14 @@ export default function TargetingPage() {
               type="button"
               onClick={() => setTab(t.value)}
               aria-current={selected ? 'page' : undefined}
-              className={`-mb-px flex flex-1 items-center gap-3 rounded-t-xl border px-4 py-3 text-left transition-colors md:py-3.5 ${
+              className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm transition-colors ${
                 selected
-                  ? 'border-border border-b-surface bg-surface shadow-sm'
-                  : 'border-transparent text-text-secondary hover:bg-bg/60'
+                  ? 'bg-text-primary font-semibold text-bg shadow-sm'
+                  : 'font-medium text-text-secondary hover:text-text-primary'
               }`}
             >
-              <Icon
-                className={`h-5 w-5 shrink-0 md:h-6 md:w-6 ${
-                  selected ? 'text-blue-text' : 'text-text-muted'
-                }`}
-                aria-hidden="true"
-              />
-              <span className="flex min-w-0 flex-col gap-0.5">
-                <span
-                  className={`text-sm font-semibold ${
-                    selected ? 'text-text-primary' : 'text-text-secondary'
-                  }`}
-                >
-                  {t.label}
-                </span>
-                {/* Descriptor sub-line — desktop only. On mobile the
-                    label alone is enough; the page subtitle above
-                    carries the broader context. */}
-                <span
-                  className={`hidden text-xs leading-snug md:inline ${
-                    selected ? 'text-text-secondary' : 'text-text-muted'
-                  }`}
-                >
-                  {t.description}
-                </span>
-              </span>
+              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {t.label}
             </button>
           )
         })}
