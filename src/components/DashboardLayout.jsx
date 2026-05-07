@@ -348,9 +348,13 @@ export default function DashboardLayout() {
         <Outlet />
       </main>
 
-      {/* Mobile bottom tab bar — first 3 of PRIMARY_NAV. Settings is
-          deliberately not on the bottom strip; it lives in the drawer. */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-border bg-surface pr-[72px] pb-[env(safe-area-inset-bottom)] lg:hidden">
+      {/* Mobile bottom tab bar — Overview / Targeting / Engagement /
+          Settings. Tabs each take `flex-1` so they fill the bar
+          evenly across the full viewport width. (No Intercom offset
+          on the right — V1 doesn't ship Intercom; when it does, the
+          floating widget can sit above the rightmost tab or the bar
+          can re-add a right padding then.) */}
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden">
         {BOTTOM_TAB_BAR.map(({ to, icon: Icon, label }) => {
           const isActive =
             to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
@@ -359,7 +363,7 @@ export default function DashboardLayout() {
               key={to}
               to={to}
               className={cn(
-                'flex flex-col items-center gap-1 py-1 text-xs font-medium transition-colors',
+                'flex flex-1 flex-col items-center gap-1 py-1 text-xs font-medium transition-colors',
                 isActive ? 'text-blue-base' : 'text-text-muted'
               )}
             >
