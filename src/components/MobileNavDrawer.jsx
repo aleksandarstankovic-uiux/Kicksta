@@ -5,8 +5,6 @@ import {
   Target,
   TrendingUp,
   Settings as SettingsIcon,
-  User,
-  CreditCard,
   AlertTriangle,
   Check,
   Plus,
@@ -16,18 +14,20 @@ import {
   X,
   Menu,
 } from 'lucide-react'
-import { useUserProfile } from '@/stores/useUserProfile'
 import { useThemeStore } from '@/stores/useThemeStore'
 import { useAccounts } from '@/stores/useAccounts'
 import { useNavDrawer } from '@/stores/useNavDrawer'
 
 // Mobile primary navigation drawer. Trigger lives in the top-left
-// of the mobile header (replaces the empty 40×40 spacer); contents
-// stack the four primary nav rows (Overview · Targeting · Growth ·
-// Settings) above the same items the ProfileDropdown surfaces on
-// desktop. The bottom tab bar stays — duplication on the three
-// primary tabs is intentional per the layout-refactor spec (Q5b
-// hybrid).
+// of the mobile header. Drawer structure mirrors the desktop sidebar
+// so users see the same hierarchy on both surfaces:
+//
+//   1. Instagram account switcher (active + others + Add account)
+//   2. Primary nav (Overview · Targeting · Engagement · Settings)
+//   3. Bottom — theme toggle + Log out
+//
+// Profile/identity is intentionally not surfaced here. Account info
+// is reachable via Settings in the primary nav.
 const NAV_TABS = [
   { to: '/', icon: BarChart3, label: 'Overview', end: true },
   { to: '/targeting', icon: Target, label: 'Targeting' },
@@ -43,12 +43,6 @@ export default function MobileNavDrawer() {
   const panelRef = useRef(null)
   const triggerRef = useRef(null)
   const { pathname } = useLocation()
-
-  const firstName = useUserProfile((s) => s.firstName)
-  const lastName = useUserProfile((s) => s.lastName)
-  const email = useUserProfile((s) => s.email)
-  const fullName = `${firstName} ${lastName}`.trim() || 'Account'
-  const initials = (firstName?.[0] ?? '') + (lastName?.[0] ?? '')
 
   const theme = useThemeStore((s) => s.theme)
   const toggleTheme = useThemeStore((s) => s.toggleTheme)
@@ -119,15 +113,9 @@ export default function MobileNavDrawer() {
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Header — identity + close */}
-        <div className="flex shrink-0 items-center gap-3 border-b border-border px-4 py-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-tint text-sm font-semibold text-blue-text">
-            {initials || '·'}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-text-primary">{fullName}</p>
-            <p className="truncate text-xs text-text-secondary">{email}</p>
-          </div>
+        {/* Compact close-button bar. No identity card — profile info
+            lives in Settings; the drawer is just navigation. */}
+        <div className="flex shrink-0 items-center justify-end border-b border-border px-2 py-2">
           <button
             type="button"
             onClick={() => setOpen(false)}
@@ -138,10 +126,20 @@ export default function MobileNavDrawer() {
           </button>
         </div>
 
-        {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto">
-          {/* Navigate */}
-          <SectionLabel>Navigate</SectionLabel>
+        {/* Scrollable body — Instagram accounts (top) → Primary nav →
+            empty space → Bottom (theme + log out). */}
+        <div className="flex flex-1 flex-col overflow-y-auto">
+          {/* Instagram accounts — sits at the top so the user picks
+              "who" before "where." Tapping a non-active row promotes
+              that account; the drawer closes via the route-change
+              effect when the user navigates next, and we also dismiss
+              explicitly here so the change reflects immediately. */}
+          <SectionLabel>Instagram accounts</SectionLabel>
+          <AccountSwitcherList accounts={accounts} activeId={activeId} onClose={() => setOpen(false)} />
+
+          {/* Primary nav — same set as the desktop sidebar so both
+              surfaces agree on what counts as "the navigation." */}
+          <SectionLabel>Pages</SectionLabel>
           <nav className="flex flex-col gap-1 px-3 pb-2">
             {NAV_TABS.map(({ to, icon: Icon, label, end }) => (
               <NavLink
@@ -167,37 +165,25 @@ export default function MobileNavDrawer() {
             ))}
           </nav>
 
-          {/* Account */}
-          <SectionLabel>Account</SectionLabel>
-          <div className="flex flex-col gap-1 px-3 pb-2">
-            <DrawerLink to="/account/profile" icon={User} label="Account details" />
-            <DrawerLink to="/account/billing" icon={CreditCard} label="Plan & billing" />
-          </div>
+          {/* Spacer pushes the bottom group to the bottom of the
+              drawer when the panel is taller than the content. */}
+          <div className="flex-1" />
 
-          {/* Instagram accounts — full account switcher. Tapping
-              any non-active row promotes that account to active
-              (sets useAccounts.activeId) and the rest of the
-              dashboard re-keys to it. The drawer closes via the
-              route-change effect when the user navigates next; we
-              also dismiss explicitly so the user sees the change
-              reflected immediately. */}
-          <SectionLabel>Instagram accounts</SectionLabel>
-          <AccountSwitcherList accounts={accounts} activeId={activeId} onClose={() => setOpen(false)} />
-
-          {/* System */}
-          <SectionLabel>System</SectionLabel>
-          <div className="flex flex-col gap-1 px-3 pb-3">
+          {/* Bottom group — theme toggle + Log out. Mirrors the
+              desktop sidebar's bottom zone (sans Collapse, which is
+              meaningless on mobile). */}
+          <div className="flex flex-col gap-1 border-t border-border px-3 py-3">
             <button
               type="button"
               onClick={toggleTheme}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-text-primary transition-colors hover:bg-bg"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
             >
               {theme === 'dark' ? (
-                <Sun className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
+                <Sun className="h-5 w-5 shrink-0" aria-hidden="true" />
               ) : (
-                <Moon className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
+                <Moon className="h-5 w-5 shrink-0" aria-hidden="true" />
               )}
-              {theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
             </button>
             <button
               type="button"
@@ -205,9 +191,9 @@ export default function MobileNavDrawer() {
                 // V1 stub — replace with auth.signOut() when backend lands.
                 setOpen(false)
               }}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
             >
-              <LogOut className="h-4 w-4 shrink-0" />
+              <LogOut className="h-5 w-5 shrink-0" />
               Log out
             </button>
           </div>
@@ -222,18 +208,6 @@ function SectionLabel({ children }) {
     <p className="px-4 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
       {children}
     </p>
-  )
-}
-
-function DrawerLink({ to, icon: Icon, label }) {
-  return (
-    <Link
-      to={to}
-      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg"
-    >
-      <Icon className="h-4 w-4 shrink-0 text-text-secondary" />
-      {label}
-    </Link>
   )
 }
 

@@ -36,6 +36,6 @@ export const mockAccounts = [
 
 // Which account is "selected" on first load. Surfaces flow from
 // `useAccounts.activeAccount` to every component that needs IG
-// connection state — Overview banner, ProfileDropdown, the
-// MobileNavDrawer's account switcher, SystemStatus, etc.
+// connection state — Overview banner, the sidebar AccountSwitcher,
+// the MobileNavDrawer's account switcher, SystemStatus, etc.
 export const defaultActiveAccountId = 'acc_001'

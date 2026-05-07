@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { Outlet, NavLink, useLocation, Link } from 'react-router-dom'
-import { BarChart3, Target, TrendingUp, PanelLeftClose, PanelLeftOpen, Bell, AlertTriangle, TrendingUp as GrowthIcon, X, Sparkles, ChevronsUpDown, Plus, Check, Settings as SettingsIcon } from 'lucide-react'
+import { BarChart3, Target, TrendingUp, PanelLeftClose, PanelLeftOpen, Bell, AlertTriangle, TrendingUp as GrowthIcon, X, Sparkles, ChevronsUpDown, Plus, Check, Settings as SettingsIcon, LogOut, Sun, Moon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/stores/useNotifications'
 import { useAccounts } from '@/stores/useAccounts'
 import { useNavDrawer } from '@/stores/useNavDrawer'
+import { useThemeStore } from '@/stores/useThemeStore'
 import ToastContainer from '@/components/Toast'
-import ProfileDropdown from '@/components/ProfileDropdown'
 import MobileNavDrawer from '@/components/MobileNavDrawer'
 import useDismissOnOutsideClick from '@/hooks/useDismissOnOutsideClick'
 import kickstaLogo from '@/assets/kicksta-logo.svg'
@@ -29,8 +29,8 @@ export function NotificationBell() {
   const markAllRead = useNotifications((s) => s.markAllRead)
   const unread = items.filter((n) => !n.read).length
 
-  // Shared with ProfileDropdown — one click-outside + ESC
-  // implementation across every top-anchored panel in the layout.
+  // One click-outside + ESC implementation shared by every
+  // top-anchored panel in the layout.
   useDismissOnOutsideClick(ref, open, () => setOpen(false))
 
   const closeNavDrawer = useNavDrawer((s) => s.closeDrawer)
@@ -342,11 +342,110 @@ function AccountSwitcher({ collapsed }) {
   )
 }
 
-const tabs = [
+// Primary navigation — used by both the desktop sidebar and the
+// mobile drawer. Settings is included so account-level config sits
+// alongside the other primary destinations.
+const PRIMARY_NAV = [
   { to: '/', icon: BarChart3, label: 'Overview' },
   { to: '/targeting', icon: Target, label: 'Targeting' },
   { to: '/engagement', icon: TrendingUp, label: 'Engagement' },
+  { to: '/account', icon: SettingsIcon, label: 'Settings' },
 ]
+
+// Mobile bottom tab bar — same first three primary destinations,
+// Settings deliberately omitted (lower-frequency on mobile, lives in
+// the drawer instead so the bottom strip stays tight at 3 tabs).
+const BOTTOM_TAB_BAR = PRIMARY_NAV.slice(0, 3)
+
+// Bottom zone of the desktop sidebar. Chrome + system actions only
+// — no identity/profile row (account info lives in Settings). Order
+// from top to bottom: signup-dev shortcut (DEV only) · theme toggle ·
+// collapse · log out. Each row mirrors the collapsed/expanded
+// styling of the primary nav above.
+function SidebarBottomZone({ collapsed, setCollapsed }) {
+  const theme = useThemeStore((s) => s.theme)
+  const toggleTheme = useThemeStore((s) => s.toggleTheme)
+
+  const rowClasses = (extra = '') =>
+    cn(
+      'flex items-center rounded-lg text-sm font-medium transition-colors',
+      collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
+      extra,
+    )
+
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-1 border-t border-border py-3',
+        collapsed ? 'px-2' : 'px-3',
+      )}
+    >
+      {/* Signup-flow dev shortcut. Vite strips this branch from
+          production builds, so end users never see the link. */}
+      {import.meta.env.DEV && (
+        <Link
+          to="/signup/ig-preview"
+          title={collapsed ? 'Signup flow (dev)' : undefined}
+          className={rowClasses(
+            'text-purple-text hover:bg-purple-tint',
+          )}
+        >
+          <Sparkles className="h-5 w-5 shrink-0" />
+          {!collapsed && 'Signup flow (dev)'}
+        </Link>
+      )}
+
+      {/* Theme toggle — quiet personalization control. Shows the
+          target theme's icon + label so the user reads "switch to
+          light/dark" rather than the current state. */}
+      <button
+        type="button"
+        onClick={toggleTheme}
+        title={collapsed ? (theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode') : undefined}
+        className={rowClasses(
+          'text-text-secondary hover:bg-bg hover:text-text-primary',
+        )}
+      >
+        {theme === 'dark' ? (
+          <Sun className="h-5 w-5 shrink-0" aria-hidden="true" />
+        ) : (
+          <Moon className="h-5 w-5 shrink-0" aria-hidden="true" />
+        )}
+        {!collapsed && (theme === 'dark' ? 'Light mode' : 'Dark mode')}
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setCollapsed((v) => !v)}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        className={rowClasses(
+          'text-text-secondary hover:bg-bg hover:text-text-primary',
+        )}
+      >
+        {collapsed ? (
+          <PanelLeftOpen className="h-5 w-5 shrink-0" aria-hidden="true" />
+        ) : (
+          <PanelLeftClose className="h-5 w-5 shrink-0" aria-hidden="true" />
+        )}
+        {!collapsed && 'Collapse'}
+      </button>
+
+      {/* Log out — last item in the navigation, V1 stub. Replace
+          with auth.signOut() when backend lands. */}
+      <button
+        type="button"
+        onClick={() => {}}
+        title={collapsed ? 'Log out' : undefined}
+        className={rowClasses(
+          'text-text-secondary hover:bg-bg hover:text-text-primary',
+        )}
+      >
+        <LogOut className="h-5 w-5 shrink-0" aria-hidden="true" />
+        {!collapsed && 'Log out'}
+      </button>
+    </div>
+  )
+}
 
 export default function DashboardLayout() {
   const location = useLocation()
@@ -393,9 +492,11 @@ export default function DashboardLayout() {
           <AccountSwitcher collapsed={collapsed} />
         </div>
 
-        {/* Nav */}
+        {/* Primary nav — Overview / Targeting / Engagement / Settings.
+            Same set rendered by the mobile drawer so both surfaces
+            agree on what counts as "the navigation." */}
         <nav className={cn('mt-2 flex flex-1 flex-col gap-1', collapsed ? 'px-2' : 'px-3')}>
-          {tabs.map(({ to, icon: Icon, label }) => (
+          {PRIMARY_NAV.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -417,66 +518,11 @@ export default function DashboardLayout() {
           ))}
         </nav>
 
-        {/* Bottom — profile dropdown (account-level actions) + signup
-            dev shortcut + Settings + collapse + logout. The profile
-            dropdown opens upward so its panel doesn't escape the
-            viewport when the user is at the bottom of a tall window. */}
-        <div className={cn('flex flex-col gap-1 border-t border-border py-3', collapsed ? 'px-2' : 'px-3')}>
-          <ProfileDropdown collapsed={collapsed} />
-          {/* Signup-flow dev shortcut. Vite strips this branch from
-              production builds, so end users never see the link. Local
-              dev keeps it for fast jump-into-signup access. */}
-          {import.meta.env.DEV && (
-            <Link
-              to="/signup/ig-preview"
-              title={collapsed ? 'Signup flow (dev)' : undefined}
-              className={cn(
-                'flex items-center rounded-lg text-sm font-medium text-purple-text transition-colors hover:bg-purple-tint',
-                collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'
-              )}
-            >
-              <Sparkles className="h-5 w-5 shrink-0" />
-              {!collapsed && 'Signup flow (dev)'}
-            </Link>
-          )}
-          {/* Settings — main Kicksta-account access (kept per refactor
-              decision Q1; the profile dropdown above is the additional
-              path, not a replacement). Active when path starts with
-              /account so subscription drilldowns also light up the entry. */}
-          <NavLink
-            to="/account"
-            title={collapsed ? 'Settings' : undefined}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center rounded-lg text-sm font-medium transition-colors',
-                collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
-                isActive
-                  ? 'bg-blue-tint text-blue-text'
-                  : 'text-text-secondary hover:bg-bg hover:text-text-primary'
-              )
-            }
-          >
-            <SettingsIcon className="h-5 w-5 shrink-0" />
-            {!collapsed && 'Settings'}
-          </NavLink>
-          <button
-            onClick={() => setCollapsed((v) => !v)}
-            className={cn(
-              'flex items-center rounded-lg text-sm font-medium text-text-secondary transition-colors hover:bg-bg hover:text-text-primary',
-              collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'
-            )}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {collapsed ? (
-              <PanelLeftOpen className="h-5 w-5 shrink-0" />
-            ) : (
-              <>
-                <PanelLeftClose className="h-5 w-5 shrink-0" />
-                Collapse
-              </>
-            )}
-          </button>
-        </div>
+        {/* Bottom zone — chrome controls + system actions. Profile/identity
+            is intentionally not surfaced here; account info is reachable
+            via Settings in the primary nav above. Order: signup-dev shortcut
+            (DEV only) → theme toggle → collapse → log out. */}
+        <SidebarBottomZone collapsed={collapsed} setCollapsed={setCollapsed} />
       </aside>
 
       {/* Mobile: top bar. Hamburger (primary nav + account
@@ -503,9 +549,10 @@ export default function DashboardLayout() {
         <Outlet />
       </main>
 
-      {/* Mobile bottom tab bar */}
+      {/* Mobile bottom tab bar — first 3 of PRIMARY_NAV. Settings is
+          deliberately not on the bottom strip; it lives in the drawer. */}
       <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-border bg-surface pr-[72px] pb-[env(safe-area-inset-bottom)] lg:hidden">
-        {tabs.map(({ to, icon: Icon, label }) => {
+        {BOTTOM_TAB_BAR.map(({ to, icon: Icon, label }) => {
           const isActive =
             to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
           return (

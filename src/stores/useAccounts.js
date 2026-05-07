@@ -4,7 +4,7 @@ import { mockAccounts, defaultActiveAccountId } from '@/mocks/accounts'
 // Connected Instagram accounts. The sidebar AccountSwitcher writes
 // `activeId`; consumers read the active account through
 // `useActiveAccount`. This is the single source of truth for IG
-// connection state — Overview, the ProfileDropdown, the
+// connection state — Overview, the sidebar AccountSwitcher, the
 // MobileNavDrawer, the InstagramConnectionBanner, and SystemStatus
 // all read from here.
 export const useAccounts = create((set) => ({
