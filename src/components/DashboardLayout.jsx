@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Outlet, NavLink, useLocation, Link } from 'react-router-dom'
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { BarChart3, Target, TrendingUp, PanelLeftClose, PanelLeftOpen, Bell, AlertTriangle, TrendingUp as GrowthIcon, X, Sparkles, Settings as SettingsIcon, LogOut, Sun, Moon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/stores/useNotifications'
@@ -139,10 +139,16 @@ const PRIMARY_NAV = [
   { to: '/growth-plus', icon: Sparkles, label: 'Growth+' },
 ]
 
-// Mobile bottom tab bar — first three primary destinations only.
-// Growth+ stays drawer-only on mobile so the bottom strip doesn't
-// get cramped (Intercom takes 72px of the right edge).
-const BOTTOM_TAB_BAR = PRIMARY_NAV.slice(0, 3)
+// Mobile bottom tab bar — Overview / Targeting / Engagement /
+// Settings. Settings is on the bottom strip rather than Growth+
+// because it's a higher-frequency destination on mobile (account
+// management, billing). Growth+ remains drawer-only.
+const BOTTOM_TAB_BAR = [
+  { to: '/', icon: BarChart3, label: 'Overview' },
+  { to: '/targeting', icon: Target, label: 'Targeting' },
+  { to: '/engagement', icon: TrendingUp, label: 'Engagement' },
+  { to: '/account', icon: SettingsIcon, label: 'Settings' },
+]
 
 // Bottom zone of the desktop sidebar. Chrome + system actions only
 // — no identity/profile row (account info lives in Settings). Order
@@ -187,21 +193,6 @@ function SidebarBottomZone({ collapsed, setCollapsed }) {
         <SettingsIcon className="h-5 w-5 shrink-0" />
         {!collapsed && 'Settings'}
       </NavLink>
-
-      {/* Signup-flow dev shortcut. Vite strips this branch from
-          production builds, so end users never see the link. */}
-      {import.meta.env.DEV && (
-        <Link
-          to="/signup/ig-preview"
-          title={collapsed ? 'Signup flow (dev)' : undefined}
-          className={rowClasses(
-            'text-purple-text hover:bg-purple-tint',
-          )}
-        >
-          <Sparkles className="h-5 w-5 shrink-0" />
-          {!collapsed && 'Signup flow (dev)'}
-        </Link>
-      )}
 
       {/* Theme toggle — quiet personalization control. Shows the
           target theme's icon + label so the user reads "switch to

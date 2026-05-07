@@ -130,7 +130,10 @@ export default function AccountSwitcher({
           containing block (the mobile drawer applies `translate-x-0`
           which would otherwise constrain `fixed` descendants to the
           drawer's width instead of the viewport). Backdrop and ESC
-          both dismiss; z-[60] keeps this above the drawer (z-50). */}
+          both dismiss; z-[60] keeps this above the drawer (z-50).
+          Sheet body uses generous `px-3 py-3` padding (vs. the
+          dropdown's `px-1 py-1`) — tight padding looked stretched
+          on a full-width sheet. */}
       {open &&
         variant === 'sheet' &&
         createPortal(
@@ -162,12 +165,13 @@ export default function AccountSwitcher({
                   <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
-              <div className="flex flex-col overflow-y-auto px-1 py-1">
+              <div className="flex flex-col overflow-y-auto px-3 py-3">
                 <PanelContent
                   active={active}
                   others={others}
                   onPick={handlePick}
                   onAddAccountClick={() => setOpen(false)}
+                  density="comfy"
                 />
               </div>
             </div>
@@ -180,11 +184,27 @@ export default function AccountSwitcher({
 
 // Shared panel content used by both variants. Active account row
 // is pinned at the top with a check; other rows tap-to-switch;
-// "Add account" link routes to the connect-Instagram signup flow.
-function PanelContent({ active, others, onPick, onAddAccountClick }) {
+// "Add account" routes to `/signup/ig-preview` — the first step of
+// the dashboard's signup/onboarding flow.
+//
+// `density` controls row spacing: `'compact'` (default) for the
+// desktop dropdown, `'comfy'` for the mobile bottom sheet which
+// otherwise looked cramped.
+function PanelContent({
+  active,
+  others,
+  onPick,
+  onAddAccountClick,
+  density = 'compact',
+}) {
+  const rowClasses =
+    density === 'comfy'
+      ? 'flex items-center gap-3 rounded-lg px-3 py-3'
+      : 'flex items-center gap-2 rounded-md px-2 py-2'
+
   return (
     <>
-      <div className="flex items-center gap-2 rounded-md bg-bg px-2 py-2">
+      <div className={`${rowClasses} bg-bg`}>
         <Avatar account={active} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
@@ -208,7 +228,7 @@ function PanelContent({ active, others, onPick, onAddAccountClick }) {
               type="button"
               onClick={() => onPick(account)}
               aria-label={`Switch to @${account.username}`}
-              className="flex items-center gap-2 rounded-md px-2 py-2 text-left transition-colors hover:bg-bg"
+              className={`${rowClasses} text-left transition-colors hover:bg-bg`}
             >
               <Avatar account={account} />
               <div className="min-w-0 flex-1">
@@ -227,10 +247,10 @@ function PanelContent({ active, others, onPick, onAddAccountClick }) {
 
       <div className="mx-2 my-1 h-px bg-border" aria-hidden />
       <Link
-        to="/signup/connect-instagram"
+        to="/signup/ig-preview"
         role="menuitem"
         onClick={onAddAccountClick}
-        className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-blue-text transition-colors hover:bg-blue-tint"
+        className={`${rowClasses} text-sm font-medium text-blue-text transition-colors hover:bg-blue-tint`}
       >
         <span
           aria-hidden

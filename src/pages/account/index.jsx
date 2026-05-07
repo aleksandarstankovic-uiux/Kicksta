@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useOutlet, useLocation } from 'react-router-dom'
+import { Navigate, useOutlet } from 'react-router-dom'
 import SettingsNav from './SettingsNav'
 import SettingsTabs from './SettingsTabs'
 import PasswordModal from './PasswordModal'
@@ -7,15 +7,15 @@ import EditNameModal from './EditNameModal'
 import EditEmailModal from './EditEmailModal'
 import EditPhoneModal from './EditPhoneModal'
 
-// Mobile no longer has a "menu screen". `/account` always redirects
-// to `/account/profile` — every settings panel is reachable via the
-// `SettingsTabs` segmented strip pinned at the top on mobile, or the
-// `SettingsNav` rail in the two-pane layout on desktop.
-const PANEL_TITLE = {
-  '/account/profile': 'Profile',
-  '/account/billing': 'Billing',
-}
-
+// `/account` always redirects to `/account/profile`. Mobile uses the
+// `SettingsTabs` pill switcher (inline with the page header on sm+,
+// stacked below on small viewports). Desktop uses the `SettingsNav`
+// rail in the two-pane grid.
+//
+// Header copy mirrors the Targeting page pattern: H1 + subtitle on
+// the left, the page-level switcher pinned to the upper-right (sm+).
+// Mobile users see the same "Settings" title regardless of which
+// panel is active — the active state lives on the switcher itself.
 export default function AccountPage() {
   const [passwordOpen, setPasswordOpen] = useState(false)
   const [nameOpen, setNameOpen] = useState(false)
@@ -24,7 +24,6 @@ export default function AccountPage() {
 
   const outlet = useOutlet()
   const childActive = !!outlet
-  const { pathname } = useLocation()
 
   useEffect(() => {
     const map = {
@@ -39,42 +38,32 @@ export default function AccountPage() {
     }
   }, [])
 
-  // Always redirect raw `/account` to `/account/profile` — no
-  // mobile menu screen. Desktop already did this; mobile now matches.
+  // Always redirect raw `/account` to `/account/profile`.
   if (!childActive) {
     return <Navigate to="/account/profile" replace />
   }
 
-  const panelTitle = PANEL_TITLE[pathname] ?? 'Settings'
-
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
-      {/* Desktop header — "Settings" + subtitle anchored by the
-          left-side nav rail. Always visible on lg+. */}
-      <header className="hidden lg:block">
-        <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
-          Settings
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Manage your account, payments, and subscriptions.
-        </p>
-      </header>
-
-      {/* Mobile header — panel title only. No back arrow because
-          there's no menu screen to return to; the segmented strip
-          below switches between panels in place. */}
-      <header className="lg:hidden">
-        <h1 className="text-lg font-semibold leading-snug text-text-primary">
-          {panelTitle}
-        </h1>
-      </header>
-
-      {/* Mobile segmented strip — pinned just under the H1. */}
-      <div className="mt-4 lg:hidden">
+      {/* Header — H1 + subtitle on the left, pill switcher pinned to
+          the upper-right on sm+. Stacks on the smallest viewports
+          (switcher drops below the subtitle, still left-aligned).
+          Mirrors the Targeting page header exactly. SettingsTabs is
+          `lg:hidden` itself; on lg+ the SettingsNav rail in the grid
+          below replaces it. */}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <div className="min-w-0">
+          <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
+            Settings
+          </h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Manage your account, payments, and subscriptions.
+          </p>
+        </div>
         <SettingsTabs />
-      </div>
+      </header>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[200px_1fr]">
+      <div className="mt-5 grid gap-6 lg:grid-cols-[200px_1fr]">
         <aside className="hidden lg:sticky lg:top-6 lg:block lg:self-start">
           <SettingsNav />
         </aside>
