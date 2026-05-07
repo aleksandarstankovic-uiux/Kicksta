@@ -5,6 +5,59 @@
 
 ---
 
+## 2026-05-07 — Navigation overhaul
+
+A multi-step refactor to make desktop sidebar and mobile drawer agree on a single nav hierarchy, plus a stack of bug fixes flagged during the navigation review.
+
+### Created
+- `src/components/AccountSwitcher.jsx` — extracted from `DashboardLayout.jsx`. Single trigger row + panel implementation reused on both surfaces.
+  - `variant="dropdown"` (default) — desktop sidebar. Absolute panel below the trigger.
+  - `variant="sheet"` — mobile drawer. Fixed bottom sheet rendered via `createPortal(..., document.body)` to escape the drawer's transform-induced containing block. Slide-up animation via the `mounted + 2× rAF` pattern. Z-[60] keeps it above the drawer (z-50).
+  - `density` prop on the shared `PanelContent` helper (`'compact'` default, `'comfy'` for the sheet) so the sheet has generous `gap-3 px-3 py-3` rows vs. the dropdown's `gap-2 px-2 py-2`.
+  - Optional `onAccountSwitched` callback fires when the user picks a different account — drawer wires this to `closeDrawer()`.
+- `src/stores/useNavDrawer.js` — Zustand store lifting the mobile drawer's open state out of `MobileNavDrawer`'s local component state. Lets `NotificationBell` call `closeDrawer()` before opening its own panel.
+
+### Changed — navigation structure
+- **Primary nav** is now `Overview / Targeting / Engagement / Growth+`. Identical set on both surfaces.
+- **Settings** is no longer in the primary nav. It moved to the **bottom zone** of both surfaces (desktop sidebar `SidebarBottomZone`, mobile drawer bottom group). Active state still lights up on `/account/*`.
+- **Mobile bottom tab bar** is now `Overview / Targeting / Engagement / Settings` (4 tabs, all `flex-1`). Growth+ is drawer-only on mobile. The previous `pr-[72px]` Intercom reservation is dropped — V1 doesn't ship Intercom; the bar fills the full viewport width.
+- **Desktop sidebar** drops the `ProfileDropdown` row entirely (file deleted). Bottom zone is now `Settings · Theme toggle · Collapse · Log out` (DEV builds also get the signup-flow shortcut, gated by `import.meta.env.DEV`).
+- **Mobile drawer** structure mirrors desktop:
+  - Top: Kicksta wordmark + close X (was identity card with avatar/name/email).
+  - Section: Instagram accounts (the new `AccountSwitcher` with `variant="sheet"`).
+  - Section: Pages (Overview / Targeting / Engagement / Growth+).
+  - Bottom: Settings + Theme toggle + Log out.
+  - Removed: the per-panel "Account" section (Account details, Plan & billing) — Settings covers them.
+
+### Changed — `/account` (Settings) page
+- Mobile header rebuilt to match the Targeting page layout exactly — H1 "Settings" + subtitle on the left, pill switcher pinned upper-right (sm+) and stacked below on smaller viewports.
+- Drops the per-panel title swap (page used to read "Profile" or "Billing" depending on the active panel; now always reads "Settings").
+- `SettingsTabs.jsx` rebuilt to mirror the Targeting page's pill recipe: compact intrinsic-width pill, `bg-bg + border-border` container, active state `bg-text-primary text-bg shadow-sm`. Adds `User` / `CreditCard` icons next to each label.
+
+### Changed — bug fixes from the nav review
+- **`ProfileDropdown.jsx` deleted**. The "Alex Johnson + email" identity card on both surfaces is gone — profile info lives in Settings.
+- **`AccountRow` a11y** in `AccountSwitcher` (formerly in `MobileNavDrawer`'s inline list): rows render as `<div aria-current="true">` when display-only and `<button aria-label="Switch to @username">` when interactive. Replaces the previous `<button><div>…</div></button>` nesting.
+- **NotificationBell unreachable while drawer is open**: mobile top header bumped `z-20 → z-50` (drawer panel is z-50, drawer backdrop is z-40 — the bell stays clickable now). Tapping the bell calls `closeDrawer()` first, then toggles the notification panel.
+- **DEV-only Signup-flow link** removed from desktop sidebar bottom. The Add account affordance inside `AccountSwitcher` now routes to `/signup/ig-preview` (was `/signup/connect-instagram`) — first step of the signup/onboarding flow. Single entry point.
+
+### Notes
+- **Active-state recipe trio still holds**:
+  - `bg-blue-tint text-blue-text` → sidebar / "current view" nav.
+  - `bg-blue-base text-white` → primary CTAs.
+  - `bg-text-primary text-bg` → page-level view switchers / dark-fill emphasis.
+- **Avatar identity ambiguity (#22 from the nav review)** is still open — IG account avatars and Kicksta-user avatars still look similar. Removing the user-identity card on both surfaces partially mitigates this (the only avatars left are IG-account avatars), but if Kicksta user avatars come back later, they need a distinct shape.
+
+### Removed
+- `src/components/ProfileDropdown.jsx`
+- DEV-only "Signup flow" link from `DashboardLayout`'s `SidebarBottomZone`
+- Inline `AccountSwitcher` definition in `DashboardLayout.jsx` (replaced by import)
+- Inline `AccountSwitcherList` / `AccountRow` / `Avatar` / `DrawerLink` helpers in `MobileNavDrawer.jsx` (replaced by `AccountSwitcher` import)
+- Drawer's "Account" section (Account details, Plan & billing rows)
+- Drawer's identity header (avatar + name + email)
+- `pr-[72px]` Intercom offset on mobile bottom tab bar
+
+---
+
 ## 2026-05-06 → 2026-05-07 — Targeting page restructure (round 3)
 
 Multi-day iteration on the Targeting page header, switcher, and Targets toolbar. Many intermediate states were tried and discarded — the entries below describe the final landed state, not the journey.

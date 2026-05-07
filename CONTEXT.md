@@ -14,49 +14,56 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 
 ---
 
-## Resume context (2026-05-07)
+## Resume context (2026-05-07, late session)
 
 **State of the working tree:** clean except for the usual `.claude/settings.local.json` drift. All project work committed. No worktrees. Working directly on `main`.
 
 **Restore tags currently in place:**
-- `pre-settings-page-2026-04-29` — before user-settings-page work
-- `pre-settings-fixes-2026-04-29` — before settings-fixes polish
-- `pre-targeting-engagement-split-2026-04-30` — before the most recent split
+- `pre-settings-page-2026-04-29`
+- `pre-settings-fixes-2026-04-29`
+- `pre-targeting-engagement-split-2026-04-30`
+- `pre-next-round-2026-05-07` — earlier today, before the navigation overhaul
 
-If anything's regressed, hard-reset to the relevant tag. (No new tag added for this round — many small iterations, no clear "before" boundary.)
+If anything's regressed, hard-reset to the relevant tag.
 
 **Last shipped (most recent first, summarized — see CHANGELOG for details):**
 
-- **Targeting page restructure round 3** (2026-05-06 → 07) — Page header now H1 + subtitle on the left, compact intrinsic-width pill switcher pinned upper-right. Switcher active-state recipe is **`bg-text-primary text-bg`** — a third tier on top of `bg-blue-tint` (nav) and `bg-blue-base` (CTAs). `TargetsHeroCard` rebuilt as a hero toolbar with a 4px left blue accent, title + slot pill on one row, 14px subtitle below, prominent Add CTA. `AddTargetSheet`'s Account/Hashtag switcher became an icon-only segmented control inline with (and to the right of) the input; the `Username` / `Hashtag` label was dropped (`aria-label` on the input preserves a11y). `TargetRow` no longer fills the processing row with `bg-green-tint/30` — too loud — pulsing `Following…` pill is the only signal.
-- **Targeting page-level polish** (2026-05-05) — Switcher iterations (pill → underlined → connected-tab → compact pill), Settings tab section headings (Engine / Audience / Lists), AddTargetSheet richer suggestion grid.
-- **Targeting + engagement polish round 2** (2026-05-05) — Modal headers centered, AddTarget subtitle shortened, AudienceFiltersModal subtitle added, TargetsHeroCard hero title inline, filter card border drop, W/B row spacing, CF segmented +/- icons, engagement card toggle moved to corner.
-- **Engagement enrichment + targeting modals visual identity** (2026-05-05) — Stats hero card on `/engagement`, recent-DMs sublist on Welcome DM card, Close Friends count + recent activity, modal chip color trio (blue / green / yellow → later reverted yellow → neutral), modal empty states.
-- **Targeting popup polish + targeting/engagement split** (2026-04-30) — Pulse halo on processing row, `TargetDetailDrawer` recent activity, demoted drawer buttons, full Targeting/Engagement page split.
+- **Navigation overhaul** (2026-05-07, late) — Desktop sidebar and mobile drawer now agree on a single hierarchy: account switcher → primary nav (Overview / Targeting / Engagement / Growth+) → bottom zone (Settings / Theme / [Collapse on desktop] / Log out). `AccountSwitcher` extracted into `src/components/AccountSwitcher.jsx`, gains a `variant="sheet"` mode that renders a `createPortal`'d bottom sheet on mobile (was overlapping the drawer's nav). `ProfileDropdown.jsx` deleted; identity card removed from both surfaces. `NotificationBell` lifted via new `useNavDrawer` Zustand store so it can dismiss the drawer before opening its panel. Mobile top header bumped `z-20 → z-50` so the bell stays reachable while the drawer is open. Mobile bottom tab bar dropped the `pr-[72px]` Intercom reservation; tabs are now Overview / Targeting / Engagement / Settings, each `flex-1`. Add account in AccountSwitcher routes to `/signup/ig-preview` (the dev signup-flow shortcut is gone). Settings page mobile header rebuilt to match Targeting (H1 + subtitle + pill switcher).
+- **Targeting page restructure round 3** (2026-05-06 → 07) — Page header H1 + subtitle on the left, compact pill switcher pinned upper-right. `bg-text-primary text-bg` active-state recipe established as a third tier alongside `bg-blue-tint` (nav) and `bg-blue-base` (CTAs). `TargetsHeroCard` rebuilt with 4px left blue accent + title/slot-pill row + 14px subtitle + CTA. `AddTargetSheet` switcher became an icon-only segmented control inline-right of the input; "Username/Hashtag" label dropped. `TargetRow` processing tint dropped — pulsing `Following…` pill is the only signal.
+- **Targeting + engagement polish rounds 1–2** (2026-05-05) — see CHANGELOG.
+- **Targeting popup polish + targeting/engagement split** (2026-04-30) — see CHANGELOG.
 
 **Pending specs queue (in priority order):**
 
-1. **GrowthPlusBanner placement** — currently parked at the bottom of `/engagement`. User asked me to surface this question before closing out the broader refactor pass. **Don't decide unilaterally.**
-2. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove). Reasonable scope, just deferred.
-3. **Targeting empty state polish** — user said "defer until layout work done." Now that the layout is settled, this is unblocked. Big icon + headline + sub + CTA inline (lucide pattern, not bespoke SVG).
-4. **AddTargetSheet copy polish** — new note from this session's review: the `@`/`#` input prefix duplicates the active switcher icon. Pick one. Also the helper text + typeahead can stack visually noisy. Cancel button is currently `bg-bg`, low weight — could go ghost-bordered.
+1. **Growth+ page** — added to nav with route `/growth-plus`. Page itself isn't built yet; the link lands on a blank route. Build the actual page when ready.
+2. **GrowthPlusBanner placement** — currently parked at the bottom of `/engagement`. User asked me to surface this question before closing out the broader refactor pass. **Don't decide unilaterally.**
+3. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove). Reasonable scope, just deferred.
+4. **Targeting empty state polish** — user said "defer until layout work done." Layout is settled now, this is unblocked.
+5. **AddTargetSheet copy polish** — `@`/`#` input prefix duplicates the active switcher icon (pick one). Helper text + typeahead can stack visually noisy. Cancel button low weight (`bg-bg`).
+6. **Avatar identity ambiguity** (was #22 from the nav review) — IG-account avatars and Kicksta-user avatars look similar. Mostly mitigated by removing the user-identity card from nav, but reappears if a Kicksta-user avatar comes back later. Give it a distinct shape (e.g. `rounded-md` instead of `rounded-full`) when reintroduced.
 
-**Open architectural decisions:**
-- **Active-state recipe trio** — formalize in `CLAUDE.md`:
-  - `bg-blue-tint text-blue-text` → sidebar / "current view" nav.
-  - `bg-blue-base text-white` → primary CTAs.
-  - `bg-text-primary text-bg` → page-level view switchers / dark-fill emphasis.
-- **TargetsHeroCard layout** — landed at "left-accent + title + slot pill + 14px subtitle + Add CTA right." Don't revisit unless there's a fresh complaint.
-- **Page switcher position** — landed at "upper-right of header (sm+), stacks below subtitle on mobile." Don't revisit.
-- **AddTargetSheet input row** — landed at "input on left, icon-only switcher on right, no label." Don't revisit.
+**Open architectural decisions (locked, don't revisit):**
 
-**Deferred (not in this queue but worth knowing):**
+- **Nav hierarchy** — desktop sidebar and mobile drawer agree: account switcher on top, primary nav (Overview / Targeting / Engagement / Growth+), bottom zone (Settings / Theme / [Collapse] / Log out). Mobile bottom tab bar: Overview / Targeting / Engagement / Settings (Growth+ drawer-only on mobile).
+- **Active-state recipe trio** — `bg-blue-tint text-blue-text` (nav) · `bg-blue-base text-white` (CTAs) · `bg-text-primary text-bg` (page-level switchers).
+- **AccountSwitcher** — single shared component, two variants:
+  - `variant="dropdown"` for desktop sidebar.
+  - `variant="sheet"` for mobile drawer; rendered via `createPortal` to escape transformed-ancestor containing blocks.
+- **TargetsHeroCard layout** — left-accent + title + slot pill + 14px subtitle + Add CTA right.
+- **Page switcher position** — upper-right of header (sm+), stacks below subtitle on mobile.
+- **AddTargetSheet input row** — input on left, icon-only switcher on right, no `Username/Hashtag` label (`aria-label` on input preserves a11y).
+- **Identity not in nav** — profile/identity is reachable via Settings only. No "Alex Johnson" card anywhere in chrome.
+
+**Deferred (not in queue but worth knowing):**
 - Chrome-level System Status surface (PRODUCT.md says "always visible with timestamps")
-- Cancel subscription 6-step modal flow (fully spec'd in PRODUCT.md, currently a stub modal)
-- Upgrade plan UX (currently a stub modal)
-- In-product Add subscription flow (currently bounces to `/signup/connect-instagram`)
+- Cancel subscription 6-step modal flow (currently a stub modal)
+- Upgrade plan UX (stub modal)
+- In-product Add subscription flow (bounces to `/signup/ig-preview` now via Add account)
 - Real auth, real card processing, real email verification — all V1 mocks
+- Intercom widget — when added, may need to reintroduce a right offset on the mobile bottom tab bar (was `pr-[72px]`, dropped this session)
+- DEV-only signup-flow shortcut — removed; `/signup/ig-preview` is reachable via Add account in AccountSwitcher. If we want a fast jump-into-signup for dev, re-add via a small dev-tools surface rather than mounting it in the production nav.
 
-**Skill usage hint for the next session:** the targeting iterations went well as inline edits with quick proposals + commits, NOT through the heavyweight brainstorm → spec → plan → exec loop. For small visual touch-ups on existing components, prefer the lighter pattern (propose options inline, ship on confirmation). For new features or restructures touching ≥3 files, return to the spec → plan flow.
+**Skill usage hint for the next session:** the navigation overhaul this session worked well as a series of small specs + immediate-execute cycles. For nav/UI changes, prefer the lighter pattern (propose options inline, ship on confirmation, verify in browser via the preview server). The `mcp__Claude_Preview__*` tools are reliable — use them to actually open the page and click through before claiming a fix is done. The drawer-vs-sheet `createPortal` bug from this session is the canonical "should have tested in-browser" lesson.
 
 ---
 
