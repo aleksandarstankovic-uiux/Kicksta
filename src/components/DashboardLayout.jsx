@@ -4,6 +4,7 @@ import { BarChart3, Target, TrendingUp, PanelLeftClose, PanelLeftOpen, Bell, Ale
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/stores/useNotifications'
 import { useAccounts } from '@/stores/useAccounts'
+import { useNavDrawer } from '@/stores/useNavDrawer'
 import ToastContainer from '@/components/Toast'
 import ProfileDropdown from '@/components/ProfileDropdown'
 import MobileNavDrawer from '@/components/MobileNavDrawer'
@@ -32,10 +33,19 @@ export function NotificationBell() {
   // implementation across every top-anchored panel in the layout.
   useDismissOnOutsideClick(ref, open, () => setOpen(false))
 
+  const closeNavDrawer = useNavDrawer((s) => s.closeDrawer)
+
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          // Close the mobile nav drawer if it's open. The bell sits in
+          // the mobile top header which now has a higher z-index than
+          // the drawer; tapping the bell while the drawer is open
+          // dismisses it before showing the notification panel.
+          closeNavDrawer()
+          setOpen((v) => !v)
+        }}
         className="relative flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
         title="Notifications"
       >
@@ -413,17 +423,22 @@ export default function DashboardLayout() {
             viewport when the user is at the bottom of a tall window. */}
         <div className={cn('flex flex-col gap-1 border-t border-border py-3', collapsed ? 'px-2' : 'px-3')}>
           <ProfileDropdown collapsed={collapsed} />
-          <Link
-            to="/signup/ig-preview"
-            title={collapsed ? 'Signup flow (dev)' : undefined}
-            className={cn(
-              'flex items-center rounded-lg text-sm font-medium text-purple-text transition-colors hover:bg-purple-tint',
-              collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'
-            )}
-          >
-            <Sparkles className="h-5 w-5 shrink-0" />
-            {!collapsed && 'Signup flow'}
-          </Link>
+          {/* Signup-flow dev shortcut. Vite strips this branch from
+              production builds, so end users never see the link. Local
+              dev keeps it for fast jump-into-signup access. */}
+          {import.meta.env.DEV && (
+            <Link
+              to="/signup/ig-preview"
+              title={collapsed ? 'Signup flow (dev)' : undefined}
+              className={cn(
+                'flex items-center rounded-lg text-sm font-medium text-purple-text transition-colors hover:bg-purple-tint',
+                collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5'
+              )}
+            >
+              <Sparkles className="h-5 w-5 shrink-0" />
+              {!collapsed && 'Signup flow (dev)'}
+            </Link>
+          )}
           {/* Settings — main Kicksta-account access (kept per refactor
               decision Q1; the profile dropdown above is the additional
               path, not a replacement). Active when path starts with
@@ -470,7 +485,14 @@ export default function DashboardLayout() {
           previously also mounted here on the right but conflicted
           with the same items inside the drawer — drawer is the
           single source on mobile. */}
-      <header className="fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-surface px-4 lg:hidden">
+      {/* z-50 so the bell stays clickable while the nav drawer is open
+          (drawer panel is z-50, drawer backdrop is z-40 — the header
+          needs to sit above the backdrop and on equal footing with
+          the drawer, since they don't overlap visually: drawer is
+          left-aligned w-72, bell is top-right). Tapping the bell
+          calls `closeDrawer()` first to dismiss the drawer, then
+          opens the notification panel. */}
+      <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between border-b border-border bg-surface px-4 lg:hidden">
         <MobileNavDrawer />
         <img src={kickstaLogo} alt="Kicksta" className="h-8" />
         <NotificationBell />

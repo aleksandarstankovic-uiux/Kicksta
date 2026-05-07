@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import {
   BarChart3,
@@ -19,6 +19,7 @@ import {
 import { useUserProfile } from '@/stores/useUserProfile'
 import { useThemeStore } from '@/stores/useThemeStore'
 import { useAccounts } from '@/stores/useAccounts'
+import { useNavDrawer } from '@/stores/useNavDrawer'
 
 // Mobile primary navigation drawer. Trigger lives in the top-left
 // of the mobile header (replaces the empty 40×40 spacer); contents
@@ -35,7 +36,10 @@ const NAV_TABS = [
 ]
 
 export default function MobileNavDrawer() {
-  const [open, setOpen] = useState(false)
+  const open = useNavDrawer((s) => s.open)
+  const openDrawer = useNavDrawer((s) => s.openDrawer)
+  const closeDrawer = useNavDrawer((s) => s.closeDrawer)
+  const setOpen = (next) => (next ? openDrawer() : closeDrawer())
   const panelRef = useRef(null)
   const triggerRef = useRef(null)
   const { pathname } = useLocation()
@@ -246,17 +250,14 @@ function AccountSwitcherList({ accounts, activeId, onClose }) {
     <div className="flex flex-col gap-1 px-3 pb-2">
       <AccountRow account={active} active />
       {others.map((account) => (
-        <button
+        <AccountRow
           key={account.id}
-          type="button"
+          account={account}
           onClick={() => {
             setActiveId(account.id)
             onClose()
           }}
-          className="text-left"
-        >
-          <AccountRow account={account} />
-        </button>
+        />
       ))}
       <Link
         to="/signup/connect-instagram"
@@ -271,23 +272,27 @@ function AccountSwitcherList({ accounts, activeId, onClose }) {
   )
 }
 
-function AccountRow({ account, active = false }) {
+// AccountRow renders as a `<div>` when display-only (the active row)
+// and as a `<button>` when interactive (a non-active account that
+// can be switched to). Wrapping the row in a `<button>` previously
+// produced a confused a11y tree where the button label was the
+// concatenation of every descendant; this version gives screen
+// readers a clean "Switch to @username" affordance and marks the
+// active row with `aria-current="true"`.
+function AccountRow({ account, active = false, onClick }) {
   const isDisconnected = account.connectionState === 'disconnected'
-  return (
-    <div
-      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-        active ? 'bg-blue-tint' : 'hover:bg-bg'
-      }`}
-    >
+  const baseClasses =
+    'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors'
+  const stateClasses = active ? 'bg-blue-tint' : 'hover:bg-bg'
+  const usernameClasses = `truncate text-sm font-medium ${
+    active ? 'text-blue-text' : 'text-text-primary'
+  }`
+
+  const inner = (
+    <>
       <Avatar account={account} />
       <div className="min-w-0 flex-1">
-        <p
-          className={`truncate text-sm font-medium ${
-            active ? 'text-blue-text' : 'text-text-primary'
-          }`}
-        >
-          @{account.username}
-        </p>
+        <p className={usernameClasses}>@{account.username}</p>
         {isDisconnected ? (
           <p className="flex items-center gap-1 truncate text-xs font-medium text-red-text">
             <AlertTriangle className="h-3 w-3 shrink-0" />
@@ -300,7 +305,25 @@ function AccountRow({ account, active = false }) {
         )}
       </div>
       {active && <Check className="h-4 w-4 shrink-0 text-blue-text" aria-hidden="true" />}
-    </div>
+    </>
+  )
+
+  if (active) {
+    return (
+      <div className={`${baseClasses} ${stateClasses}`} aria-current="true">
+        {inner}
+      </div>
+    )
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Switch to @${account.username}`}
+      className={`${baseClasses} ${stateClasses}`}
+    >
+      {inner}
+    </button>
   )
 }
 
