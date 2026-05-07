@@ -14,6 +14,7 @@ import {
 import { useThemeStore } from '@/stores/useThemeStore'
 import { useNavDrawer } from '@/stores/useNavDrawer'
 import AccountSwitcher from '@/components/AccountSwitcher'
+import kickstaFullLogo from '@/assets/kicksta-full-logo.svg'
 
 // Mobile primary navigation drawer. Trigger lives in the top-left
 // of the mobile header. Drawer structure mirrors the desktop sidebar
@@ -107,9 +108,10 @@ export default function MobileNavDrawer() {
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Compact close-button bar. No identity card — profile info
-            lives in Settings; the drawer is just navigation. */}
-        <div className="flex shrink-0 items-center justify-end border-b border-border px-2 py-2">
+        {/* Top bar — Kicksta wordmark left, close X right. Mirrors
+            the desktop sidebar's logo header. */}
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+          <img src={kickstaFullLogo} alt="Kicksta" className="h-7" />
           <button
             type="button"
             onClick={() => setOpen(false)}
@@ -133,7 +135,10 @@ export default function MobileNavDrawer() {
               reflects on the page below immediately. */}
           <SectionLabel>Instagram accounts</SectionLabel>
           <div className="px-3 pb-2">
-            <AccountSwitcher onAccountSwitched={() => setOpen(false)} />
+            <AccountSwitcher
+              variant="sheet"
+              onAccountSwitched={() => setOpen(false)}
+            />
           </div>
 
           {/* Primary nav — same set as the desktop sidebar so both
@@ -164,8 +169,9 @@ export default function MobileNavDrawer() {
             ))}
           </nav>
 
-          {/* Spacer pushes the bottom group to the bottom of the
-              drawer when the panel is taller than the content. */}
+          {/* Spacer fills the empty body region so the bottom group
+              anchors to the drawer's bottom edge — standard nav
+              drawer layout. */}
           <div className="flex-1" />
 
           {/* Bottom group — theme toggle + Log out. Mirrors the

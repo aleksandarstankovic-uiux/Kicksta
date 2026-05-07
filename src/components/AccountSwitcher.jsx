@@ -1,33 +1,40 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, Check, ChevronsUpDown, Plus } from 'lucide-react'
+import { AlertTriangle, Check, ChevronsUpDown, Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAccounts } from '@/stores/useAccounts'
 
 // Instagram account switcher — single trigger row showing the active
-// account, dropdown panel listing every other connected account plus
-// an "Add account" affordance. One implementation, two consumers:
+// account plus a panel listing every connected account and an
+// "Add account" affordance. Two variants:
 //
-//   - Desktop sidebar — `<AccountSwitcher collapsed={collapsed} />`.
-//     Trigger row matches the sidebar's row styling. Dropdown opens
-//     below the trigger when expanded, or to the right when the
-//     sidebar is collapsed.
-//   - Mobile drawer — `<AccountSwitcher onAccountSwitched={closeDrawer} />`.
-//     Same trigger + dropdown; the optional callback dismisses the
-//     drawer when the user picks an account so the change reflects
-//     immediately on the page below.
+//   - `variant="dropdown"` (default) — desktop sidebar. Panel opens
+//     below the trigger as an absolutely-positioned floating menu.
+//   - `variant="sheet"` — mobile drawer. Panel opens as a fixed
+//     bottom sheet (z-[60], full-width, slides up over the drawer)
+//     so it doesn't overlay the rest of the drawer's nav.
 //
-// Dropdown is capped at `max-h-[60vh]` with overflow scroll so 5 / 10
-// / 20 accounts all fit gracefully without blowing out the parent.
-export default function AccountSwitcher({ collapsed = false, onAccountSwitched }) {
+// Optional `onAccountSwitched` callback fires when the user picks
+// a different account — the drawer wires this to its own
+// `closeDrawer` so the change reflects immediately on the page below.
+export default function AccountSwitcher({
+  collapsed = false,
+  variant = 'dropdown',
+  onAccountSwitched,
+}) {
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
   const setActiveId = useAccounts((s) => s.setActiveId)
   const ref = useRef(null)
 
+  // Click-outside + ESC dismissal — only used by the dropdown
+  // variant; the sheet variant uses an explicit backdrop click and
+  // its own ESC handler below.
   useEffect(() => {
-    if (!open) return
+    if (!open || variant !== 'dropdown') return
     function handleClick(e) {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
@@ -40,7 +47,25 @@ export default function AccountSwitcher({ collapsed = false, onAccountSwitched }
       document.removeEventListener('mousedown', handleClick)
       document.removeEventListener('keydown', handleKey)
     }
-  }, [open])
+  }, [open, variant])
+
+  // Sheet animation — same `mounted + 2× rAF` pattern used by
+  // AddTargetSheet and the modal sheets across the app.
+  useEffect(() => {
+    if (variant !== 'sheet') return
+    if (open) {
+      setMounted(false)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setMounted(true))
+      })
+      function onKey(e) {
+        if (e.key === 'Escape') setOpen(false)
+      }
+      document.addEventListener('keydown', onKey)
+      return () => document.removeEventListener('keydown', onKey)
+    }
+    setMounted(false)
+  }, [open, variant])
 
   const active = accounts.find((a) => a.id === activeId) ?? accounts[0]
   const others = accounts.filter((a) => a.id !== active.id)
@@ -80,79 +105,142 @@ export default function AccountSwitcher({ collapsed = false, onAccountSwitched }
         )}
       </button>
 
-      {open && (
+      {/* Dropdown variant — absolute panel below the trigger. */}
+      {open && variant === 'dropdown' && (
         <div
           role="menu"
           className={cn(
             'absolute z-40 w-72 max-w-[calc(100vw-1rem)] overflow-hidden rounded-xl border border-border bg-surface shadow-xl',
-            // Collapsed sidebar: dropdown opens to the right of the
-            // narrow icon strip. Expanded sidebar / drawer: opens
-            // below the trigger.
             collapsed ? 'left-full top-0 ml-2' : 'left-0 top-full mt-2',
           )}
         >
           <div className="flex max-h-[60vh] flex-col overflow-y-auto px-1 py-1">
-            {/* Active account — pinned at the top, marked with a check. */}
-            <div className="flex items-center gap-2 rounded-md bg-bg px-2 py-2">
-              <Avatar account={active} />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="truncate text-sm font-semibold text-text-primary">
-                    @{active.username}
-                  </p>
-                  <PlanPill plan={active.plan} />
-                </div>
-                <SubLine account={active} />
-              </div>
-              <Check className="h-4 w-4 shrink-0 text-green-base" aria-label="Active" />
-            </div>
-
-            {others.length > 0 && (
-              <>
-                <div className="mx-2 my-1 h-px bg-border" aria-hidden />
-                {others.map((account) => (
-                  <button
-                    key={account.id}
-                    role="menuitem"
-                    type="button"
-                    onClick={() => handlePick(account)}
-                    aria-label={`Switch to @${account.username}`}
-                    className="flex items-center gap-2 rounded-md px-2 py-2 text-left transition-colors hover:bg-bg"
-                  >
-                    <Avatar account={account} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <p className="truncate text-sm font-medium text-text-primary">
-                          @{account.username}
-                        </p>
-                        <PlanPill plan={account.plan} />
-                      </div>
-                      <SubLine account={account} />
-                    </div>
-                  </button>
-                ))}
-              </>
-            )}
-
-            <div className="mx-2 my-1 h-px bg-border" aria-hidden />
-            <Link
-              to="/signup/connect-instagram"
-              role="menuitem"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-blue-text transition-colors hover:bg-blue-tint"
-            >
-              <span
-                aria-hidden
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-tint"
-              >
-                <Plus className="h-4 w-4" />
-              </span>
-              Add account
-            </Link>
+            <PanelContent
+              active={active}
+              others={others}
+              onPick={handlePick}
+              onAddAccountClick={() => setOpen(false)}
+            />
           </div>
         </div>
       )}
+
+      {/* Sheet variant — fixed bottom sheet rendered via portal to
+          `document.body` so it escapes any transformed ancestor's
+          containing block (the mobile drawer applies `translate-x-0`
+          which would otherwise constrain `fixed` descendants to the
+          drawer's width instead of the viewport). Backdrop and ESC
+          both dismiss; z-[60] keeps this above the drawer (z-50). */}
+      {open &&
+        variant === 'sheet' &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Switch Instagram account"
+            className={`fixed inset-0 z-[60] flex items-end justify-center bg-black/40 transition-opacity duration-200 ${
+              mounted ? 'opacity-100' : 'opacity-0'
+            }`}
+            onClick={() => setOpen(false)}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={`flex w-full max-h-[80vh] flex-col overflow-hidden rounded-t-2xl bg-surface shadow-xl transition-transform duration-200 ease-out ${
+                mounted ? 'translate-y-0' : 'translate-y-full'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
+                <h3 className="text-base font-semibold text-text-primary">
+                  Switch account
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-text-muted hover:bg-bg hover:text-text-primary"
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+              <div className="flex flex-col overflow-y-auto px-1 py-1">
+                <PanelContent
+                  active={active}
+                  others={others}
+                  onPick={handlePick}
+                  onAddAccountClick={() => setOpen(false)}
+                />
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
+  )
+}
+
+// Shared panel content used by both variants. Active account row
+// is pinned at the top with a check; other rows tap-to-switch;
+// "Add account" link routes to the connect-Instagram signup flow.
+function PanelContent({ active, others, onPick, onAddAccountClick }) {
+  return (
+    <>
+      <div className="flex items-center gap-2 rounded-md bg-bg px-2 py-2">
+        <Avatar account={active} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <p className="truncate text-sm font-semibold text-text-primary">
+              @{active.username}
+            </p>
+            <PlanPill plan={active.plan} />
+          </div>
+          <SubLine account={active} />
+        </div>
+        <Check className="h-4 w-4 shrink-0 text-green-base" aria-label="Active" />
+      </div>
+
+      {others.length > 0 && (
+        <>
+          <div className="mx-2 my-1 h-px bg-border" aria-hidden />
+          {others.map((account) => (
+            <button
+              key={account.id}
+              role="menuitem"
+              type="button"
+              onClick={() => onPick(account)}
+              aria-label={`Switch to @${account.username}`}
+              className="flex items-center gap-2 rounded-md px-2 py-2 text-left transition-colors hover:bg-bg"
+            >
+              <Avatar account={account} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="truncate text-sm font-medium text-text-primary">
+                    @{account.username}
+                  </p>
+                  <PlanPill plan={account.plan} />
+                </div>
+                <SubLine account={account} />
+              </div>
+            </button>
+          ))}
+        </>
+      )}
+
+      <div className="mx-2 my-1 h-px bg-border" aria-hidden />
+      <Link
+        to="/signup/connect-instagram"
+        role="menuitem"
+        onClick={onAddAccountClick}
+        className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-blue-text transition-colors hover:bg-blue-tint"
+      >
+        <span
+          aria-hidden
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-tint"
+        >
+          <Plus className="h-4 w-4" />
+        </span>
+        Add account
+      </Link>
+    </>
   )
 }
 
