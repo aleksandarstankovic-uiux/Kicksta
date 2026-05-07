@@ -1,13 +1,10 @@
 import { useEffect, useRef } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import {
   BarChart3,
   Target,
   TrendingUp,
   Settings as SettingsIcon,
-  AlertTriangle,
-  Check,
-  Plus,
   Sun,
   Moon,
   LogOut,
@@ -15,8 +12,8 @@ import {
   Menu,
 } from 'lucide-react'
 import { useThemeStore } from '@/stores/useThemeStore'
-import { useAccounts } from '@/stores/useAccounts'
 import { useNavDrawer } from '@/stores/useNavDrawer'
+import AccountSwitcher from '@/components/AccountSwitcher'
 
 // Mobile primary navigation drawer. Trigger lives in the top-left
 // of the mobile header. Drawer structure mirrors the desktop sidebar
@@ -46,9 +43,6 @@ export default function MobileNavDrawer() {
 
   const theme = useThemeStore((s) => s.theme)
   const toggleTheme = useThemeStore((s) => s.toggleTheme)
-
-  const accounts = useAccounts((s) => s.accounts)
-  const activeId = useAccounts((s) => s.activeId)
 
   // Close on route change so navigating from inside the drawer
   // dismisses it without a manual click. Compare pathname so we
@@ -129,13 +123,18 @@ export default function MobileNavDrawer() {
         {/* Scrollable body — Instagram accounts (top) → Primary nav →
             empty space → Bottom (theme + log out). */}
         <div className="flex flex-1 flex-col overflow-y-auto">
-          {/* Instagram accounts — sits at the top so the user picks
-              "who" before "where." Tapping a non-active row promotes
-              that account; the drawer closes via the route-change
-              effect when the user navigates next, and we also dismiss
-              explicitly here so the change reflects immediately. */}
+          {/* Instagram accounts — single trigger row showing the
+              active account, dropdown opens below with the full list.
+              Same component the desktop sidebar mounts. Capped at
+              60vh + scroll inside, so 5 / 10 / 20 accounts all fit
+              gracefully without blowing out the drawer. The optional
+              `onAccountSwitched` callback dismisses the drawer when
+              the user picks a different account so the change
+              reflects on the page below immediately. */}
           <SectionLabel>Instagram accounts</SectionLabel>
-          <AccountSwitcherList accounts={accounts} activeId={activeId} onClose={() => setOpen(false)} />
+          <div className="px-3 pb-2">
+            <AccountSwitcher onAccountSwitched={() => setOpen(false)} />
+          </div>
 
           {/* Primary nav — same set as the desktop sidebar so both
               surfaces agree on what counts as "the navigation." */}
@@ -208,132 +207,6 @@ function SectionLabel({ children }) {
     <p className="px-4 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
       {children}
     </p>
-  )
-}
-
-// Inline account-switcher list. Mirrors the desktop sidebar
-// AccountSwitcher's dropdown content: active account at the top
-// with a check icon, others tap-to-switch, "Add account" link at
-// the bottom routing to the connect-Instagram signup flow.
-function AccountSwitcherList({ accounts, activeId, onClose }) {
-  const setActiveId = useAccounts((s) => s.setActiveId)
-  const active = accounts.find((a) => a.id === activeId) ?? accounts[0]
-  const others = accounts.filter((a) => a.id !== active.id)
-
-  return (
-    <div className="flex flex-col gap-1 px-3 pb-2">
-      <AccountRow account={active} active />
-      {others.map((account) => (
-        <AccountRow
-          key={account.id}
-          account={account}
-          onClick={() => {
-            setActiveId(account.id)
-            onClose()
-          }}
-        />
-      ))}
-      <Link
-        to="/signup/connect-instagram"
-        className="mt-1 flex items-center gap-3 rounded-lg border border-dashed border-border px-3 py-2.5 text-sm font-medium text-blue-text transition-colors hover:bg-blue-tint/40"
-      >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-tint">
-          <Plus className="h-4 w-4" />
-        </span>
-        Add account
-      </Link>
-    </div>
-  )
-}
-
-// AccountRow renders as a `<div>` when display-only (the active row)
-// and as a `<button>` when interactive (a non-active account that
-// can be switched to). Wrapping the row in a `<button>` previously
-// produced a confused a11y tree where the button label was the
-// concatenation of every descendant; this version gives screen
-// readers a clean "Switch to @username" affordance and marks the
-// active row with `aria-current="true"`.
-function AccountRow({ account, active = false, onClick }) {
-  const isDisconnected = account.connectionState === 'disconnected'
-  const baseClasses =
-    'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors'
-  const stateClasses = active ? 'bg-blue-tint' : 'hover:bg-bg'
-  const usernameClasses = `truncate text-sm font-medium ${
-    active ? 'text-blue-text' : 'text-text-primary'
-  }`
-
-  const inner = (
-    <>
-      <Avatar account={account} />
-      <div className="min-w-0 flex-1">
-        <p className={usernameClasses}>@{account.username}</p>
-        {isDisconnected ? (
-          <p className="flex items-center gap-1 truncate text-xs font-medium text-red-text">
-            <AlertTriangle className="h-3 w-3 shrink-0" />
-            Disconnected
-          </p>
-        ) : (
-          <p className="truncate text-xs text-text-muted">
-            {account.followers?.toLocaleString() ?? 0} followers
-          </p>
-        )}
-      </div>
-      {active && <Check className="h-4 w-4 shrink-0 text-blue-text" aria-hidden="true" />}
-    </>
-  )
-
-  if (active) {
-    return (
-      <div className={`${baseClasses} ${stateClasses}`} aria-current="true">
-        {inner}
-      </div>
-    )
-  }
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={`Switch to @${account.username}`}
-      className={`${baseClasses} ${stateClasses}`}
-    >
-      {inner}
-    </button>
-  )
-}
-
-function Avatar({ account }) {
-  const dotColor = (state) => {
-    switch (state) {
-      case 'connected':
-        return 'bg-green-base'
-      case 'warming_up':
-        return 'bg-blue-base'
-      case 'disconnected':
-        return 'bg-red-base'
-      default:
-        return 'bg-text-muted'
-    }
-  }
-  return (
-    <div className="relative h-9 w-9 shrink-0">
-      {account.profilePic ? (
-        <img
-          src={account.profilePic}
-          alt=""
-          className="h-9 w-9 rounded-full object-cover ring-1 ring-border"
-        />
-      ) : (
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-tint text-xs font-semibold text-blue-text ring-1 ring-border">
-          {account.username?.[0]?.toUpperCase() || '?'}
-        </div>
-      )}
-      {account.connectionState && (
-        <span
-          aria-hidden
-          className={`absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-surface ${dotColor(account.connectionState)}`}
-        />
-      )}
-    </div>
   )
 }
 
