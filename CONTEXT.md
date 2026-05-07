@@ -14,50 +14,49 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 
 ---
 
-## Resume context (2026-04-30)
+## Resume context (2026-05-07)
 
-**State of the working tree:** clean. All work committed. No worktrees in flight. Working directly on `main`.
+**State of the working tree:** clean except for the usual `.claude/settings.local.json` drift. All project work committed. No worktrees. Working directly on `main`.
 
 **Restore tags currently in place:**
-- `pre-settings-page-2026-04-29` — before user-settings-page work (`/account/*` build-out)
+- `pre-settings-page-2026-04-29` — before user-settings-page work
 - `pre-settings-fixes-2026-04-29` — before settings-fixes polish
-- `pre-targeting-engagement-split-2026-04-30` — before the most recent split (latest restore point)
+- `pre-targeting-engagement-split-2026-04-30` — before the most recent split
 
-If anything's regressed, hard-reset to the relevant tag.
+If anything's regressed, hard-reset to the relevant tag. (No new tag added for this round — many small iterations, no clear "before" boundary.)
 
-**Last shipped (most recent first):**
-- **Targeting / Engagement split** (8 commits, ending `32c8e50`) — `/growth` → `/engagement`, `/targets` → `/targeting` with `Targets` (default) + `Settings` tabs (`?tab=settings`). EngagementCard split into `WelcomeDmCard` + `CloseFriendsCard`. Like-after-follow inside `ModeCard`. `FiltersCard/Modal` renamed `AudienceFiltersCard/Modal`. `src/pages/growth/` deleted; `src/pages/targets/` → `src/pages/targeting/`. Old routes 301-redirect. Sidebar / drawer / bottom-tab labels: Growth → Engagement.
-- Mock-data consolidation (`mockInstagram` collapsed into `useAccounts`)
-- Layout refactor (theme prefers-color-scheme reverted to light default; ProfileDropdown; MobileNavDrawer; IG-disconnected banner; `/account/billing` merge; CLAUDE.md hamburger rule relaxed)
-- Settings-page polish + fixes (one outer card, modal-only edits, multi-card payment store, `/account/subscriptions/:id` standalone)
-- User settings page initial build (`/account/*` panels, `useUserProfile`/`usePaymentMethods`/`useSubscriptions` stores)
+**Last shipped (most recent first, summarized — see CHANGELOG for details):**
 
-**Pending specs queue (in agreed priority order):**
+- **Targeting page restructure round 3** (2026-05-06 → 07) — Page header now H1 + subtitle on the left, compact intrinsic-width pill switcher pinned upper-right. Switcher active-state recipe is **`bg-text-primary text-bg`** — a third tier on top of `bg-blue-tint` (nav) and `bg-blue-base` (CTAs). `TargetsHeroCard` rebuilt as a hero toolbar with a 4px left blue accent, title + slot pill on one row, 14px subtitle below, prominent Add CTA. `AddTargetSheet`'s Account/Hashtag switcher became an icon-only segmented control inline with (and to the right of) the input; the `Username` / `Hashtag` label was dropped (`aria-label` on the input preserves a11y). `TargetRow` no longer fills the processing row with `bg-green-tint/30` — too loud — pulsing `Following…` pill is the only signal.
+- **Targeting page-level polish** (2026-05-05) — Switcher iterations (pill → underlined → connected-tab → compact pill), Settings tab section headings (Engine / Audience / Lists), AddTargetSheet richer suggestion grid.
+- **Targeting + engagement polish round 2** (2026-05-05) — Modal headers centered, AddTarget subtitle shortened, AudienceFiltersModal subtitle added, TargetsHeroCard hero title inline, filter card border drop, W/B row spacing, CF segmented +/- icons, engagement card toggle moved to corner.
+- **Engagement enrichment + targeting modals visual identity** (2026-05-05) — Stats hero card on `/engagement`, recent-DMs sublist on Welcome DM card, Close Friends count + recent activity, modal chip color trio (blue / green / yellow → later reverted yellow → neutral), modal empty states.
+- **Targeting popup polish + targeting/engagement split** (2026-04-30) — Pulse halo on processing row, `TargetDetailDrawer` recent activity, demoted drawer buttons, full Targeting/Engagement page split.
 
-1. **Navigation cleanup** — drop duplicate Log out (sidebar bottom + ProfileDropdown both have it), drop the duplicate "Add account" path (AccountSwitcher + Plan & billing). Pick a single source for the IG status surface (AccountSwitcher dot vs. ProfileDropdown row). User pre-approved my proposal; needs spec + plan + execution.
-2. **Settings (mobile + billing history)** —
-   - Mobile nav: drop the menu-screen, replace with top segmented strip (option (a) decided).
-   - Billing history mobile: card-based rows + max-height scroll inside the card.
-   - Server placement: parked, user said "we will come back to that later." DO NOT move the Server card on its own — wait for explicit instruction.
-3. **Overview small fixes** — subtitle "How your account is growing." below the H1 + activity feed mobile cap (max-height ~5 rows, scrollable inside the card).
-4. **Targeting popup polish** — small pulsing "currently being processed" indicator on one TargetRow; "last 5 interactions" section inside `TargetDetailDrawer`; demote drawer buttons to ghost-bordered (Pause/Resume) + text-color (Remove) + ghost-bordered Restore — keep 44px tap targets but visually less inviting; spacing cleanup (`rounded-b-xl` artifact on TargetsHeroCard now that LiveActivityCard is gone).
-5. **Targeting modals visual identity (deeper brainstorm)** — Add target / Whitelist / Blacklist modals are bland; user wants color-coded chip headers per modal, suggestion chips with avatars, empty-state illustrations, etc. Needs its own brainstorm round before spec.
-6. **GrowthPlusBanner placement (revisit prompt)** — currently parked at the bottom of the Engagement page. User asked me to prompt them about its final home once everything else above is done. **Don't decide unilaterally** — surface this question before closing out the broader refactor pass.
+**Pending specs queue (in priority order):**
 
-**Open architectural decisions still locked in but not yet implemented:**
-- Navigation cleanup proposal (approved verbally, needs spec)
-- ProfileDropdown's IG status row vs. AccountSwitcher's status dot — pick one and remove the other in the nav cleanup spec
-- Settings server location — explicitly parked
+1. **GrowthPlusBanner placement** — currently parked at the bottom of `/engagement`. User asked me to surface this question before closing out the broader refactor pass. **Don't decide unilaterally.**
+2. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove). Reasonable scope, just deferred.
+3. **Targeting empty state polish** — user said "defer until layout work done." Now that the layout is settled, this is unblocked. Big icon + headline + sub + CTA inline (lucide pattern, not bespoke SVG).
+4. **AddTargetSheet copy polish** — new note from this session's review: the `@`/`#` input prefix duplicates the active switcher icon. Pick one. Also the helper text + typeahead can stack visually noisy. Cancel button is currently `bg-bg`, low weight — could go ghost-bordered.
 
-**Deferred (from earlier sessions, not in this queue but worth knowing):**
-- Chrome-level System Status surface (PRODUCT.md says "always visible with timestamps") — see deferred-items list, item 11
+**Open architectural decisions:**
+- **Active-state recipe trio** — formalize in `CLAUDE.md`:
+  - `bg-blue-tint text-blue-text` → sidebar / "current view" nav.
+  - `bg-blue-base text-white` → primary CTAs.
+  - `bg-text-primary text-bg` → page-level view switchers / dark-fill emphasis.
+- **TargetsHeroCard layout** — landed at "left-accent + title + slot pill + 14px subtitle + Add CTA right." Don't revisit unless there's a fresh complaint.
+- **Page switcher position** — landed at "upper-right of header (sm+), stacks below subtitle on mobile." Don't revisit.
+- **AddTargetSheet input row** — landed at "input on left, icon-only switcher on right, no label." Don't revisit.
+
+**Deferred (not in this queue but worth knowing):**
+- Chrome-level System Status surface (PRODUCT.md says "always visible with timestamps")
 - Cancel subscription 6-step modal flow (fully spec'd in PRODUCT.md, currently a stub modal)
 - Upgrade plan UX (currently a stub modal)
 - In-product Add subscription flow (currently bounces to `/signup/connect-instagram`)
-- Per-subscription card override (separate spec eventually)
 - Real auth, real card processing, real email verification — all V1 mocks
 
-**Skill usage hint for the next session:** when in doubt about whether to ship or brainstorm, prefer brainstorming first via `superpowers:brainstorming` for anything user-facing. The refactor work has been spec → plan → subagent-driven exec.
+**Skill usage hint for the next session:** the targeting iterations went well as inline edits with quick proposals + commits, NOT through the heavyweight brainstorm → spec → plan → exec loop. For small visual touch-ups on existing components, prefer the lighter pattern (propose options inline, ship on confirmation). For new features or restructures touching ≥3 files, return to the spec → plan flow.
 
 ---
 

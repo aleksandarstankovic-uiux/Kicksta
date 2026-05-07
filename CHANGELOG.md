@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-05-06 → 2026-05-07 — Targeting page restructure (round 3)
+
+Multi-day iteration on the Targeting page header, switcher, and Targets toolbar. Many intermediate states were tried and discarded — the entries below describe the final landed state, not the journey.
+
+### Changed
+- **Page header layout**: H1 + subtitle now stack on the left, page-level pill switcher pinned to the upper-right (sm+). Stacks on mobile with the switcher dropping below the subtitle, still left-aligned and intrinsic-width.
+- **Page switcher**: compact intrinsic-width pill (`inline-flex bg-bg border border-border rounded-full p-1`), `h-9` tabs with icon + label. Active state uses **`bg-text-primary text-bg shadow-sm`** — a third active-state recipe distinct from sidebar nav (`bg-blue-tint`) and primary CTAs (`bg-blue-base`), reserving the dark-fill for page-level view switchers. Page subtitle is constant (no per-tab swap).
+- **`TargetsHeroCard`**: redesigned as a hero toolbar with a 4px `border-l-blue-base` left accent. Layout is `[Audience sources] [12/30 pill]` on one row, 14px subtitle below ("Accounts and hashtags Kicksta follows to grow your audience."), Add target CTA pinned right. Title deliberately avoids the word "Targets" (already in the active tab). No chip — eliminated the icon-repetition with the switcher's Crosshair.
+- **`AddTargetSheet`**: account/hashtag switcher restructured into an icon-only segmented control sitting **to the right of the input** on the same row. 40×40 buttons inside `h-12 rounded-lg border border-border bg-bg p-1`, active state matches the page switcher (`bg-text-primary text-bg`). The "Username" / "Hashtag" label above the input was dropped — the active switcher icon and the input prefix (`@`/`#`) communicate type; an `aria-label` on the input preserves the accessible name.
+- **`AddTargetSheet` body padding**: trimmed from `py-5` to `py-4` to remove dead space above the input.
+- **`TargetRow` processing state**: dropped the `bg-green-tint/30` row fill that was added in the previous round — too loud for the dashboard's restraint. The pulsing `Following…` pill is the only signal now.
+
+### Notes
+- Active-state recipes are now formalized at three tiers: `bg-blue-tint` (sidebar / "current view" nav), `bg-blue-base` (primary CTAs), `bg-text-primary` (page-level switchers / dark-fill emphasis). Document this in CLAUDE.md if it isn't already.
+
+---
+
 ## 2026-05-05 — Targeting page-level polish
 
 ### Changed
