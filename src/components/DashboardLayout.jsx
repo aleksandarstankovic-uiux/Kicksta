@@ -126,18 +126,22 @@ export function NotificationBell() {
 }
 
 // Primary navigation — used by both the desktop sidebar and the
-// mobile drawer. Settings is included so account-level config sits
-// alongside the other primary destinations.
+// mobile drawer. Settings sits in the bottom zone of each surface
+// rather than the primary nav (it's account-level config, not
+// product surface).
 const PRIMARY_NAV = [
   { to: '/', icon: BarChart3, label: 'Overview' },
   { to: '/targeting', icon: Target, label: 'Targeting' },
   { to: '/engagement', icon: TrendingUp, label: 'Engagement' },
-  { to: '/account', icon: SettingsIcon, label: 'Settings' },
+  // Growth+ — premium add-on surface. Sparkles icon matches the
+  // existing GrowthPlusBanner / signup chip identity. Page itself
+  // is not built yet; the link will land on a blank route until it is.
+  { to: '/growth-plus', icon: Sparkles, label: 'Growth+' },
 ]
 
-// Mobile bottom tab bar — same first three primary destinations,
-// Settings deliberately omitted (lower-frequency on mobile, lives in
-// the drawer instead so the bottom strip stays tight at 3 tabs).
+// Mobile bottom tab bar — first three primary destinations only.
+// Growth+ stays drawer-only on mobile so the bottom strip doesn't
+// get cramped (Intercom takes 72px of the right edge).
 const BOTTOM_TAB_BAR = PRIMARY_NAV.slice(0, 3)
 
 // Bottom zone of the desktop sidebar. Chrome + system actions only
@@ -163,6 +167,27 @@ function SidebarBottomZone({ collapsed, setCollapsed }) {
         collapsed ? 'px-2' : 'px-3',
       )}
     >
+      {/* Settings — account-level config. Lives in the bottom zone
+          rather than the primary nav so the primary nav reads as
+          "product surfaces" only. Active when path starts with
+          `/account` so subscription drilldowns also light up. */}
+      <NavLink
+        to="/account"
+        title={collapsed ? 'Settings' : undefined}
+        className={({ isActive }) =>
+          cn(
+            'flex items-center rounded-lg text-sm font-medium transition-colors',
+            collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
+            isActive
+              ? 'bg-blue-tint text-blue-text'
+              : 'text-text-secondary hover:bg-bg hover:text-text-primary'
+          )
+        }
+      >
+        <SettingsIcon className="h-5 w-5 shrink-0" />
+        {!collapsed && 'Settings'}
+      </NavLink>
+
       {/* Signup-flow dev shortcut. Vite strips this branch from
           production builds, so end users never see the link. */}
       {import.meta.env.DEV && (

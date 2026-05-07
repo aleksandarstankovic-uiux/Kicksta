@@ -4,6 +4,7 @@ import {
   BarChart3,
   Target,
   TrendingUp,
+  Sparkles,
   Settings as SettingsIcon,
   Sun,
   Moon,
@@ -30,7 +31,7 @@ const NAV_TABS = [
   { to: '/', icon: BarChart3, label: 'Overview', end: true },
   { to: '/targeting', icon: Target, label: 'Targeting' },
   { to: '/engagement', icon: TrendingUp, label: 'Engagement' },
-  { to: '/account', icon: SettingsIcon, label: 'Settings' },
+  { to: '/growth-plus', icon: Sparkles, label: 'Growth+' },
 ]
 
 export default function MobileNavDrawer() {
@@ -150,18 +151,13 @@ export default function MobileNavDrawer() {
                 key={to}
                 to={to}
                 end={end}
-                className={({ isActive }) => {
-                  // For Settings (/account) treat any descendant as
-                  // active so subscription drilldowns also light up
-                  // the row.
-                  const active =
-                    to === '/account' ? pathname.startsWith('/account') : isActive
-                  return `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                    active
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                    isActive
                       ? 'bg-blue-tint text-blue-text'
                       : 'text-text-secondary hover:bg-bg hover:text-text-primary'
                   }`
-                }}
+                }
               >
                 <Icon className="h-5 w-5 shrink-0" />
                 {label}
@@ -174,10 +170,27 @@ export default function MobileNavDrawer() {
               drawer layout. */}
           <div className="flex-1" />
 
-          {/* Bottom group — theme toggle + Log out. Mirrors the
-              desktop sidebar's bottom zone (sans Collapse, which is
-              meaningless on mobile). */}
+          {/* Bottom group — Settings + theme toggle + Log out.
+              Mirrors the desktop sidebar's bottom zone (sans Collapse,
+              which is meaningless on mobile). Settings sits at the
+              top of the group as a NavLink that lights up on
+              `/account/*`. */}
           <div className="flex flex-col gap-1 border-t border-border px-3 py-3">
+            <NavLink
+              to="/account"
+              className={({ isActive }) => {
+                // /account/* descendants light up the row too.
+                const active = isActive || pathname.startsWith('/account')
+                return `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  active
+                    ? 'bg-blue-tint text-blue-text'
+                    : 'text-text-secondary hover:bg-bg hover:text-text-primary'
+                }`
+              }}
+            >
+              <SettingsIcon className="h-5 w-5 shrink-0" />
+              Settings
+            </NavLink>
             <button
               type="button"
               onClick={toggleTheme}
