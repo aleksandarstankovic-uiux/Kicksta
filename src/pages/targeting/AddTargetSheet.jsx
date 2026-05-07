@@ -206,10 +206,7 @@ export default function AddTargetSheet({ open, onClose }) {
                 with the input. Switching type clears any in-flight
                 input/match state so the user starts fresh. */}
             <div className="relative">
-              <label htmlFor="target-input" className="text-sm font-medium text-text-primary">
-                {type === 'account' ? 'Username' : 'Hashtag'}
-              </label>
-              <div className="mt-1.5 flex h-12 items-center gap-2">
+              <div className="flex h-12 items-center gap-2">
                 {/* Input field */}
                 <div className="flex h-12 flex-1 items-center overflow-hidden rounded-lg border border-border bg-surface px-3">
                   <span className="mr-1 text-text-muted">
@@ -223,6 +220,7 @@ export default function AddTargetSheet({ open, onClose }) {
                     onChange={(e) => setInput(e.target.value)}
                     className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
                     placeholder={type === 'account' ? 'username' : 'hashtag'}
+                    aria-label={type === 'account' ? 'Username' : 'Hashtag'}
                     autoComplete="off"
                   />
                   {/* Clear-X — only rendered while there's content to clear. */}
