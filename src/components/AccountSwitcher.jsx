@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
-import { AlertTriangle, Check, ChevronsUpDown, Plus, X } from 'lucide-react'
+import { AlertTriangle, Check, ChevronRight, ChevronsUpDown, Globe, Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAccounts } from '@/stores/useAccounts'
+import { useSubscriptions } from '@/stores/useSubscriptions'
+import { findServer } from '@/mocks/servers'
+import ChangeServerModal from '@/pages/account/ChangeServerModal'
 
 // Instagram account switcher — single trigger row showing the active
 // account plus a panel listing every connected account and an
@@ -25,9 +28,11 @@ export default function AccountSwitcher({
 }) {
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [serverModalOpen, setServerModalOpen] = useState(false)
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
   const setActiveId = useAccounts((s) => s.setActiveId)
+  const subscriptions = useSubscriptions((s) => s.subscriptions)
   const ref = useRef(null)
 
   // Click-outside + ESC dismissal — only used by the dropdown
@@ -69,6 +74,8 @@ export default function AccountSwitcher({
 
   const active = accounts.find((a) => a.id === activeId) ?? accounts[0]
   const others = accounts.filter((a) => a.id !== active.id)
+  const activeSubscription = subscriptions.find((s) => s.accountId === active.id) ?? null
+  const server = activeSubscription ? findServer(activeSubscription.server) : null
 
   const handlePick = (account) => {
     setActiveId(account.id)
@@ -120,6 +127,12 @@ export default function AccountSwitcher({
               others={others}
               onPick={handlePick}
               onAddAccountClick={() => setOpen(false)}
+              subscription={activeSubscription}
+              server={server}
+              onChangeServerClick={() => {
+                setOpen(false)
+                setServerModalOpen(true)
+              }}
             />
           </div>
         </div>
@@ -172,12 +185,27 @@ export default function AccountSwitcher({
                   onPick={handlePick}
                   onAddAccountClick={() => setOpen(false)}
                   density="comfy"
+                  subscription={activeSubscription}
+                  server={server}
+                  onChangeServerClick={() => {
+                    setOpen(false)
+                    setServerModalOpen(true)
+                  }}
                 />
               </div>
             </div>
           </div>,
           document.body,
         )}
+
+      {activeSubscription && createPortal(
+        <ChangeServerModal
+          open={serverModalOpen}
+          subscription={activeSubscription}
+          onClose={() => setServerModalOpen(false)}
+        />,
+        document.body,
+      )}
     </div>
   )
 }
@@ -196,6 +224,9 @@ function PanelContent({
   onPick,
   onAddAccountClick,
   density = 'compact',
+  subscription,
+  server,
+  onChangeServerClick,
 }) {
   const rowClasses =
     density === 'comfy'
@@ -217,6 +248,31 @@ function PanelContent({
         </div>
         <Check className="h-4 w-4 shrink-0 text-green-base" aria-label="Active" />
       </div>
+
+      {server && onChangeServerClick && (
+        <button
+          type="button"
+          onClick={onChangeServerClick}
+          aria-label={`Change server for @${active.username} (currently ${server.label})`}
+          className={`${rowClasses} text-left transition-colors hover:bg-bg`}
+        >
+          <span
+            aria-hidden
+            className={`flex shrink-0 items-center justify-center rounded-full bg-blue-tint text-blue-text ring-1 ring-border ${
+              density === 'comfy' ? 'h-8 w-8' : 'h-7 w-7'
+            }`}
+          >
+            <Globe className={density === 'comfy' ? 'h-4 w-4' : 'h-3.5 w-3.5'} aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-medium text-text-primary">
+              Server: {server.label}
+            </div>
+            <div className="truncate text-xs text-text-muted">{server.region}</div>
+          </div>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden="true" />
+        </button>
+      )}
 
       {others.length > 0 && (
         <>
