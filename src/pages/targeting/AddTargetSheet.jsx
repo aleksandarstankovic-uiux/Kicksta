@@ -336,16 +336,20 @@ export default function AddTargetSheet({ open, onClose }) {
               </div>
             )}
 
-            {/* Suggestions — browse surface that stays visible even
-                while the typeahead is showing results. Rendered as a
-                2-col grid of richer rows (avatar + handle + count
-                subline) so the user has actual signal to pick from
-                rather than a wall of tiny chips. */}
+            {/* Suggestions — horizontal scroller of compact chips. Stays
+                visible while the typeahead is showing results. The
+                -mx-4/px-4 trick lets the row extend full-width while
+                keeping the first/last chip from sitting flush to the
+                popup edge. Snap-x proximity so swipes settle on chip
+                boundaries without being rigid. Scrollbar hidden. */}
             <div className="mt-6">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
                 Suggestions
               </p>
-              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <div
+                className="-mx-4 mt-2 flex snap-x snap-proximity gap-2 overflow-x-auto scroll-px-4 px-4 [&::-webkit-scrollbar]:hidden"
+                style={{ scrollbarWidth: 'none' }}
+              >
                 {suggestions.map((s) => {
                   const isHashtag = type === 'hashtag'
                   const label = isHashtag ? `#${s.hashtag}` : `@${s.username}`
@@ -360,9 +364,9 @@ export default function AddTargetSheet({ open, onClose }) {
                       key={label}
                       type="button"
                       onClick={() => handlePickSuggestion(s)}
-                      className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3 text-left transition-colors hover:border-border-strong hover:bg-bg"
+                      className="flex w-[88px] shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg border border-border bg-surface p-2 text-center transition-colors hover:border-border-strong hover:bg-bg"
                     >
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-xs font-semibold text-text-secondary ring-1 ring-border">
+                      <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-bg text-xs font-semibold text-text-secondary ring-1 ring-border">
                         {isHashtag ? (
                           <Hash className="h-4 w-4" aria-hidden="true" />
                         ) : s.profilePic ? (
@@ -375,13 +379,11 @@ export default function AddTargetSheet({ open, onClose }) {
                           letter
                         )}
                       </span>
-                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span className="truncate text-sm font-medium text-text-primary">
-                          {label}
-                        </span>
-                        <span className="truncate text-xs text-text-muted">
-                          {subline}
-                        </span>
+                      <span className="w-full truncate text-xs font-medium text-text-primary">
+                        {label}
+                      </span>
+                      <span className="w-full truncate text-[11px] text-text-muted">
+                        {subline}
                       </span>
                     </button>
                   )
