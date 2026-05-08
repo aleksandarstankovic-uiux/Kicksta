@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-05-08 — Billing structure
+
+Fourth of five specs from the 2026-05-08 brainstorm. Three commits across `PaymentMethodsCard.jsx` and `BillingPanel.jsx`. All three Billing sections (Payment method, Subscriptions, Billing history) now share an identical shape and behave consistently on both viewports. Resolves the deferred polish-pass "no weight at the top" complaint (#15) without resorting to outer card wrappers.
+
+### Changed
+- **`PaymentMethodsCard` is flattened.** Outer `rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6` wrapper is replaced with a plain `flex flex-col gap-2 md:gap-3`. The chip+title+tooltip+Add-card row becomes a section header (no enclosing card). The `<ul>` of CardRow children loses its `mt-4`; the wrapper's gap applies the spacing. Each `CardRow <li>` already has its own border so the rows continue to read as card-style children.
+- **Subscriptions section header gains an "Add subscription" `<Link>`** routed to `/signup/ig-preview` — same destination as `AccountSwitcher`'s "Add account," because adding a subscription = connecting a new IG account. Recipe matches Payment method's "Add card" button exactly: `inline-flex h-10 ... rounded-lg border bg-surface`, Plus icon, label visible at `sm:+` and icon-only at `<sm:`.
+- **Subscriptions empty-state copy** when `subs.length === 0`: `No subscriptions yet — connect your first Instagram account to get started.` Replaces the previous silent empty render.
+- **Mobile per-section gap is `gap-2 md:gap-3`** across all three sections. Header sits ~8px above first child card on mobile, ~12px on `md:+`. Anchors each section header without needing card chrome.
+
+### Decisions (locked, don't revisit)
+- **All three Billing sections share the same shape.** Section header (chip + title + count? + tooltip + action?) above, card-style children below, no enclosing card. Path A from the brainstorm; Path B (wrap Subscriptions/Billing-history in cards) was explicitly rejected because it creates "card containing cards" nesting.
+- **Add subscription is in the section header, not as a full-width row at the bottom.** Single discovery affordance; mirrors Payment method's existing pattern.
+- **Billing history header has no count pill.** Read-only section; gap-tightening alone restores parity with the other section headers. (Polish-pass folded #15 → "tighten gap, don't add count.")
+- **`<Link>` from `react-router-dom`, not a `<button>` calling `navigate()`.** Lets cmd-click / middle-click open in a new tab, the way users expect for navigation affordances.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-08-billing-structure-design.md`
+- Plan: `docs/superpowers/plans/2026-05-08-billing-structure.md`
+- Commits: bccac12, 53e3f1b, e23c3b7
+
+---
+
 ## 2026-05-08 — Engagement collapse
 
 Third of five specs from the 2026-05-08 brainstorm. Three commits across `WelcomeDmPreview.jsx`, `WelcomeDmCard.jsx`, and `CloseFriendsCard.jsx`.
