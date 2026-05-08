@@ -21,7 +21,7 @@ function isLocked(user) {
 const CF_MODES = [
   {
     value: 'add',
-    label: 'Add new followers',
+    label: 'Add followers',
     icon: Plus,
   },
   {
@@ -60,10 +60,10 @@ export default function CloseFriendsCard({ onRequestUpgrade }) {
                   Advanced
                 </span>
               )}
-              <InfoTooltip text="Automatically manage your Close Friends list as followers come and go." />
+              <InfoTooltip text="Adds your followers to your Close Friends list, and removes anyone who unfollows." />
             </div>
             <p className="mt-0.5 text-xs leading-relaxed text-text-secondary">
-              Automatically manage your Close Friends list.
+              Add followers to Close Friends; remove ex-followers.
             </p>
           </div>
         </div>
@@ -154,16 +154,11 @@ function CardToggle({ checked, locked, onClick, ariaLabel }) {
 // log of recent adds/removes. Only mounts when the toggle is on AND the
 // user is on Advanced (the parent gates this with `showCfControls`).
 function CloseFriendsState() {
-  const { count, recent } = mockCloseFriendsState
+  const { recent } = mockCloseFriendsState
   const items = recent.slice(0, 5)
   return (
     <div className="mt-3 border-t border-border pt-3">
-      <p className="flex items-center gap-1.5 text-xs text-text-secondary">
-        <Star className="h-3.5 w-3.5 text-purple-text" aria-hidden="true" />
-        Currently {count} in close friends
-      </p>
-
-      <p className="mt-3 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
         Recent
       </p>
       {items.length === 0 ? (
