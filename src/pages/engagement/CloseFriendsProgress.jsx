@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Minus, Plus } from 'lucide-react'
 import {
   mockCloseFriendsProgress,
   mockCloseFriendsRecentHandles,
@@ -56,7 +57,12 @@ export default function CloseFriendsProgress({ mode, enabled }) {
         />
       </div>
       {enabled && (
-        <p className="mt-2 flex items-center gap-2 text-xs text-text-secondary animate-pulse">
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-text-secondary animate-pulse">
+          {mode === 'remove' ? (
+            <Minus className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden="true" />
+          ) : (
+            <Plus className="h-3.5 w-3.5 shrink-0 text-green-text" aria-hidden="true" />
+          )}
           {verb} {handle}…
         </p>
       )}
