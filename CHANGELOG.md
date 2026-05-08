@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-05-08 — Engagement collapse
+
+Third of five specs from the 2026-05-08 brainstorm. Three commits across `WelcomeDmPreview.jsx`, `WelcomeDmCard.jsx`, and `CloseFriendsCard.jsx`.
+
+### Changed
+- **Welcome DM bubble has a Pencil edit icon** (`text-text-secondary`, top-right corner). The whole bubble + the icon both still open the edit modal — the icon is a visual marker, not the only target. The "Click the bubble to edit" / "Edit becomes available when on" helper paragraph below the bubble is removed; the icon makes the affordance self-explanatory.
+- **Both engagement cards' "Recent" activity sections are collapsible (default closed)**. New inline `CollapsibleRecents({ title, children })` helper added to each card file (intentionally duplicated rather than lifted to a shared module — ~15 lines × 2 not worth its own file). Header is the existing eyebrow recipe (`text-[11px] uppercase tracking-wide text-text-muted`) with a `ChevronDown` on the right that rotates 180° when expanded. No height animation; just toggle visibility (consistent with dashboard restraint).
+  - `WelcomeDmCard` → `RecentDmsSubsection` wrapped via `CollapsibleRecents title="Recent DMs sent"`.
+  - `CloseFriendsCard` → `CloseFriendsState` wrapped via `CollapsibleRecents title="Recent"`.
+
+### Decisions (locked, don't revisit)
+- **`CollapsibleRecents` is duplicated inline per card.** Not lifted to a shared component. If a tweak is ever needed (typo, class fix), apply it in BOTH files in a single follow-up.
+- **No count badge in the disclosure header.** Just the label + chevron. Rejected during brainstorm.
+- **No height animation on expand/collapse.** Visibility toggle only.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-08-engagement-collapse-design.md`
+- Plan: `docs/superpowers/plans/2026-05-08-engagement-collapse.md`
+- Commits: d35fc6a, 8d5e746, ebcbd03
+
+---
+
 ## 2026-05-08 — Add Target popup redesign
 
 Second of five specs from the 2026-05-08 brainstorm. Six commits, single-file refactor of `src/pages/targeting/AddTargetSheet.jsx` plus mock-data flag additions.
