@@ -1,4 +1,5 @@
-import { Layers, Receipt } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Layers, Plus, Receipt } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 import { useSubscriptions } from '@/stores/useSubscriptions'
@@ -23,10 +24,10 @@ export default function BillingPanel() {
     <div className="flex flex-col gap-6">
       <PaymentMethodsCard />
 
-      {/* Subscriptions — read-only here. New subscriptions are
-          created by connecting a new Instagram account from the
-          sidebar AccountSwitcher (single source for adding
-          accounts). */}
+      {/* Subscriptions — one per connected Instagram account. The header
+          Add button routes to the same signup flow used by AccountSwitcher's
+          "Add account" so adding a subscription from here connects a new IG
+          account end-to-end. */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-2">
           <CardChip color="blue" icon={Layers} />
@@ -35,12 +36,26 @@ export default function BillingPanel() {
             {subs.length}
           </span>
           <InfoTooltip text="One subscription per connected Instagram account. Each one bills against your primary payment method." />
+          <Link
+            to="/signup/ig-preview"
+            aria-label="Add subscription"
+            className="ml-auto inline-flex h-10 shrink-0 items-center gap-1 rounded-lg border border-border bg-surface px-3 text-sm font-medium text-text-primary hover:bg-bg"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Add subscription</span>
+          </Link>
         </div>
-        <div className="flex flex-col gap-3">
-          {subs.map((sub) => (
-            <SubscriptionCard key={sub.id} subscription={sub} />
-          ))}
-        </div>
+        {subs.length === 0 ? (
+          <p className="text-sm text-text-secondary">
+            No subscriptions yet — connect your first Instagram account to get started.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {subs.map((sub) => (
+              <SubscriptionCard key={sub.id} subscription={sub} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Billing history */}
