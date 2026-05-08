@@ -327,6 +327,27 @@ export default function AddTargetSheet({ open, onClose }) {
               </div>
             )}
 
+            {pickedMatch && duplicate && (
+              <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-tint p-3 text-red-text">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <p className="flex-1 text-xs leading-relaxed">
+                  You already have this target.
+                  {duplicate.status === 'paused' && (
+                    <>
+                      {' '}
+                      <button
+                        type="button"
+                        onClick={handleResumeDuplicate}
+                        className="font-medium underline hover:opacity-80"
+                      >
+                        Resume it
+                      </button>
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
+
             {pickedMatch && type === 'account' && buildLimitedTargetingMessage(pickedMatch) && (
               <div className="mt-3 flex items-start gap-2 rounded-lg bg-yellow-tint p-3 text-yellow-text">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
