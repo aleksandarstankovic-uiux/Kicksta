@@ -1,9 +1,13 @@
+import { Pencil } from 'lucide-react'
+
 // Chat-bubble preview shown beneath the Welcome DM toggle row.
 //
 // The bubble itself is the affordance — clicking it opens the edit
 // modal. Renders in BOTH states (on / off) so the card height stays
 // constant; the off-state shows muted placeholder copy and the click
-// handler is disabled.
+// handler is disabled. The Pencil icon in the top-right corner makes
+// the edit affordance visible at a glance; the entire bubble is still
+// clickable so the icon is a marker, not the only target.
 export default function WelcomeDmPreview({ message, onEdit, enabled }) {
   return (
     <div className="mt-2 pb-2">
@@ -12,7 +16,7 @@ export default function WelcomeDmPreview({ message, onEdit, enabled }) {
         onClick={enabled ? onEdit : undefined}
         disabled={!enabled}
         aria-label={enabled ? 'Edit welcome DM message' : undefined}
-        className={`group w-full rounded-2xl rounded-tl-sm border px-3 py-2 text-left text-sm leading-relaxed transition-all ${
+        className={`group relative w-full rounded-2xl rounded-tl-sm border px-3 py-2 pr-9 text-left text-sm leading-relaxed transition-all ${
           enabled
             ? 'cursor-pointer border-transparent bg-blue-tint text-text-primary hover:border-blue-base hover:bg-blue-tint/70 hover:shadow-sm'
             : 'cursor-not-allowed border-transparent bg-bg text-text-muted'
@@ -30,13 +34,13 @@ export default function WelcomeDmPreview({ message, onEdit, enabled }) {
             ? message
             : 'Toggle on to send a custom welcome message to new followers.'}
         </span>
+        {enabled && (
+          <Pencil
+            className="absolute right-2 top-2 h-3.5 w-3.5 text-text-secondary"
+            aria-hidden="true"
+          />
+        )}
       </button>
-      <p
-        className={`mt-1 text-xs ${enabled ? 'text-text-secondary' : 'text-text-muted'}`}
-        aria-hidden="true"
-      >
-        {enabled ? 'Click the bubble to edit' : 'Edit becomes available when on'}
-      </p>
     </div>
   )
 }
