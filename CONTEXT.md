@@ -14,7 +14,7 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 
 ---
 
-## Resume context (2026-05-07, late session)
+## Resume context (2026-05-08, end of session)
 
 **State of the working tree:** clean except for the usual `.claude/settings.local.json` drift. All project work committed. No worktrees. Working directly on `main`.
 
@@ -22,36 +22,51 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 - `pre-settings-page-2026-04-29`
 - `pre-settings-fixes-2026-04-29`
 - `pre-targeting-engagement-split-2026-04-30`
-- `pre-next-round-2026-05-07` — earlier today, before the navigation overhaul
+- `pre-next-round-2026-05-07`
+- `pre-next-session-2026-05-07` — before the start of today's work
+- `pre-next-session-2026-05-08` — at HEAD, end of today's work
 
 If anything's regressed, hard-reset to the relevant tag.
 
 **Last shipped (most recent first, summarized — see CHANGELOG for details):**
 
-- **Navigation overhaul** (2026-05-07, late) — Desktop sidebar and mobile drawer now agree on a single hierarchy: account switcher → primary nav (Overview / Targeting / Engagement / Growth+) → bottom zone (Settings / Theme / [Collapse on desktop] / Log out). `AccountSwitcher` extracted into `src/components/AccountSwitcher.jsx`, gains a `variant="sheet"` mode that renders a `createPortal`'d bottom sheet on mobile (was overlapping the drawer's nav). `ProfileDropdown.jsx` deleted; identity card removed from both surfaces. `NotificationBell` lifted via new `useNavDrawer` Zustand store so it can dismiss the drawer before opening its panel. Mobile top header bumped `z-20 → z-50` so the bell stays reachable while the drawer is open. Mobile bottom tab bar dropped the `pr-[72px]` Intercom reservation; tabs are now Overview / Targeting / Engagement / Settings, each `flex-1`. Add account in AccountSwitcher routes to `/signup/ig-preview` (the dev signup-flow shortcut is gone). Settings page mobile header rebuilt to match Targeting (H1 + subtitle + pill switcher).
-- **Targeting page restructure round 3** (2026-05-06 → 07) — Page header H1 + subtitle on the left, compact pill switcher pinned upper-right. `bg-text-primary text-bg` active-state recipe established as a third tier alongside `bg-blue-tint` (nav) and `bg-blue-base` (CTAs). `TargetsHeroCard` rebuilt with 4px left blue accent + title/slot-pill row + 14px subtitle + CTA. `AddTargetSheet` switcher became an icon-only segmented control inline-right of the input; "Username/Hashtag" label dropped. `TargetRow` processing tint dropped — pulsing `Following…` pill is the only signal.
-- **Targeting + engagement polish rounds 1–2** (2026-05-05) — see CHANGELOG.
-- **Targeting popup polish + targeting/engagement split** (2026-04-30) — see CHANGELOG.
+This session = five specs from a single brainstorm batch (18 items decomposed into one polish pass + four meaty specs), all shipped on `main`.
+
+- **Nav server-change** (2026-05-08, last) — `AccountSwitcher` panel gains a `Server: <Label>` row inside the active-account block (both dropdown + sheet variants). Tapping dismisses the panel and opens the existing `ChangeServerModal`. The detail page's editable `ServerCard` is replaced with a one-line read-only fact (`Server: <Label> · <Region>`); `ServerCard.jsx` deleted.
+- **Billing structure** (2026-05-08) — All three Billing sections share the same shape: section header (chip + title + count? + tooltip + Add button?) above, card-style children below, no enclosing card. `PaymentMethodsCard` flattened (outer wrapper dropped). Subscriptions section header gains an "Add subscription" `<Link>` styled identically to "Add card", routes to `/signup/ig-preview`. Subscriptions empty-state copy added. Per-section header→content gap is `gap-2 md:gap-3` (8px mobile, 12px desktop) so headers anchor against first child without card chrome.
+- **Engagement collapse** (2026-05-08) — Welcome DM bubble gets a Pencil icon top-right (whole bubble + icon both open the edit modal; helper text removed). Both engagement cards' "Recent" activity sections wrapped in an inline `CollapsibleRecents({title, children})` helper (default closed, click-to-expand, chevron rotates 180°). Helper duplicated per card by design — not lifted to a shared module.
+- **Add Target popup redesign** (2026-05-08) — Suggestions are now a horizontal scroller of 88×~110 vertical-stack chips (~3 visible mobile, ~5–6 desktop); `@/#` toggle moved LEFT of the input + inline prefix span removed (toggle's active icon is the prefix); picking a match collapses input row into a locked `SelectedSourcePill` (avatar + handle + count + clear-X); `private`/`verified` flags on suggestion + search mocks fire a yellow "limited targeting" warning above the suggestions; new red duplicate-target warning surfaces the existing duplicate state inside the pill layout (with `Resume it` link for paused targets).
+- **Polish pass** (2026-05-08, first) — Seven small fixes: account avatars switched to Pravatar (`https://i.pravatar.cc/80?u=<username>`) across `mocks/targets.js` + `mocks/accounts.js`; Targeting list `Follow-backs` column header right-aligned (`pr-12 → pr-9`); Whitelist/Blacklist input top spacing tightened (drop `mt-4`); CFA copy locked (`Add followers to Close Friends; remove ex-followers.`); CFA `Currently 23 in close friends` line dropped; CFA progress activity line gets leading green Plus / muted Minus per mode; InvoicesTable Download icon demoted from `text-blue-text` to `text-text-secondary hover:text-text-primary`.
+
+Earlier shipped (still relevant):
+- **Navigation overhaul** (2026-05-07) — see CHANGELOG.
+- **Targeting page restructure rounds 1–3** (2026-05-05 → 07) — see CHANGELOG.
 
 **Pending specs queue (in priority order):**
 
-1. **Growth+ page** — added to nav with route `/growth-plus`. Page itself isn't built yet; the link lands on a blank route. Build the actual page when ready.
+1. **Growth+ page** — route `/growth-plus` is in the nav but the page isn't built; the link lands on a blank route. **This is the natural next thing to build.**
 2. **GrowthPlusBanner placement** — currently parked at the bottom of `/engagement`. User asked me to surface this question before closing out the broader refactor pass. **Don't decide unilaterally.**
 3. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove). Reasonable scope, just deferred.
-4. **Targeting empty state polish** — user said "defer until layout work done." Layout is settled now, this is unblocked.
-5. **AddTargetSheet copy polish** — `@`/`#` input prefix duplicates the active switcher icon (pick one). Helper text + typeahead can stack visually noisy. Cancel button low weight (`bg-bg`).
-6. **Avatar identity ambiguity** (was #22 from the nav review) — IG-account avatars and Kicksta-user avatars look similar. Mostly mitigated by removing the user-identity card from nav, but reappears if a Kicksta-user avatar comes back later. Give it a distinct shape (e.g. `rounded-md` instead of `rounded-full`) when reintroduced.
+4. **Targeting empty state polish** — layout is settled, this is unblocked.
+5. **Cancel subscription 6-step modal flow** — currently a stub modal; the flow exists in mocks/spec but the full implementation hasn't shipped.
+6. **Upgrade plan UX** — currently a stub modal; surfaces from CFA / Welcome DM "Advanced" gates.
+7. **Avatar identity ambiguity** (was #22 from the nav review) — IG-account avatars and Kicksta-user avatars look similar. Mostly mitigated by removing the user-identity card from nav, but reappears if a Kicksta-user avatar comes back later. Give it a distinct shape (e.g. `rounded-md` instead of `rounded-full`) when reintroduced.
 
 **Open architectural decisions (locked, don't revisit):**
 
-- **Nav hierarchy** — desktop sidebar and mobile drawer agree: account switcher on top, primary nav (Overview / Targeting / Engagement / Growth+), bottom zone (Settings / Theme / [Collapse] / Log out). Mobile bottom tab bar: Overview / Targeting / Engagement / Settings (Growth+ drawer-only on mobile).
+- **Nav hierarchy** — desktop sidebar and mobile drawer agree: account switcher on top (with server row inside the active-account block), primary nav (Overview / Targeting / Engagement / Growth+), bottom zone (Settings / Theme / [Collapse] / Log out). Mobile bottom tab bar: Overview / Targeting / Engagement / Settings (Growth+ drawer-only on mobile).
 - **Active-state recipe trio** — `bg-blue-tint text-blue-text` (nav) · `bg-blue-base text-white` (CTAs) · `bg-text-primary text-bg` (page-level switchers).
 - **AccountSwitcher** — single shared component, two variants:
   - `variant="dropdown"` for desktop sidebar.
   - `variant="sheet"` for mobile drawer; rendered via `createPortal` to escape transformed-ancestor containing blocks.
+  - Server row sits inside `PanelContent`'s active block (between active-account row and the divider to "others"). Server is per-subscription, edited from here only — single edit path.
+- **Mock avatars** — Pravatar (`https://i.pravatar.cc/80?u=<seed>`) is the deterministic mock-avatar source for V1. Seed = the IG handle (without `@`). Production swaps in real IG profile pics — same `profilePic` field, different source.
+- **Polish-pass icon-role rules**: passive row actions (download, more-options) = `text-text-secondary` hover→`text-text-primary` (no blue download); destructive row actions (X-on-row) = `text-text-secondary` hover→`text-red-text`; constructive primary actions (Plus on standalone "Add" rows) = `text-blue-text` on `bg-blue-tint`.
+- **Billing section shape** — three parallel sections (Payment method, Subscriptions, Billing history) all share the pattern `[chip] Title [count?] (i) ... [Add button?]` above, card-style children below, no enclosing card. `gap-2 md:gap-3` between header and content.
+- **Add Target popup state** — pill xor input row, never both. Picking a match (suggestion or typeahead) replaces the entire `[toggle][input]` row with a locked `SelectedSourcePill`; clear-X restores the input. Two-warning slot order: red duplicate (top) → yellow limited-targeting (below) → suggestions scroller.
+- **Engagement `CollapsibleRecents` helper** — duplicated inline per card. Not lifted to a shared component. If a tweak is ever needed (typo, class fix), apply it in BOTH files in a single follow-up.
 - **TargetsHeroCard layout** — left-accent + title + slot pill + 14px subtitle + Add CTA right.
 - **Page switcher position** — upper-right of header (sm+), stacks below subtitle on mobile.
-- **AddTargetSheet input row** — input on left, icon-only switcher on right, no `Username/Hashtag` label (`aria-label` on input preserves a11y).
 - **Identity not in nav** — profile/identity is reachable via Settings only. No "Alex Johnson" card anywhere in chrome.
 
 **Deferred (not in queue but worth knowing):**
@@ -63,7 +78,15 @@ If anything's regressed, hard-reset to the relevant tag.
 - Intercom widget — when added, may need to reintroduce a right offset on the mobile bottom tab bar (was `pr-[72px]`, dropped this session)
 - DEV-only signup-flow shortcut — removed; `/signup/ig-preview` is reachable via Add account in AccountSwitcher. If we want a fast jump-into-signup for dev, re-add via a small dev-tools surface rather than mounting it in the production nav.
 
-**Skill usage hint for the next session:** the navigation overhaul this session worked well as a series of small specs + immediate-execute cycles. For nav/UI changes, prefer the lighter pattern (propose options inline, ship on confirmation, verify in browser via the preview server). The `mcp__Claude_Preview__*` tools are reliable — use them to actually open the page and click through before claiming a fix is done. The drawer-vs-sheet `createPortal` bug from this session is the canonical "should have tested in-browser" lesson.
+**Skill usage hint for the next session:** the 2026-05-08 batch confirmed that the brainstorming → writing-plans → subagent-driven-development cycle scales well to multiple specs in one session. Pattern that worked:
+
+1. Decompose a big batch into "polish pass for trivial fixes + individual specs for design-heavy ones" (see the C decomposition we used).
+2. For each spec: brainstorm one section at a time and confirm before moving on; write the spec doc; commit it; pause for user review.
+3. For each plan: write it task-by-task with bite-sized steps and commit-per-task. Use cheap models (haiku) for mechanical implementer tasks, sonnet for multi-file integration tasks.
+4. Verify in-browser via `mcp__Claude_Preview__*` between tasks. Prefer `preview_inspect` / `preview_eval` for exact-state checks; screenshots are unreliable for colors and pixel alignment.
+5. Update CHANGELOG when a spec ships, not at the end of session.
+
+The `createPortal(..., document.body)` pattern (originally from the nav-drawer fix on 2026-05-07) is now used in three places: the `AccountSwitcher` mobile sheet, the `ChangeServerModal` rendered from `AccountSwitcher`, and any modal rendered from a transformed ancestor. If you add a modal that gets clipped to a parent's bounds, this is almost certainly why.
 
 ---
 
