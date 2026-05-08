@@ -28,7 +28,7 @@ export default function BillingPanel() {
           Add button routes to the same signup flow used by AccountSwitcher's
           "Add account" so adding a subscription from here connects a new IG
           account end-to-end. */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2 md:gap-3">
         <div className="flex items-center gap-2">
           <CardChip color="blue" icon={Layers} />
           <h2 className="text-base font-semibold text-text-primary">Subscriptions</h2>
@@ -59,7 +59,7 @@ export default function BillingPanel() {
       </div>
 
       {/* Billing history */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2 md:gap-3">
         <div className="flex items-center gap-2">
           <CardChip color="neutral" icon={Receipt} />
           <h2 className="text-base font-semibold text-text-primary">Billing history</h2>
