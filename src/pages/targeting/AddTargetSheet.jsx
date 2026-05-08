@@ -207,44 +207,10 @@ export default function AddTargetSheet({ open, onClose }) {
                 input/match state so the user starts fresh. */}
             <div className="relative">
               <div className="flex h-12 items-center gap-2">
-                {/* Input field */}
-                <div className="flex h-12 flex-1 items-center overflow-hidden rounded-lg border border-border bg-surface px-3">
-                  <span className="mr-1 text-text-muted">
-                    {type === 'account' ? '@' : '#'}
-                  </span>
-                  <input
-                    id="target-input"
-                    ref={inputRef}
-                    type="text"
-                    value={input.replace(/^[@#]/, '')}
-                    onChange={(e) => setInput(e.target.value)}
-                    className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
-                    placeholder={type === 'account' ? 'username' : 'hashtag'}
-                    aria-label={type === 'account' ? 'Username' : 'Hashtag'}
-                    autoComplete="off"
-                  />
-                  {/* Clear-X — only rendered while there's content to clear. */}
-                  {input && (
-                    <button
-                      type="button"
-                      aria-label="Clear input"
-                      onClick={() => {
-                        setInput('')
-                        setMatches([])
-                        setPickedMatch(null)
-                        inputRef.current?.focus()
-                      }}
-                      className="ml-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-bg hover:text-text-primary"
-                    >
-                      <X className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Icon-only segmented control. Active = bg-text-primary
-                    text-bg (same recipe as the page-level + body
-                    switchers). aria-pressed on each so screen readers
-                    read the toggle state. */}
+                {/* Icon-only segmented control on the LEFT — serves as the prefix.
+                    Active = bg-text-primary text-bg (same recipe as the page-level
+                    + body switchers). aria-pressed on each so screen readers read
+                    the toggle state. */}
                 <div className="inline-flex h-12 shrink-0 items-center gap-1 rounded-lg border border-border bg-bg p-1">
                   {[
                     { value: 'account', icon: AtSign, label: 'Account mode' },
@@ -274,6 +240,37 @@ export default function AddTargetSheet({ open, onClose }) {
                       </button>
                     )
                   })}
+                </div>
+
+                {/* Input field — no inline @/# prefix span. Plain placeholder. */}
+                <div className="flex h-12 flex-1 items-center overflow-hidden rounded-lg border border-border bg-surface px-3">
+                  <input
+                    id="target-input"
+                    ref={inputRef}
+                    type="text"
+                    value={input.replace(/^[@#]/, '')}
+                    onChange={(e) => setInput(e.target.value)}
+                    className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
+                    placeholder={type === 'account' ? 'username' : 'hashtag'}
+                    aria-label={type === 'account' ? 'Username' : 'Hashtag'}
+                    autoComplete="off"
+                  />
+                  {/* Clear-X — only rendered while there's content to clear. */}
+                  {input && (
+                    <button
+                      type="button"
+                      aria-label="Clear input"
+                      onClick={() => {
+                        setInput('')
+                        setMatches([])
+                        setPickedMatch(null)
+                        inputRef.current?.focus()
+                      }}
+                      className="ml-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-bg hover:text-text-primary"
+                    >
+                      <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                  )}
                 </div>
               </div>
 
