@@ -5,6 +5,34 @@
 
 ---
 
+## 2026-05-08 — Add Target popup redesign
+
+Second of five specs from the 2026-05-08 brainstorm. Six commits, single-file refactor of `src/pages/targeting/AddTargetSheet.jsx` plus mock-data flag additions.
+
+### Changed
+- **Suggestions are a horizontal scroller** (was 2-col grid of card-buttons). Each chip is 88px wide, vertical-stack: 40×40 avatar on top, `@handle` middle, count subline below. ~3 chips visible on mobile, ~5–6 on desktop. Snap-x proximity for chip-boundary settle. Hidden scrollbar (`[&::-webkit-scrollbar]:hidden` + `scrollbarWidth: 'none'`). The `-mx-4 px-4` trick lets the row extend full-width past the body padding without the first/last chip sitting flush.
+- **Account/Hashtag toggle moves to the LEFT of the input** and the inline `@`/`#` prefix span inside the input is removed. The toggle's active icon now serves as the prefix; placeholder is plain `username` or `hashtag` with no symbol. Input still strips `^[@#]` defensively on paste so users pasting `@fitness.inspo` resolve correctly.
+- **Picking a match collapses the toggle+input row into a locked pill** (`SelectedSourcePill` — inline helper at the bottom of `AddTargetSheet.jsx`). Pill anatomy: avatar + handle + count subline + clear-X. Tapping the X clears `pickedMatch` + `input` + `matches` and restores focus to the input. The previous "preview card" below the input (with its HealthPill) is dropped — the pill carries that information now. State is unambiguous: pill = picked, input = not picked. Solves the silent-deselect-on-typing trap.
+- **Inline yellow warning** above the suggestions when the picked account has `private` and/or `verified` flags. Three message variants (private only, verified only, both). Hashtag mode never shows this warning. Doesn't block submit — informational only. Uses `AlertTriangle` icon + `bg-yellow-tint text-yellow-text` recipe. New helper: `buildLimitedTargetingMessage(match)` returning the message string or `null`.
+- **Inline red duplicate warning** above the limited-targeting warning when the picked match is already a target. Replaces the previous helper-text approach (which was unreachable after the pill replaced the input row). For paused duplicates, includes an inline `Resume it` link that calls the existing `handleResumeDuplicate`. Add target button stays disabled (existing `canSubmit = pickedMatch && !duplicate` logic).
+
+### Mock data (additions)
+- `src/mocks/suggestedTargets.js`: `@fitfluencer` is `verified: true`; `@trainhard.daily` is `private: true`. Other entries flag-free.
+- `src/mocks/targetSearch.js` ACCOUNTS: `@gym.goals` and `@plantpowered` `verified: true`; `@cardio.crew` `private: true`; `@lift.and.lunge` both `private: true, verified: true` (exercises the combined-message branch).
+
+### Decisions (locked, don't revisit)
+- **Pill replaces input row when picked** — the canonical "selected source" treatment for this popup. State must be unambiguous (pill xor input row, never both). When/if Whitelist + Blacklist popups get a similar polish pass, they should adopt the same pattern.
+- **Toggle-as-prefix recipe** — when an input has a small categorical mode picker, the picker can replace inline prefix glyphs (e.g. `@`, `#`, country code). The picker's active icon is the visual prefix.
+- **Limited-targeting warning is informational, not blocking.** Even verified + private accounts can be added — the user has been told what to expect.
+- **Two-warning slot order**: red duplicate (top) → yellow limited-targeting (below) → suggestions scroller. Both warnings can stack if a single match is somehow both a duplicate AND flagged (none in current mocks, but the layout supports it).
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-08-add-target-popup-design.md`
+- Plan: `docs/superpowers/plans/2026-05-08-add-target-popup.md`
+- Commits: 3f1c220, 7dab071, 1750007, c32f206, 1aa10f2, 49388f4
+
+---
+
 ## 2026-05-08 — Polish pass
 
 A batched commit set of seven small fixes confirmed in brainstorming on 2026-05-08 — first of five planned specs (Polish pass + Add Target popup + Engagement collapse + Billing structure + Nav server-change). All trivial mechanical changes; one commit per task.
