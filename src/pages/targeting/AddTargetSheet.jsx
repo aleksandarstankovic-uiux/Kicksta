@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AtSign, Crosshair, Hash, X } from 'lucide-react'
+import { AlertTriangle, AtSign, Crosshair, Hash, X } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useToasts } from '@/stores/useToasts'
 import { mockSuggestedTargets } from '@/mocks/suggestedTargets'
@@ -327,6 +327,15 @@ export default function AddTargetSheet({ open, onClose }) {
               </div>
             )}
 
+            {pickedMatch && type === 'account' && buildLimitedTargetingMessage(pickedMatch) && (
+              <div className="mt-3 flex items-start gap-2 rounded-lg bg-yellow-tint p-3 text-yellow-text">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <p className="text-xs leading-relaxed">
+                  {buildLimitedTargetingMessage(pickedMatch)}
+                </p>
+              </div>
+            )}
+
             {/* Suggestions — horizontal scroller of compact chips. Stays
                 visible while the typeahead is showing results. The
                 -mx-4/px-4 trick lets the row extend full-width while
@@ -442,4 +451,19 @@ function SelectedSourcePill({ match, type, onClear }) {
       </button>
     </div>
   )
+}
+
+function buildLimitedTargetingMessage(match) {
+  const isPrivate = !!match?.private
+  const isVerified = !!match?.verified
+  if (isPrivate && isVerified) {
+    return 'This account has limited targeting (private and verified accounts restrict what we can do).'
+  }
+  if (isPrivate) {
+    return 'This account has limited targeting (private accounts restrict what we can do).'
+  }
+  if (isVerified) {
+    return 'This account has limited targeting (verified accounts restrict what we can do).'
+  }
+  return null
 }
