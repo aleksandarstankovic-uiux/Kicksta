@@ -40,7 +40,7 @@ function DownloadButton({ onClick }) {
       onClick={onClick}
       aria-label="Download invoice"
       title="Download invoice"
-      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-blue-text hover:bg-bg"
+      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-text-secondary hover:bg-bg hover:text-text-primary"
     >
       <Download className="h-4 w-4" />
     </button>
