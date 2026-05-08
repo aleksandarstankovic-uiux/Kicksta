@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MessageSquare } from 'lucide-react'
+import { ChevronDown, MessageSquare } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { mockUser } from '@/mocks/user'
 import CardChip from '@/components/CardChip'
@@ -112,16 +112,13 @@ function CardToggle({ checked, locked, onClick, ariaLabel }) {
 function RecentDmsSubsection() {
   const items = mockWelcomeDmHistory.slice(0, 5)
   return (
-    <div className="mt-3 border-t border-border pt-3">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-        Recent DMs sent
-      </p>
+    <CollapsibleRecents title="Recent DMs sent">
       {items.length === 0 ? (
         <p className="py-3 text-center text-xs text-text-muted">
           No DMs sent yet — check back after your first follow-back.
         </p>
       ) : (
-        <ul className="mt-2 flex flex-col">
+        <ul className="flex flex-col">
           {items.map((event) => (
             <li
               key={event.id}
@@ -140,6 +137,33 @@ function RecentDmsSubsection() {
           ))}
         </ul>
       )}
+    </CollapsibleRecents>
+  )
+}
+
+// Click-to-expand wrapper around the per-card "Recent" activity list.
+// Default closed. Header is the eyebrow recipe (text-[11px] uppercase
+// tracking-wide text-text-muted) so the closed state matches the
+// existing section labels. Chevron rotates 180° when expanded.
+// Duplicated inline in CloseFriendsCard.jsx — the ~15 lines aren't
+// worth a shared module.
+function CollapsibleRecents({ title, children }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-text-muted hover:text-text-secondary"
+      >
+        <span>{title}</span>
+        <ChevronDown
+          className={`h-3.5 w-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+        />
+      </button>
+      {open && <div className="mt-2">{children}</div>}
     </div>
   )
 }
