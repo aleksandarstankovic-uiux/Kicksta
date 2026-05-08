@@ -204,135 +204,126 @@ export default function AddTargetSheet({ open, onClose }) {
           <div className="min-h-[360px]">
             {/* Input row — icon-only Account/Hashtag switcher inline
                 with the input. Switching type clears any in-flight
-                input/match state so the user starts fresh. */}
-            <div className="relative">
-              <div className="flex h-12 items-center gap-2">
-                {/* Icon-only segmented control on the LEFT — serves as the prefix.
-                    Active = bg-text-primary text-bg (same recipe as the page-level
-                    + body switchers). aria-pressed on each so screen readers read
-                    the toggle state. */}
-                <div className="inline-flex h-12 shrink-0 items-center gap-1 rounded-lg border border-border bg-bg p-1">
-                  {[
-                    { value: 'account', icon: AtSign, label: 'Account mode' },
-                    { value: 'hashtag', icon: Hash, label: 'Hashtag mode' },
-                  ].map((t) => {
-                    const selected = type === t.value
-                    const Icon = t.icon
-                    return (
+                input/match state so the user starts fresh.
+                When a match is picked, the entire row collapses into
+                a locked SelectedSourcePill. */}
+            {pickedMatch ? (
+              <SelectedSourcePill
+                match={pickedMatch}
+                type={type}
+                onClear={() => {
+                  setPickedMatch(null)
+                  setInput('')
+                  setMatches([])
+                  setTimeout(() => inputRef.current?.focus(), 0)
+                }}
+              />
+            ) : (
+              <div className="relative">
+                <div className="flex h-12 items-center gap-2">
+                  {/* Icon-only segmented control on the LEFT — serves as the prefix.
+                      Active = bg-text-primary text-bg (same recipe as the page-level
+                      + body switchers). aria-pressed on each so screen readers read
+                      the toggle state. */}
+                  <div className="inline-flex h-12 shrink-0 items-center gap-1 rounded-lg border border-border bg-bg p-1">
+                    {[
+                      { value: 'account', icon: AtSign, label: 'Account mode' },
+                      { value: 'hashtag', icon: Hash, label: 'Hashtag mode' },
+                    ].map((t) => {
+                      const selected = type === t.value
+                      const Icon = t.icon
+                      return (
+                        <button
+                          key={t.value}
+                          type="button"
+                          aria-label={t.label}
+                          aria-pressed={selected}
+                          onClick={() => {
+                            setType(t.value)
+                            setInput('')
+                            setMatches([])
+                            setPickedMatch(null)
+                          }}
+                          className={`flex h-full w-10 items-center justify-center rounded-md transition-colors ${
+                            selected
+                              ? 'bg-text-primary text-bg shadow-sm'
+                              : 'text-text-secondary hover:text-text-primary'
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Input field — no inline @/# prefix span. Plain placeholder. */}
+                  <div className="flex h-12 flex-1 items-center overflow-hidden rounded-lg border border-border bg-surface px-3">
+                    <input
+                      id="target-input"
+                      ref={inputRef}
+                      type="text"
+                      value={input.replace(/^[@#]/, '')}
+                      onChange={(e) => setInput(e.target.value)}
+                      className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
+                      placeholder={type === 'account' ? 'username' : 'hashtag'}
+                      aria-label={type === 'account' ? 'Username' : 'Hashtag'}
+                      autoComplete="off"
+                    />
+                    {/* Clear-X — only rendered while there's content to clear. */}
+                    {input && (
                       <button
-                        key={t.value}
                         type="button"
-                        aria-label={t.label}
-                        aria-pressed={selected}
+                        aria-label="Clear input"
                         onClick={() => {
-                          setType(t.value)
                           setInput('')
                           setMatches([])
                           setPickedMatch(null)
+                          inputRef.current?.focus()
                         }}
-                        className={`flex h-full w-10 items-center justify-center rounded-md transition-colors ${
-                          selected
-                            ? 'bg-text-primary text-bg shadow-sm'
-                            : 'text-text-secondary hover:text-text-primary'
-                        }`}
+                        className="ml-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-bg hover:text-text-primary"
                       >
-                        <Icon className="h-4 w-4" aria-hidden="true" />
+                        <X className="h-3.5 w-3.5" aria-hidden="true" />
                       </button>
-                    )
-                  })}
-                </div>
-
-                {/* Input field — no inline @/# prefix span. Plain placeholder. */}
-                <div className="flex h-12 flex-1 items-center overflow-hidden rounded-lg border border-border bg-surface px-3">
-                  <input
-                    id="target-input"
-                    ref={inputRef}
-                    type="text"
-                    value={input.replace(/^[@#]/, '')}
-                    onChange={(e) => setInput(e.target.value)}
-                    className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
-                    placeholder={type === 'account' ? 'username' : 'hashtag'}
-                    aria-label={type === 'account' ? 'Username' : 'Hashtag'}
-                    autoComplete="off"
-                  />
-                  {/* Clear-X — only rendered while there's content to clear. */}
-                  {input && (
-                    <button
-                      type="button"
-                      aria-label="Clear input"
-                      onClick={() => {
-                        setInput('')
-                        setMatches([])
-                        setPickedMatch(null)
-                        inputRef.current?.focus()
-                      }}
-                      className="ml-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-bg hover:text-text-primary"
-                    >
-                      <X className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Typeahead dropdown */}
-              {!duplicate && formatValid && !pickedMatch && matches.length > 0 && (
-                <div className="absolute left-0 right-0 z-10 mt-1 max-h-[240px] overflow-y-auto rounded-lg border border-border bg-surface shadow-md">
-                  {matches.map((m) => {
-                    const isHashtag = type === 'hashtag'
-                    const label = isHashtag ? `#${m.hashtag}` : `@${m.username}`
-                    const count = isHashtag ? m.posts : m.followers
-                    const sub = isHashtag
-                      ? `${formatCount(m.posts)} posts`
-                      : `${formatCount(m.followers)} followers`
-                    const letter = (isHashtag ? m.hashtag : m.username).charAt(0).toUpperCase()
-                    return (
-                      <button
-                        key={label}
-                        type="button"
-                        onClick={() => handlePickMatch(m)}
-                        className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-bg"
-                      >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-xs font-semibold text-text-secondary">
-                          {isHashtag ? <Hash className="h-4 w-4" aria-hidden="true" /> : letter}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-medium text-text-primary">{label}</div>
-                          <div className="truncate text-xs text-text-muted">{sub}</div>
-                        </div>
-                        <HealthPill count={count} />
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-
-              {/* Helper — only renders when there's something to say. */}
-              {helper && (
-                <p className={`mt-1.5 text-xs ${helperTone}`}>{helper}</p>
-              )}
-            </div>
-
-            {/* Preview card — only after a match is picked. */}
-            {pickedMatch && !duplicate && (
-              <div className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-bg p-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-sm font-semibold text-text-secondary">
-                  {type === 'hashtag' ? (
-                    <Hash className="h-4 w-4" aria-hidden="true" />
-                  ) : (
-                    (pickedMatch.username?.[0] || '?').toUpperCase()
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-text-primary">
-                    {type === 'hashtag' ? `#${pickedMatch.hashtag}` : `@${pickedMatch.username}`}
-                  </div>
-                  <div className="truncate text-xs text-text-secondary">
-                    {type === 'hashtag'
-                      ? `${formatCount(pickedMatch.posts)} posts`
-                      : `${formatCount(pickedMatch.followers)} followers`}
+                    )}
                   </div>
                 </div>
-                <HealthPill count={type === 'hashtag' ? pickedMatch.posts : pickedMatch.followers} />
+
+                {/* Typeahead dropdown */}
+                {!duplicate && formatValid && !pickedMatch && matches.length > 0 && (
+                  <div className="absolute left-0 right-0 z-10 mt-1 max-h-[240px] overflow-y-auto rounded-lg border border-border bg-surface shadow-md">
+                    {matches.map((m) => {
+                      const isHashtag = type === 'hashtag'
+                      const label = isHashtag ? `#${m.hashtag}` : `@${m.username}`
+                      const count = isHashtag ? m.posts : m.followers
+                      const sub = isHashtag
+                        ? `${formatCount(m.posts)} posts`
+                        : `${formatCount(m.followers)} followers`
+                      const letter = (isHashtag ? m.hashtag : m.username).charAt(0).toUpperCase()
+                      return (
+                        <button
+                          key={label}
+                          type="button"
+                          onClick={() => handlePickMatch(m)}
+                          className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-bg"
+                        >
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-xs font-semibold text-text-secondary">
+                            {isHashtag ? <Hash className="h-4 w-4" aria-hidden="true" /> : letter}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-medium text-text-primary">{label}</div>
+                            <div className="truncate text-xs text-text-muted">{sub}</div>
+                          </div>
+                          <HealthPill count={count} />
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {/* Helper — only renders when there's something to say. */}
+                {helper && (
+                  <p className={`mt-1.5 text-xs ${helperTone}`}>{helper}</p>
+                )}
               </div>
             )}
 
@@ -412,6 +403,43 @@ export default function AddTargetSheet({ open, onClose }) {
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+function SelectedSourcePill({ match, type, onClear }) {
+  const isHashtag = type === 'hashtag'
+  const label = isHashtag ? `#${match.hashtag}` : `@${match.username}`
+  const subline = isHashtag
+    ? `${formatCount(match.posts)} posts`
+    : `${formatCount(match.followers)} followers`
+  const letter = (isHashtag ? match.hashtag : match.username)
+    .charAt(0)
+    .toUpperCase()
+
+  return (
+    <div className="flex h-12 items-center gap-3 rounded-lg border border-border bg-bg px-3">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-xs font-semibold text-text-secondary ring-1 ring-border">
+        {isHashtag ? (
+          <Hash className="h-4 w-4" aria-hidden="true" />
+        ) : match.profilePic ? (
+          <img src={match.profilePic} alt="" className="h-full w-full object-cover" />
+        ) : (
+          letter
+        )}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium text-text-primary">{label}</div>
+        <div className="truncate text-xs text-text-muted">{subline}</div>
+      </div>
+      <button
+        type="button"
+        aria-label="Clear selection"
+        onClick={onClear}
+        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface hover:text-text-primary"
+      >
+        <X className="h-4 w-4" aria-hidden="true" />
+      </button>
     </div>
   )
 }
