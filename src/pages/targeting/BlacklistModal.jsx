@@ -153,7 +153,7 @@ export default function BlacklistModal({ open, onClose }) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          <div className="relative mt-4 flex gap-2">
+          <div className="relative flex gap-2">
             <div className="flex h-10 flex-1 items-center overflow-hidden rounded-lg border border-border bg-surface px-3">
               <span className="mr-1 text-text-muted">@</span>
               <input
