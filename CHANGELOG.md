@@ -5,6 +5,41 @@
 
 ---
 
+## 2026-05-08 — Polish pass
+
+A batched commit set of seven small fixes confirmed in brainstorming on 2026-05-08 — first of five planned specs (Polish pass + Add Target popup + Engagement collapse + Billing structure + Nav server-change). All trivial mechanical changes; one commit per task.
+
+### Changed
+- **Account avatars now use Pravatar everywhere** (`src/mocks/targets.js`, `src/mocks/accounts.js`). Seven account-type targets (`@fitness.inspo`, `@yoga.daily`, `@cleanfoodcrush`, `@protein.pete`, `@macro.melissa`, `@keto.kevin`, `@stale.influencer`) and all three connected accounts now carry `https://i.pravatar.cc/80?u=<username>` URLs. Hashtag targets keep the `Hash` icon. Pravatar is third-party and only used in V1 mocks.
+- **Targeting list — Follow-back column header**: dropped the `· %` suffix (the numbers below already carry count·rate format) and changed `pr-12` to `pr-9` on `<span>Follow-backs</span>` so the header's right edge aligns with the right edge of the number column. Verified delta = 0px at desktop (1280) and mobile (375).
+- **Whitelist + Blacklist modals — input top spacing**: dropped the `mt-4` above the input row in both modals so the input sits flush below the modal header, matching `AddTargetSheet`'s recipe.
+- **Close Friends Adder — copy**: subtitle, tooltip, and Add-mode label rewritten to accurately describe the engine's behavior.
+  - Subtitle: "Add followers to Close Friends; remove ex-followers."
+  - Tooltip: "Adds your followers to your Close Friends list, and removes anyone who unfollows."
+  - Add-mode button label: "Add followers" (was "Add new followers"). Remove-mode unchanged.
+- **Close Friends Adder — drop count line**: the `Currently {count} in close friends` `<p>` (with its Star prefix) is removed from the inner `CloseFriendsState` helper. The `Recent` activity list is now the first child of the section. The `count` destructure on `mockCloseFriendsState` is dropped; `Star` import stays (still used in the card-header chip).
+- **CFA progress activity line**: leading mode-icon added next to the "Adding @…" / "Removing @…" line below the progress bar. Green `Plus` (`text-green-text`) when mode is `add`, muted `Minus` (`text-text-muted`) when mode is `remove`. Tightens `gap-2` → `gap-1.5` so the icon reads as a leading bullet, not a separate column.
+- **Billing — Download invoice icon**: `text-blue-text` → `text-text-secondary hover:text-text-primary`. Locks the polish-pass icon-role rule for passive row actions (download, more-options, etc.) — passive utilities are muted, primary actions stay tinted.
+
+### Decisions (locked, don't revisit)
+- **Pravatar (`https://i.pravatar.cc/80?u=<username>`)** is the deterministic mock-avatar source for V1. Seed = the IG handle (without `@`). Production swaps in real IG profile pics — same field, different source.
+- **Polish-pass icon-role rules**:
+  - **CardChip color** — semantic per section. Stable across the dashboard once chosen.
+  - **Row-action icons** (passive: download, more-options) — `text-text-secondary` with hover→`text-text-primary`. No more blue download.
+  - **Status dots** — `bg-{color}-base` per state. Already correct everywhere; no further changes.
+  - **Destructive row actions** (X-on-row) — `text-text-secondary` hover→`text-red-text`.
+  - **Constructive primary actions** (Plus on standalone "Add" rows) — `text-blue-text` on `bg-blue-tint` background.
+
+### Notes
+- Issue #15 from the brainstorm ("mobile billing-history vertical spacing — no weight at the top") was deferred from polish pass to the upcoming Billing-structure spec — the root cause is structural (Subscriptions and Billing-history sections lack a card wrapper that Payment methods has), not a spacing tweak. Folding into the same spec means one fix instead of a band-aid plus a follow-up.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-08-polish-pass-design.md`
+- Plan: `docs/superpowers/plans/2026-05-08-polish-pass.md`
+- Commits: a556fb9, 3e19ad0, 7b0bd2e, 66cfecb, 86975ab, a9812a5
+
+---
+
 ## 2026-05-07 — Navigation overhaul
 
 A multi-step refactor to make desktop sidebar and mobile drawer agree on a single nav hierarchy, plus a stack of bug fixes flagged during the navigation review.
