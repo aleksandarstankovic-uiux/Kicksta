@@ -5,6 +5,30 @@
 
 ---
 
+## 2026-05-08 — Nav server-change
+
+Fifth and final spec from the 2026-05-08 brainstorm. Three commits: server affordance moves into the AccountSwitcher panel, the per-subscription detail page keeps a read-only fact, the orphaned `ServerCard.jsx` is deleted.
+
+### Changed
+- **AccountSwitcher panel gains a "Server: \<Label\>" row** inside the active-account block, immediately below the active account row and before the divider to other accounts. Globe icon in a `bg-blue-tint` circle on the left, label + region in a stack, `ChevronRight` on the right. Tapping the row dismisses the panel and opens the existing `ChangeServerModal`. Renders in BOTH variants (desktop dropdown + mobile sheet) via the shared `PanelContent` helper, with comfy density on the sheet (`h-8 w-8` icon circle) and compact density on the dropdown (`h-7 w-7`).
+- **`AccountSwitcher` now reads `useSubscriptions`** to resolve the active account's subscription via `subscriptions.find((s) => s.accountId === active.id)`, then resolves the server via `findServer(subscription.server)`. Modal-open state lives at the parent level (`serverModalOpen`); `<ChangeServerModal>` is rendered via `createPortal(..., document.body)` so it escapes any transformed-ancestor containing block — same approach the sheet variant uses.
+- **`SubscriptionDetail` drops the editable `<ServerCard>`** in favor of a one-line read-only fact: `Server: <Label> · <Region>` (`text-xs text-text-secondary` styling, no card chrome). Sits between the Plan card and the Invoices section. Single edit path; the detail page surfaces the server as reference info only.
+
+### Removed
+- `src/pages/account/ServerCard.jsx` — orphaned after the SubscriptionDetail change. No remaining consumers in the codebase.
+
+### Decisions (locked, don't revisit)
+- **Server is per-subscription, edited from AccountSwitcher.** The visual association ("this server belongs to this account") only works because the row sits inside the active-account block. Moving the row elsewhere (panel bottom, separate section) would weaken the connection.
+- **No server in the closed-trigger row of AccountSwitcher.** The trigger is a "switch accounts" affordance; adding the server detail makes it noisier and competes with the account info. Server is a setting, not an identifier.
+- **The detail page stays read-only for server.** Single edit affordance keeps the mental model clean — duplicate edit paths invite divergence.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-08-nav-server-change-design.md`
+- Plan: `docs/superpowers/plans/2026-05-08-nav-server-change.md`
+- Commits: 0f513ba, 4e22901, 706f2d6
+
+---
+
 ## 2026-05-08 — Billing structure
 
 Fourth of five specs from the 2026-05-08 brainstorm. Three commits across `PaymentMethodsCard.jsx` and `BillingPanel.jsx`. All three Billing sections (Payment method, Subscriptions, Billing history) now share an identical shape and behave consistently on both viewports. Resolves the deferred polish-pass "no weight at the top" complaint (#15) without resorting to outer card wrappers.
