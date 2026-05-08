@@ -28,10 +28,12 @@ export default function PaymentMethodsCard() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
-      {/* Header — chip + title + tooltip on the left, Add button
-          on the right. On narrow viewports the Add button shows
-          icon-only so the row never wraps. */}
+    <div className="flex flex-col gap-2 md:gap-3">
+      {/* Section header — chip + title + tooltip on the left, Add card
+          button on the right. Identical recipe to the other two Billing
+          sections (Subscriptions, Billing history) so the page reads as
+          three parallel sections. The Add button is icon-only on the
+          smallest viewports so the row never wraps. */}
       <div className="flex items-center gap-2">
         <CardChip color="blue" icon={CreditCard} />
         <h2 className="text-base font-semibold text-text-primary">Payment method</h2>
@@ -46,7 +48,7 @@ export default function PaymentMethodsCard() {
         </button>
       </div>
 
-      <ul className="mt-4 flex flex-col gap-2">
+      <ul className="flex flex-col gap-2">
         {cards.map((card) => (
           <CardRow
             key={card.id}
