@@ -2,6 +2,10 @@
 // `followers` (account) or `posts` (hashtag) for the target-source
 // context. Follow-back counts are tuned so the rate reads cleanly
 // across healthy / average / needs-attention bands.
+//
+// Account-type rows carry a deterministic Pravatar URL so the dashboard
+// renders real face thumbnails for mock data. Pravatar is third-party
+// and only used in V1 mocks — production swaps in real IG profile pics.
 export const mockTargets = [
   {
     id: 't_001',
@@ -12,6 +16,7 @@ export const mockTargets = [
     followedCount: 842,
     followBackCount: 101, // 12%
     addedAt: '2026-03-15T00:00:00Z',
+    profilePic: 'https://i.pravatar.cc/80?u=fitness.inspo',
   },
   {
     id: 't_002',
@@ -32,6 +37,7 @@ export const mockTargets = [
     followedCount: 1200,
     followBackCount: 132, // 11%
     addedAt: '2026-03-10T00:00:00Z',
+    profilePic: 'https://i.pravatar.cc/80?u=yoga.daily',
   },
   {
     id: 't_004',
@@ -42,6 +48,7 @@ export const mockTargets = [
     followedCount: 320,
     followBackCount: 13, // 4%
     addedAt: '2026-03-25T00:00:00Z',
+    profilePic: 'https://i.pravatar.cc/80?u=cleanfoodcrush',
   },
   {
     id: 't_005',
@@ -62,6 +69,7 @@ export const mockTargets = [
     followedCount: 0,
     followBackCount: 0,
     addedAt: '2026-03-20T00:00:00Z',
+    profilePic: 'https://i.pravatar.cc/80?u=protein.pete',
   },
   {
     id: 't_007',
@@ -82,6 +90,7 @@ export const mockTargets = [
     followedCount: 380,
     followBackCount: 53, // 14%
     addedAt: '2026-03-26T00:00:00Z',
+    profilePic: 'https://i.pravatar.cc/80?u=macro.melissa',
   },
   {
     id: 't_009',
@@ -102,6 +111,7 @@ export const mockTargets = [
     followedCount: 980,
     followBackCount: 78, // 8%
     addedAt: '2026-03-08T00:00:00Z',
+    profilePic: 'https://i.pravatar.cc/80?u=keto.kevin',
   },
   // Two archived seed entries so the Archived bucket isn't empty
   // on first load — demonstrates the restore action.
@@ -114,6 +124,7 @@ export const mockTargets = [
     followedCount: 410,
     followBackCount: 22, // 5%
     addedAt: '2026-02-12T00:00:00Z',
+    profilePic: 'https://i.pravatar.cc/80?u=stale.influencer',
   },
   {
     id: 't_012',
