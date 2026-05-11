@@ -13,7 +13,7 @@ export const mockGrowthDaily = Array.from({ length: 30 }, (_, i) => {
   const baseGain = 10 + Math.round(Math.sin(i * 0.3) * 4)
   const noise = Math.round((Math.random() - 0.5) * 6)
   const targetedGain = Math.max(2, baseGain + noise)
-  const growthPlusGain = 0
+  const growthPlusGain = Math.max(0, Math.round(Math.sin(i * 0.4) * 5 + 5))
   const followBackRate = +(0.08 + Math.random() * 0.08).toFixed(2)
 
   // Engagement rate (% of followers interacting with posts). Baseline
@@ -70,4 +70,5 @@ export const mockGrowthPlusInsights = {
   algorithmicBoost: 143,
   postReachLift: 0.34,
   engagementRate: 0.048,
+  boostedPosts: 12,
 }
