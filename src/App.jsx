@@ -4,6 +4,7 @@ import SignupLayout from '@/components/SignupLayout'
 import OverviewPage from '@/pages/overview'
 import TargetingPage from '@/pages/targeting'
 import EngagementPage from '@/pages/engagement'
+import GrowthPlusPage from '@/pages/growthPlus'
 import AccountPage from '@/pages/account'
 import AccountGrowthPlusPage from '@/pages/accountGrowthPlus'
 import ProfilePanel from '@/pages/account/ProfilePanel'
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/targets" element={<Navigate to="/targeting" replace />} />
         <Route path="/growth" element={<Navigate to="/engagement" replace />} />
         <Route path="/engagement" element={<EngagementPage />} />
+        <Route path="/growth-plus" element={<GrowthPlusPage />} />
         <Route path="/account" element={<AccountPage />}>
           <Route path="profile" element={<ProfilePanel />} />
           <Route path="billing" element={<BillingPanel />} />
