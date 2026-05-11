@@ -110,4 +110,37 @@ export const useGrowthConfig = create((set, get) => ({
     }))
     announceSaved()
   },
+
+  toggleGrowthPlusEnabled: () => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        growthPlusControls: {
+          ...state.config.growthPlusControls,
+          enabled: !state.config.growthPlusControls.enabled,
+        },
+      },
+    }))
+    announceSaved()
+  },
+
+  setGrowthPlusSpeed: (speed) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        growthPlusControls: { ...state.config.growthPlusControls, speed },
+      },
+    }))
+    announceSaved()
+  },
+
+  setGrowthPlusQuality: (quality) => {
+    set((state) => ({
+      config: {
+        ...state.config,
+        growthPlusControls: { ...state.config.growthPlusControls, quality },
+      },
+    }))
+    announceSaved()
+  },
 }))

@@ -9,6 +9,11 @@ export const mockGrowthConfig = {
     enabled: false,
     mode: 'add',
   },
+  growthPlusControls: {
+    enabled: true,
+    speed: 'steady',
+    quality: 'targeted',
+  },
   growthPlusActive: false,
   // Defaults match the "Most users" Quick preset so each Range dropdown
   // opens on a labelled option (mid) rather than the "Custom…" tail.
