@@ -14,29 +14,26 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 
 ---
 
-## Resume context (2026-05-08, end of session)
+## Resume context (2026-05-11, end of session)
 
-**State of the working tree:** clean except for the usual `.claude/settings.local.json` drift. All project work committed. No worktrees. Working directly on `main`.
+**State of the working tree:** clean except for the usual `.claude/settings.local.json` drift. All project work committed. No worktrees. Working directly on `main`. **Deployed to `https://kicksta.vercel.app/`** via the GitHub remote (`origin = git@github.com:aleksandarstankovic-uiux/Kicksta.git`).
 
 **Restore tags currently in place:**
 - `pre-settings-page-2026-04-29`
 - `pre-settings-fixes-2026-04-29`
 - `pre-targeting-engagement-split-2026-04-30`
 - `pre-next-round-2026-05-07`
-- `pre-next-session-2026-05-07` — before the start of today's work
-- `pre-next-session-2026-05-08` — at HEAD, end of today's work
+- `pre-next-session-2026-05-07`
+- `pre-next-session-2026-05-08` — end of the big 5-spec batch
+- `pre-next-session-2026-05-11` — at HEAD, end of Growth+ page session
 
 If anything's regressed, hard-reset to the relevant tag.
 
 **Last shipped (most recent first, summarized — see CHANGELOG for details):**
 
-This session = five specs from a single brainstorm batch (18 items decomposed into one polish pass + four meaty specs), all shipped on `main`.
-
-- **Nav server-change** (2026-05-08, last) — `AccountSwitcher` panel gains a `Server: <Label>` row inside the active-account block (both dropdown + sheet variants). Tapping dismisses the panel and opens the existing `ChangeServerModal`. The detail page's editable `ServerCard` is replaced with a one-line read-only fact (`Server: <Label> · <Region>`); `ServerCard.jsx` deleted.
-- **Billing structure** (2026-05-08) — All three Billing sections share the same shape: section header (chip + title + count? + tooltip + Add button?) above, card-style children below, no enclosing card. `PaymentMethodsCard` flattened (outer wrapper dropped). Subscriptions section header gains an "Add subscription" `<Link>` styled identically to "Add card", routes to `/signup/ig-preview`. Subscriptions empty-state copy added. Per-section header→content gap is `gap-2 md:gap-3` (8px mobile, 12px desktop) so headers anchor against first child without card chrome.
-- **Engagement collapse** (2026-05-08) — Welcome DM bubble gets a Pencil icon top-right (whole bubble + icon both open the edit modal; helper text removed). Both engagement cards' "Recent" activity sections wrapped in an inline `CollapsibleRecents({title, children})` helper (default closed, click-to-expand, chevron rotates 180°). Helper duplicated per card by design — not lifted to a shared module.
-- **Add Target popup redesign** (2026-05-08) — Suggestions are now a horizontal scroller of 88×~110 vertical-stack chips (~3 visible mobile, ~5–6 desktop); `@/#` toggle moved LEFT of the input + inline prefix span removed (toggle's active icon is the prefix); picking a match collapses input row into a locked `SelectedSourcePill` (avatar + handle + count + clear-X); `private`/`verified` flags on suggestion + search mocks fire a yellow "limited targeting" warning above the suggestions; new red duplicate-target warning surfaces the existing duplicate state inside the pill layout (with `Resume it` link for paused targets).
-- **Polish pass** (2026-05-08, first) — Seven small fixes: account avatars switched to Pravatar (`https://i.pravatar.cc/80?u=<username>`) across `mocks/targets.js` + `mocks/accounts.js`; Targeting list `Follow-backs` column header right-aligned (`pr-12 → pr-9`); Whitelist/Blacklist input top spacing tightened (drop `mt-4`); CFA copy locked (`Add followers to Close Friends; remove ex-followers.`); CFA `Currently 23 in close friends` line dropped; CFA progress activity line gets leading green Plus / muted Minus per mode; InvoicesTable Download icon demoted from `text-blue-text` to `text-text-secondary hover:text-text-primary`.
+- **Growth+ page** (2026-05-11) — new `/growth-plus` page. Premium subscriber dashboard with a purple-gradient hero (counting `+143` + sparkline), 3-card supporting metrics strip, recent boost activity feed, Growth+ controls (pause + speed + quality segmented controls + billing line), and a cardless safety/transparency strip. Non-subscribers see the same dashboard blurred behind a floating subscribe overlay that opens a shared confirm/processing/success modal (extracted from the signup step). Subscribing flips a Zustand flag (`useGrowthPlusSubscription`) and the live dashboard re-renders inline. 14 commits, 9 new files under `src/pages/growthPlus/` + a shared `GrowthPlusSubscribeModal`.
+- **Five specs from the 2026-05-08 brainstorm** (Nav server-change, Billing structure, Engagement collapse, Add Target popup redesign, Polish pass) — see CHANGELOG.
+- **Vercel deploy** (2026-05-08) — repo pushed to GitHub, linked to Vercel; live at `https://kicksta.vercel.app/`. `vercel.json` rewrites every path to `/index.html` so React Router deep links work.
 
 Earlier shipped (still relevant):
 - **Navigation overhaul** (2026-05-07) — see CHANGELOG.
@@ -44,15 +41,21 @@ Earlier shipped (still relevant):
 
 **Pending specs queue (in priority order):**
 
-1. **Growth+ page** — route `/growth-plus` is in the nav but the page isn't built; the link lands on a blank route. **This is the natural next thing to build.**
-2. **GrowthPlusBanner placement** — currently parked at the bottom of `/engagement`. User asked me to surface this question before closing out the broader refactor pass. **Don't decide unilaterally.**
-3. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove). Reasonable scope, just deferred.
-4. **Targeting empty state polish** — layout is settled, this is unblocked.
-5. **Cancel subscription 6-step modal flow** — currently a stub modal; the flow exists in mocks/spec but the full implementation hasn't shipped.
-6. **Upgrade plan UX** — currently a stub modal; surfaces from CFA / Welcome DM "Advanced" gates.
-7. **Avatar identity ambiguity** (was #22 from the nav review) — IG-account avatars and Kicksta-user avatars look similar. Mostly mitigated by removing the user-identity card from nav, but reappears if a Kicksta-user avatar comes back later. Give it a distinct shape (e.g. `rounded-md` instead of `rounded-full`) when reintroduced.
+1. **GrowthPlusBanner placement** — currently parked at the bottom of `/engagement`. Now that the dedicated Growth+ page ships, the banner may want to live somewhere else (Overview?) or be removed entirely. User asked me to surface this. **Don't decide unilaterally.**
+2. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove).
+3. **Targeting empty state polish** — layout is settled, this is unblocked.
+4. **Cancel subscription 6-step modal flow** — currently a stub modal; the flow exists in mocks/spec but the full implementation hasn't shipped.
+5. **Upgrade plan UX** — currently a stub modal; surfaces from CFA / Welcome DM "Advanced" gates.
+6. **`/account/growth-plus` stub page** — still a placeholder. The Growth+ controls section's "Manage" link routes there; needs a real subscription-management page (pause/resume billing, plan switch, cancel).
+7. **Avatar identity ambiguity** — IG-account avatars and Kicksta-user avatars look similar. Mostly mitigated by removing the user-identity card from nav, but reappears if a Kicksta-user avatar comes back later.
 
 **Open architectural decisions (locked, don't revisit):**
+
+- **Growth+ page state model** — two states on the same route (no redirect). Subscriber dashboard composes Hero → Metrics strip → Activity → Controls → cardless Safety strip. Non-subscriber wraps the same `<GrowthPlusActive>` in `pointer-events-none opacity-60 blur-[2px]` + floats a subscribe overlay. Subscribing flips `useGrowthPlusSubscription.subscribed` → page re-renders inline.
+- **Subscribe modal is shared** — `<GrowthPlusSubscribeModal>` at `src/components/`. Confirm/processing/success three-state machine; parent owns state, modal owns the 1500ms processing timer via `onProcessingDone`. Both `/signup/growth-plus` (onboarding) and `/growth-plus` (locked-preview overlay) route through it.
+- **`useCountUp` is mount-only.** RAF-driven easeOutQuart easing. V1 mocks are stable; production with live data will need re-trigger on prop change but that's a follow-up.
+- **Premium-page visual treatment** — single big hero stat with count-up + 60–80px sparkline + purple gradient surface; supporting cards as second-tier proof; activity feed default-expanded (different from Engagement-card recents which default-collapsed — different role, different default).
+- **`blur-[2px]` is the right teaser-blur value.** Tailwind's preset `blur-sm` (4px) is too aggressive for a "see what you'd get" preview.
 
 - **Nav hierarchy** — desktop sidebar and mobile drawer agree: account switcher on top (with server row inside the active-account block), primary nav (Overview / Targeting / Engagement / Growth+), bottom zone (Settings / Theme / [Collapse] / Log out). Mobile bottom tab bar: Overview / Targeting / Engagement / Settings (Growth+ drawer-only on mobile).
 - **Active-state recipe trio** — `bg-blue-tint text-blue-text` (nav) · `bg-blue-base text-white` (CTAs) · `bg-text-primary text-bg` (page-level switchers).

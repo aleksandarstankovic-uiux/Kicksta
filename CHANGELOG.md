@@ -5,6 +5,47 @@
 
 ---
 
+## 2026-05-11 — Growth+ page
+
+Built the dedicated `/growth-plus` page — the route had been in the nav since the 2026-05-07 navigation overhaul but was landing on a blank screen. 14 commits across mocks, stores, hooks, a shared modal extraction, and 9 new files under `src/pages/growthPlus/`. Visual treatment is deliberately premium so the page reads as the paid surface it represents.
+
+### Created
+- `src/pages/growthPlus/` — new page tree.
+  - `index.jsx` — page entry; reads `useGrowthPlusSubscription` (falls back to `mockUser.growthPlusSubscribed`) and renders one of two states inline (no redirect).
+  - `GrowthPlusActive.jsx` — subscriber dashboard composition root. Composes hero → metrics strip → activity → controls → cardless safety strip.
+  - `GrowthPlusHero.jsx` — purple-gradient hero card with `Sparkles` chip + `GROWTH+` eyebrow + `Active` pill + animated count-up to `+143` + 60–80px Recharts sparkline.
+  - `GrowthPlusMetricsStrip.jsx` — three supporting metric cards: `+34%` (post reach lift) · `4.8%` (engagement rate) · `12` (boosted posts).
+  - `GrowthPlusActivity.jsx` — recent boost activity feed, default expanded, alternating `post_boosted` / `followers_gained` event types with relative timestamps.
+  - `GrowthPlusControls.jsx` — pause toggle + Speed segmented control (`Slow/Steady/Fast`) + Quality segmented control (`Broad/Targeted/High-engagement`) + billing line with Manage link. Inline `CardToggle` and `SegmentedControl` helpers duplicated from existing Engagement-card recipe (not lifted).
+  - `GrowthPlusSubscribeOverlay.jsx` — floating purple-gradient subscribe card; centered on desktop, pinned near top on mobile.
+  - `GrowthPlusLockedPreview.jsx` — wraps `GrowthPlusActive` in `pointer-events-none opacity-60 blur-[2px]`, floats the overlay on top, owns the modal state machine.
+- `src/components/GrowthPlusSubscribeModal.jsx` — shared confirm/processing/success modal, extracted from `signup/steps/GrowthPlus.jsx`. Owns the 1500ms processing timer; calls `onProcessingDone` so the parent can transition to `success` without duplicating timer logic. `successButtonLabel` prop lets callers customize the final CTA.
+- `src/stores/useGrowthPlusSubscription.js` — V1 override flag (Zustand). Starts `null` (consumers fall back to `mockUser.growthPlusSubscribed`); `markSubscribed()` flips it to `true` so the page can transition from locked-preview → live dashboard inline after subscribe success.
+- `src/hooks/useCountUp.js` — RAF-driven mount-only count-up hook with easeOutQuart easing. ~25 lines, no animation library.
+- `src/mocks/growthPlusActivity.js` — 5 seed events with import-time relative timestamps.
+
+### Changed
+- **`src/App.jsx`** — registered `<Route path="/growth-plus" element={<GrowthPlusPage />}>` inside the `DashboardLayout` shell.
+- **`src/mocks/growth.js`** — `mockGrowthDaily.growthPlusGain` switched from a flat `0` to a sine wave summing ~150 across 30 days (so the hero sparkline isn't flat). Added `boostedPosts: 12` to `mockGrowthPlusInsights`.
+- **`src/mocks/growthConfig.js`** — added `growthPlusControls: { enabled: true, speed: 'steady', quality: 'targeted' }`.
+- **`src/stores/useGrowthConfig.js`** — three new actions: `toggleGrowthPlusEnabled`, `setGrowthPlusSpeed`, `setGrowthPlusQuality`. All fire the existing debounced `announceSaved()` toast like every other action in this store.
+- **`src/pages/signup/steps/GrowthPlus.jsx`** — inline confirm/processing/success modal replaced with the shared `<GrowthPlusSubscribeModal>` import. `handleConfirmPayment` lost its inline `setTimeout`; the modal owns the timer. Signup-step end-to-end flow verified post-extraction.
+
+### Decisions (locked, don't revisit)
+- **Two states on the same route, no redirect.** Non-subscriber sees the same dashboard blurred behind a floating subscribe overlay. The page is its own value prop — subscribers and non-subscribers see the same shape.
+- **The subscribe modal is shared.** Both `/signup/growth-plus` (onboarding) and `/growth-plus` (the locked-preview overlay) route through `<GrowthPlusSubscribeModal>`. Future "add Growth+" affordances should reuse it.
+- **Active-account scope.** The page binds to the currently-selected IG account in `AccountSwitcher`, matching the rest of the dashboard. V1 mocks don't vary per account; production wires per-subscription data through the `account` prop.
+- **Premium-page visual treatment.** Single big hero stat with count-up animation + sparkline. Sparkles iconography. Purple gradient surface. Cardless transparency block at the bottom — explicitly NOT a card, deliberately framed as transparency, not disclaimer.
+- **`blur-[2px]` is the right value.** Tailwind's preset `blur-sm` (4px) is too aggressive for a teaser blur — the preview needs to be readable enough that users see what they'd get.
+- **`CollapsibleRecents` pattern not reused.** The Recent boost activity feed defaults expanded because it's the page's emotional centerpiece; Engagement-card recents collapse because they're secondary detail. Different roles, different defaults — intentional.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-11-growth-plus-page-design.md`
+- Plan: `docs/superpowers/plans/2026-05-11-growth-plus-page.md`
+- Commits: 6fee518, 1e3c68f, 7382c6b, 3ba3ed1, daaa99d, 70c6795, 382679b, 36dceb1, 474f7fa, 64c5a3e, 2710384, a8d0f27, d0027d7, 6a55a95
+
+---
+
 ## 2026-05-08 — Nav server-change
 
 Fifth and final spec from the 2026-05-08 brainstorm. Three commits: server affordance moves into the AccountSwitcher panel, the per-subscription detail page keeps a read-only fact, the orphaned `ServerCard.jsx` is deleted.
