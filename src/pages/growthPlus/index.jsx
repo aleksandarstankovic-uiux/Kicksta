@@ -1,21 +1,45 @@
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { mockUser } from '@/mocks/user'
 import { useAccounts } from '@/stores/useAccounts'
 import { useGrowthPlusSubscription } from '@/stores/useGrowthPlusSubscription'
 import GrowthPlusActive from './GrowthPlusActive'
 import GrowthPlusUpsell from './GrowthPlusUpsell'
 
-// /growth-plus page entry. Reads subscription state from the Zustand
-// override (falls back to mockUser.growthPlusSubscribed) and renders
-// the matching state. account is the active IG account from
-// AccountSwitcher — passed through to GrowthPlusActive for future
-// per-account data wiring.
+// /growth-plus page entry. Renders by subscription status:
+//   active | cancelled_pending → GrowthPlusActive
+//   lapsed                     → GrowthPlusUpsell
+//
+// Honors ?manage=1 by passing manageOpenOnMount through to
+// GrowthPlusActive (which owns the Manage popup state). Used by
+// GrowthPlusBanner so the banner can deep-link into the popup without
+// the popup needing app-global state.
 export default function GrowthPlusPage() {
   const subscribed = useGrowthPlusSubscription(
     (s) => s.subscribed ?? mockUser.growthPlusSubscribed,
   )
+  const status = useGrowthPlusSubscription((s) => s.status)
   const activeAccount = useAccounts((s) =>
     s.accounts.find((a) => a.id === s.activeId),
   )
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [manageOpenOnMount, setManageOpenOnMount] = useState(false)
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('manage') === '1') {
+      setManageOpenOnMount(true)
+      params.delete('manage')
+      navigate(
+        { pathname: location.pathname, search: params.toString() },
+        { replace: true },
+      )
+    }
+  }, [location.pathname, location.search, navigate])
+
+  // lapsed → Upsell. Otherwise (active/cancelled_pending) → Active.
+  const showActive = subscribed && status !== 'lapsed'
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
@@ -28,7 +52,14 @@ export default function GrowthPlusPage() {
         </p>
       </header>
 
-      {subscribed ? <GrowthPlusActive account={activeAccount} /> : <GrowthPlusUpsell />}
+      {showActive ? (
+        <GrowthPlusActive
+          account={activeAccount}
+          manageOpenOnMount={manageOpenOnMount}
+        />
+      ) : (
+        <GrowthPlusUpsell />
+      )}
     </div>
   )
 }
