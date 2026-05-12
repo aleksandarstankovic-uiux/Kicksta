@@ -5,6 +5,74 @@
 
 ---
 
+## 2026-05-12 — Growth+ tiered pricing (Starter / Pro / Elite)
+
+Growth+ becomes a 3-tier product. The blurred-preview + floating-subscribe-overlay pattern is replaced with a real marketing page (tier cards + benefits + FAQ). Subscribers see their tier reflected throughout the dashboard, with locked controls staying visible to make upgrade paths discoverable.
+
+### Added
+- **`mockGrowthPlusTiers`** in `src/mocks/growth.js` — single source of truth for tier metadata: `id`, `name`, `price`, `tagline`, `recommended`, `allowedSpeed`, `allowedQuality`, `monthlyBoosts`, `boostedPosts`, `reachLift`. Order matters (Starter < Pro < Elite) — the upgrade-next-tier nudge in the billing card relies on it.
+- **`mockGrowthPlusTierById`** — convenience `Object.fromEntries` lookup; consumers use this instead of repeating `.find(t => t.id === ...)`.
+- **`mockGrowthPlusInsights` is now per-tier** — keyed `{ starter, pro, elite }`. Each tier has its own `algorithmicBoost`, `postReachLift`, `engagementRate`, `boostedPosts`. Numbers ladder up: Starter 40/+12%/3.2%/4 → Pro 143/+34%/4.8%/12 → Elite 300/+68%/7.1%/30.
+- **`mockGrowthPlusDeltas` is now per-tier** — same `{ today, week, month }` shape, three tiers. Month totals match the matching tier's `algorithmicBoost` to keep the page internally coherent.
+- **`mockUser.growthPlusTier`** — `"starter" | "pro" | "elite" | null`. `null` when `growthPlusSubscribed === false`. `mockUserGrowthPlus` defaults to `"pro"` (preserves prior visuals).
+- **`mockUserGrowthPlusStarter`** + **`mockUserGrowthPlusElite`** — variants for testing locked and unlocked states.
+- **`config.growthPlusControls.tier`** in `mockGrowthConfig` — mirrors the user's tier on the config object so the store can answer gating questions without crossing into the user mock for every check.
+- **`setGrowthPlusTier(tierId)` on `useGrowthConfig`** — updates tier and snaps `speed`/`quality` back to the highest still-allowed value when downgrading (no orphaned locked selections).
+- **`GrowthPlusUpsell.jsx`** — new marketing page replacing the blurred-preview pattern:
+  - Hero (Sparkles icon · gradient surface · "Boost your reach with Growth+")
+  - 3-tier pricing grid (1-col mobile · 3-col `lg:`). Pro card flagged "Recommended" with a purple top-anchor pill + tinted gradient + `shadow-md`.
+  - Each tier card lists 6 features with Check (included) or Lock (locked) icons.
+  - "Start Starter / Pro / Elite" CTAs open `GrowthPlusSubscribeModal` with the chosen tier pre-selected; success calls `setGrowthPlusTier(pendingTier)` then `markSubscribed()`.
+  - 3-up benefit grid (Sparkles · Network · ShieldCheck) below pricing.
+  - 3-question FAQ accordion using `ChevronDown` rotation pattern.
+- **`GrowthPlusTierStrip.jsx`** — new slim card between MetricsStrip and Activity. Single line at all breakpoints: `Crown` icon + "You're on **Pro** — Best for most growing accounts" + "Compare tiers" link. Identifies the active plan at-a-glance and gives users an always-visible upgrade path without crowding the page.
+
+### Changed
+- **Hero pill is tier-aware.** Now reads `Active · Pro` (or whichever tier). Added a status dot prefix (`h-1.5 w-1.5 rounded-full bg-green-base`) before the label to match modern SaaS subscription pills. Hero number + delta strip read from per-tier insights/deltas. `previewMode` prop dropped — its only consumer (the deleted `GrowthPlusLockedPreview`) is gone.
+- **MetricsStrip reads per-tier insights.** Same three cards (reach lift / engagement / boosted posts), values now reflect the user's actual tier ceiling.
+- **Controls card — locked segments visible.** Per the locked decision ("discovery > clean UI"): `Speed: Fast` shows with a `Lock` icon on Starter; `Quality: Targeted` shows locked on Starter; `Quality: Top accounts` shows locked on both Starter and Pro. Hover/focus reveals a tooltip "Available on **Pro**" or "Available on **Elite**" (the tooltip name picks the cheapest tier that unlocks it). Locked buttons set `disabled` + `aria-disabled` and never invoke `onChange`. Defensive belt-and-suspenders: `setGrowthPlusSpeed` and `setGrowthPlusQuality` on the store reject locked values silently, so a stale click can't poison state.
+- **BillingCard is tier-aware** and gains an "Upgrade" nudge ribbon. Top row shows `Pro · $49.00 · Jun 6, 2026` style (tier name + price + date). When tier ≠ Elite, a tinted `bg-purple-tint/40` ribbon spans the card bottom: "Upgrade to **Elite** for $99/mo — unlock Top accounts targeting" with `ArrowUpRight` and `ChevronRight`. Links to `/growth-plus/upgrade` (a future route — for now hooks into the existing flow). When tier === Elite, the ribbon is omitted.
+- **GrowthPlusActive section order** rewritten: Hero → Metrics → **TierStrip** → Activity → Controls → Billing. TierStrip slots between Metrics and Activity so users see "you're on Pro" before the activity proof surface.
+- **Page entry `index.jsx`** now renders `<GrowthPlusUpsell />` (instead of the deleted `GrowthPlusLockedPreview`) when `subscribed === false`.
+- **`GrowthPlusBanner.jsx`** (Overview + Growth pages) now reads per-tier insights so the "+143 extra followers" headline reflects the user's actual tier.
+
+### Removed
+- **`GrowthPlusLockedPreview.jsx`** — the blurred-dashboard + floating-card pattern. Replaced by the real `GrowthPlusUpsell` page.
+- **`GrowthPlusSubscribeOverlay.jsx`** — its floating card is now redundant; the upsell page is the surface, and the existing `GrowthPlusSubscribeModal` (used by both signup and locked-state) still handles confirm/processing/success.
+- **`previewMode` prop on Hero + Active** — no remaining consumer.
+
+### Decisions (locked, don't revisit)
+- **3 tiers: Starter $29 / Pro $49 / Elite $99.** Pro keeps the current $49 price (matches existing billing copy + subscribe modal), so existing flows remain accurate. Starter is the entry tier; Elite is the unlock-everything ceiling.
+- **Gating split:**
+  - Speed: Starter caps at Steady; Fast unlocks at Pro.
+  - Quality: Starter caps at Broad; Targeted unlocks at Pro; Top accounts unlocks at Elite.
+- **Default tier on `mockUserGrowthPlus` = Pro** so existing screens stay visually identical to pre-tier state.
+- **Locked controls stay visible** with a Lock badge + "Available on X" tooltip. Discovery beats clean UI here — hiding controls means users never learn what upgrading buys.
+- **The Pro tier carries the "Recommended" flag,** not Elite. Recommended is for "best for most users," not "highest revenue."
+- **Tier downgrade snaps speed/quality back automatically** to the highest still-allowed value. Users never land on a locked selection.
+- **Pricing data lives only in `mockGrowthPlusTiers`.** Billing card, upsell page, hero pill, and tier strip all read from there. Editing a price changes one line.
+
+### Files touched
+- `src/mocks/growth.js` — tier catalog + per-tier insights + per-tier deltas + `mockGrowthPlusTierById`
+- `src/mocks/user.js` — `growthPlusTier` field + two tier variants
+- `src/mocks/growthConfig.js` — `tier` on `growthPlusControls`
+- `src/stores/useGrowthConfig.js` — `setGrowthPlusTier` + gated speed/quality setters
+- `src/pages/growthPlus/GrowthPlusHero.jsx` — tier-aware pill, status dot, per-tier values
+- `src/pages/growthPlus/GrowthPlusMetricsStrip.jsx` — per-tier values
+- `src/pages/growthPlus/GrowthPlusControls.jsx` — Lock badges + tooltips on locked segments
+- `src/pages/growthPlus/GrowthPlusBillingCard.jsx` — tier + upgrade ribbon
+- `src/pages/growthPlus/GrowthPlusTierStrip.jsx` — **new**
+- `src/pages/growthPlus/GrowthPlusUpsell.jsx` — **new**
+- `src/pages/growthPlus/GrowthPlusActive.jsx` — section reorder, drop `previewMode`
+- `src/pages/growthPlus/index.jsx` — Upsell wiring
+- `src/components/GrowthPlusBanner.jsx` — per-tier reads
+- **Deleted:** `GrowthPlusLockedPreview.jsx`, `GrowthPlusSubscribeOverlay.jsx`
+
+### Commits
+344b485 · f79972e · 4a18f78 · 367de98 · 440fefb · 37d4e6c · 9c4cac6 · 9f2c9f3
+
+---
+
 ## 2026-05-12 — Growth+ page premium polish (round 2)
 
 Second polish pass on the Growth+ page after a real review surfaced that the page still didn't feel premium. Seven targeted fixes across the existing files plus one new component. Tier work is queued as a separate spec — not in this pass. Locked-preview / upsell rework is also deferred to the tier spec since the real upsell page needs tier pricing data.
