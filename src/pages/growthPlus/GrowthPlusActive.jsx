@@ -8,15 +8,17 @@ import { useGrowthPlusSubscription } from '@/stores/useGrowthPlusSubscription'
 import { useToasts } from '@/stores/useToasts'
 import GrowthPlusActivity from './GrowthPlusActivity'
 import GrowthPlusBillingCard from './GrowthPlusBillingCard'
+import GrowthPlusCancelledBanner from './GrowthPlusCancelledBanner'
 import GrowthPlusControls from './GrowthPlusControls'
 import GrowthPlusHero from './GrowthPlusHero'
 import GrowthPlusMetricsStrip from './GrowthPlusMetricsStrip'
 
 // Subscriber dashboard for the Growth+ page. Hero → metrics →
 // [Activity + Controls 2-col on lg:+] → Billing. Owns the three
-// modals: Manage popup (entry), Cancel flow (3 steps + success),
-// SwitchTier confirm (proration + success — also used as the cancel
-// flow's "Too expensive" deflection target).
+// modals: Manage popup (entry, variant depends on status), Cancel
+// flow (3 steps + success), SwitchTier confirm (proration + success).
+// In cancelled_pending status: prepends a yellow banner with a
+// Resume CTA; Manage popup renders the Resume variant.
 //
 // `account` is captured for future per-account data wiring — V1 mocks
 // don't vary per account.
@@ -24,7 +26,9 @@ import GrowthPlusMetricsStrip from './GrowthPlusMetricsStrip'
 // eslint-disable-next-line no-unused-vars
 export default function GrowthPlusActive({ account, manageOpenOnMount = false }) {
   const navigate = useNavigate()
+  const status = useGrowthPlusSubscription((s) => s.status)
   const cancelSubscription = useGrowthPlusSubscription((s) => s.cancel)
+  const resumeSubscription = useGrowthPlusSubscription((s) => s.resume)
   const addToast = useToasts((s) => s.addToast)
   const [manageOpen, setManageOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
@@ -33,6 +37,8 @@ export default function GrowthPlusActive({ account, manageOpenOnMount = false })
   useEffect(() => {
     if (manageOpenOnMount) setManageOpen(true)
   }, [manageOpenOnMount])
+
+  const isCancelledPending = status === 'cancelled_pending'
 
   function handleChangeTier() {
     setManageOpen(false)
@@ -45,9 +51,12 @@ export default function GrowthPlusActive({ account, manageOpenOnMount = false })
   }
 
   function handleResume() {
-    // Wired fully in Task 13 (cancelled_pending Manage variant). Stub
-    // here so the modal contract is satisfied.
     setManageOpen(false)
+    resumeSubscription()
+    addToast({
+      message: 'Growth+ subscription resumed.',
+      tone: 'success',
+    })
   }
 
   function handleCancelConfirmed() {
@@ -64,14 +73,14 @@ export default function GrowthPlusActive({ account, manageOpenOnMount = false })
   }
 
   function handleSwitchTierSuccess() {
-    // The modal already fires its own "Switched to X" toast. After a
-    // deflection downgrade we send the user back to /growth-plus so
-    // they land on their (now-downgraded) dashboard.
     navigate('/growth-plus')
   }
 
   return (
     <div className="flex flex-col gap-4 md:gap-5">
+      {isCancelledPending && (
+        <GrowthPlusCancelledBanner onResume={handleResume} />
+      )}
       <GrowthPlusHero />
       <GrowthPlusMetricsStrip />
       <div className="grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-2">
