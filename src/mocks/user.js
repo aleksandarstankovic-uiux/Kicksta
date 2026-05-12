@@ -43,3 +43,16 @@ export const mockUserGrowthPlus = {
   trialEndsAt: null,
   growthPlusSubscribed: true,
 }
+
+// Growth+ subscription anchored relative to import time so the
+// "Next billing" date in the Growth+ controls renders fresh on each
+// load (5 days into a 30-day cycle = ~25 days remaining). Same trick
+// as `mockUser.trialEndsAt`.
+const _gpStart = new Date()
+_gpStart.setHours(0, 0, 0, 0)
+_gpStart.setDate(_gpStart.getDate() - 5)
+export const mockGrowthPlusStartedAt = _gpStart.toISOString()
+
+const _gpNext = new Date(_gpStart)
+_gpNext.setDate(_gpNext.getDate() + 30)
+export const mockGrowthPlusNextBillingAt = _gpNext.toISOString()
