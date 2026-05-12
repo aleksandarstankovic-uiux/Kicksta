@@ -33,6 +33,10 @@ export const mockUser = {
   trialEndsAt,
   isOnTrial: true,
   growthPlusSubscribed: false,
+  // Current Growth+ tier when subscribed. "starter" | "pro" | "elite"
+  // | null. null when growthPlusSubscribed === false. Drives the hero
+  // pill, metric ceilings, and which control segments unlock.
+  growthPlusTier: null,
   createdAt,
 }
 
@@ -42,6 +46,21 @@ export const mockUserGrowthPlus = {
   isOnTrial: false,
   trialEndsAt: null,
   growthPlusSubscribed: true,
+  growthPlusTier: 'pro',
+}
+
+// Variant: Growth+ subscriber on the entry Starter tier — most
+// segments are locked, used to verify the gating UX.
+export const mockUserGrowthPlusStarter = {
+  ...mockUserGrowthPlus,
+  growthPlusTier: 'starter',
+}
+
+// Variant: Growth+ subscriber on the top Elite tier — nothing locked,
+// used to verify the unlocked state.
+export const mockUserGrowthPlusElite = {
+  ...mockUserGrowthPlus,
+  growthPlusTier: 'elite',
 }
 
 // Growth+ subscription anchored relative to import time so the

@@ -13,6 +13,11 @@ export const mockGrowthConfig = {
     enabled: true,
     speed: 'steady',
     quality: 'targeted',
+    // Active tier — mirrors mockUserGrowthPlus.growthPlusTier. Held on
+    // config (not user) so the store can read it without crossing into
+    // the user mock for every gating check. Setter on the store keeps
+    // these in sync if/when an account-switch tier change ships.
+    tier: 'pro',
   },
   growthPlusActive: false,
   // Defaults match the "Most users" Quick preset so each Range dropdown
