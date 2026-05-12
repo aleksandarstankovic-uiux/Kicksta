@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-05-12 — Growth+ page polish pass
+
+Fixes 7 QA issues found during a real review of the freshly-shipped Growth+ page. Six commits across five files. All issues from the QA report bundled as one short polish-pass spec.
+
+### Changed
+- **Hero pill is state-aware now.** Reads `useGrowthConfig.growthPlusControls.enabled`. When boost is on: green `Active` pill (unchanged). When boost is paused: muted `Paused` pill (`bg-bg text-text-secondary`). Hidden entirely when `previewMode` is true — non-subscribers no longer see a green "ACTIVE" pill peeking through the locked-preview blur.
+- **Hero headline swaps when paused.** "extra followers from Growth+ this month" becomes "Boost paused — billing continues." The hero number stays — it's the historical earn count.
+- **Page H1 + subtitle added.** "Growth+" / "Algorithmic reach on top of your Targeted Growth." Sits at the page level (outside the locked-preview wrapper) so non-subscribers see the page identity sharply. Matches the recipe used by Targeting / Engagement / Settings / Overview page titles.
+- **Billing date is now dynamic.** Hardcoded "$49.00 on May 25" replaced with a date computed from new `mockGrowthPlusNextBillingAt` (5 days into a 30-day cycle from import time = ~25 days remaining). Renders "$49.00 on Jun 6, 2026"-style with year. Same import-time-anchored trick as `mockUser.trialEndsAt`.
+- **"High-engagement" Quality segment renamed to "Top accounts."** Was wrapping to two lines on mobile inside the segmented control; now stays on one line at all viewports. Value key also changes from `'high-engagement'` to `'top'`. Tradeoff note unchanged.
+- **Boosted posts metric icon: Sparkles → Megaphone.** Sparkles was used three places on the page (hero chip + Boosted posts metric + post-boosted activity rows). Megaphone frees up Sparkles for its primary brand role. Metrics strip icons are now distinct: TrendingUp / Heart / Megaphone.
+
+### Added
+- `mockGrowthPlusStartedAt` + `mockGrowthPlusNextBillingAt` exports in `src/mocks/user.js`. Both computed at import time, anchored to "5 days ago" + 30-day cycle. `mockGrowthPlusStartedAt` isn't consumed in this spec — it's there for the future `/account/growth-plus` real subscription-management page.
+
+### Decisions (locked, don't revisit)
+- **Hero pill state model**: only renders when `!previewMode`. Within that, the recipe is Active (green) vs Paused (muted). No third state. Red wasn't considered because pause isn't an error.
+- **`mockGrowthPlusStartedAt` exists.** Even though no consumer uses it yet, exporting it now is cheaper than adding it later when the management page lands.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-12-growth-plus-polish-design.md`
+- Plan: `docs/superpowers/plans/2026-05-12-growth-plus-polish.md`
+- Commits: c4e0a69, 63e3dfb, 3d4c29f, caf47ac, 98c6cd9
+
+---
+
 ## 2026-05-11 — Growth+ page
 
 Built the dedicated `/growth-plus` page — the route had been in the nav since the 2026-05-07 navigation overhaul but was landing on a blank screen. 14 commits across mocks, stores, hooks, a shared modal extraction, and 9 new files under `src/pages/growthPlus/`. Visual treatment is deliberately premium so the page reads as the paid surface it represents.
