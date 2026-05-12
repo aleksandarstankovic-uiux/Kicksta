@@ -19,6 +19,15 @@ export default function GrowthPlusPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 md:px-6 lg:px-8">
+      <header className="mb-5 md:mb-6">
+        <h1 className="text-lg font-semibold leading-snug text-text-primary lg:text-xl">
+          Growth+
+        </h1>
+        <p className="mt-1 text-sm text-text-secondary">
+          Algorithmic reach on top of your Targeted Growth.
+        </p>
+      </header>
+
       {subscribed ? (
         <GrowthPlusActive account={activeAccount} />
       ) : (
