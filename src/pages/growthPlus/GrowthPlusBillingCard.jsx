@@ -61,7 +61,7 @@ export default function GrowthPlusBillingCard({ onManage }) {
 
       {showUpgrade && (
         <Link
-          to="/growth-plus/upgrade"
+          to="/account/growth-plus"
           className="flex items-center gap-2 border-t border-border bg-purple-tint/40 px-4 py-3 text-xs font-medium text-purple-text transition-colors hover:bg-purple-tint md:px-5"
         >
           <ArrowUpRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
