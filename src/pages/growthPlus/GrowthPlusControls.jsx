@@ -3,6 +3,15 @@ import { ChevronRight, Sliders } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
+import { mockGrowthPlusNextBillingAt } from '@/mocks/user'
+
+function formatBillingDate(iso) {
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
 
 const SPEED_OPTIONS = [
   { value: 'slow', label: 'Slow', note: 'Easier on IG; fewer boosts per day.' },
@@ -13,7 +22,7 @@ const SPEED_OPTIONS = [
 const QUALITY_OPTIONS = [
   { value: 'broad', label: 'Broad', note: 'Wider reach across audiences.' },
   { value: 'targeted', label: 'Targeted', note: 'Match your niche; balanced reach + engagement.' },
-  { value: 'high-engagement', label: 'High-engagement', note: 'Active accounts likely to like + save.' },
+  { value: 'top', label: 'Top accounts', note: 'Active accounts likely to like + save.' },
 ]
 
 // Growth+ operational controls — pause toggle + speed + quality segmented
@@ -75,7 +84,9 @@ export default function GrowthPlusControls() {
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-4">
         <p className="text-sm text-text-secondary">
           Next billing{' '}
-          <span className="font-medium text-text-primary">$49.00 on May 25</span>
+          <span className="font-medium text-text-primary">
+            $49.00 on {formatBillingDate(mockGrowthPlusNextBillingAt)}
+          </span>
         </p>
         <Link
           to="/account/growth-plus"
