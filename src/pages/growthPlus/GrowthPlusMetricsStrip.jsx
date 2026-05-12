@@ -1,35 +1,38 @@
 import { Heart, Megaphone, TrendingUp } from 'lucide-react'
 import { mockGrowthPlusInsights } from '@/mocks/growth'
+import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
-// Three supporting metric cards under the hero. Read from
-// mockGrowthPlusInsights. Sizing matches the Overview MetricCard recipe
-// (text-xl lg:text-2xl value, text-xs font-medium label) so the page
-// reads consistent with the rest of the dashboard.
-const CARDS = [
-  {
-    key: 'reach',
-    icon: TrendingUp,
-    value: `+${Math.round(mockGrowthPlusInsights.postReachLift * 100)}%`,
-    label: 'Post reach lift',
-  },
-  {
-    key: 'engagement',
-    icon: Heart,
-    value: `${(mockGrowthPlusInsights.engagementRate * 100).toFixed(1)}%`,
-    label: 'Engagement rate',
-  },
-  {
-    key: 'posts',
-    icon: Megaphone,
-    value: String(mockGrowthPlusInsights.boostedPosts),
-    label: 'Boosted posts',
-  },
-]
-
+// Three supporting metric cards under the hero. Reads values per-tier
+// from mockGrowthPlusInsights so the ceiling reflects the user's
+// actual plan. Sizing matches the Overview MetricCard recipe.
 export default function GrowthPlusMetricsStrip() {
+  const tierId = useGrowthConfig((s) => s.config.growthPlusControls.tier)
+  const insights = mockGrowthPlusInsights[tierId] ?? mockGrowthPlusInsights.pro
+
+  const cards = [
+    {
+      key: 'reach',
+      icon: TrendingUp,
+      value: `+${Math.round(insights.postReachLift * 100)}%`,
+      label: 'Post reach lift',
+    },
+    {
+      key: 'engagement',
+      icon: Heart,
+      value: `${(insights.engagementRate * 100).toFixed(1)}%`,
+      label: 'Engagement rate',
+    },
+    {
+      key: 'posts',
+      icon: Megaphone,
+      value: String(insights.boostedPosts),
+      label: 'Boosted posts',
+    },
+  ]
+
   return (
     <section className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
-      {CARDS.map((c) => {
+      {cards.map((c) => {
         const Icon = c.icon
         return (
           <div

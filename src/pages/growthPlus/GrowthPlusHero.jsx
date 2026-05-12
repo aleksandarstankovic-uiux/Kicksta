@@ -1,20 +1,30 @@
 import { Sparkles } from 'lucide-react'
-import { mockGrowthPlusDeltas, mockGrowthPlusInsights } from '@/mocks/growth'
+import {
+  mockGrowthPlusDeltas,
+  mockGrowthPlusInsights,
+  mockGrowthPlusTierById,
+} from '@/mocks/growth'
 import { useCountUp } from '@/hooks/useCountUp'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
-// Hero card for the Growth+ page. Premium purple-gradient surface,
-// counting hero number, delta strip (today / week / month) underneath.
+// Hero card for the Growth+ page. Reads the active tier from the
+// store; pill, hero number, and delta strip all key off that tier.
 //
-// previewMode: skips the count-up animation (used by the non-subscriber
-// locked-preview wrapper where animation behind a blur reads jittery).
+// previewMode: skips the count-up animation (used by the locked-state
+// preview wrapper before tier rework — kept as a prop in case the
+// upsell page wants to render the hero behind a peek).
 export default function GrowthPlusHero({ previewMode = false }) {
-  const target = mockGrowthPlusInsights.algorithmicBoost
-  const animatedValue = useCountUp(target, 600)
-  const value = previewMode ? target : animatedValue
+  const tierId = useGrowthConfig((s) => s.config.growthPlusControls.tier)
   const boostEnabled = useGrowthConfig(
     (s) => s.config.growthPlusControls.enabled,
   )
+  const tier = mockGrowthPlusTierById[tierId]
+  const insights = mockGrowthPlusInsights[tierId] ?? mockGrowthPlusInsights.pro
+  const deltas = mockGrowthPlusDeltas[tierId] ?? mockGrowthPlusDeltas.pro
+
+  const target = insights.algorithmicBoost
+  const animatedValue = useCountUp(target, 600)
+  const value = previewMode ? target : animatedValue
 
   return (
     <section className="overflow-hidden rounded-xl border border-purple-base/20 bg-gradient-to-br from-purple-tint via-purple-tint to-purple-base/15 p-5 shadow-sm md:p-6">
@@ -30,13 +40,27 @@ export default function GrowthPlusHero({ previewMode = false }) {
         </span>
         {!previewMode && (
           <span
-            className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+            className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
               boostEnabled
                 ? 'bg-green-tint text-green-text'
                 : 'bg-bg text-text-secondary'
             }`}
           >
+            <span
+              aria-hidden="true"
+              className={`h-1.5 w-1.5 rounded-full ${
+                boostEnabled ? 'bg-green-base' : 'bg-text-muted'
+              }`}
+            />
             {boostEnabled ? 'Active' : 'Paused'}
+            {tier && (
+              <>
+                <span aria-hidden="true" className="opacity-50">
+                  ·
+                </span>
+                <span>{tier.name}</span>
+              </>
+            )}
           </span>
         )}
       </div>
@@ -51,11 +75,11 @@ export default function GrowthPlusHero({ previewMode = false }) {
       </p>
 
       <dl className="mt-5 flex items-center gap-4 text-sm text-text-secondary sm:gap-6">
-        <DeltaItem label="today" value={mockGrowthPlusDeltas.today} />
+        <DeltaItem label="today" value={deltas.today} />
         <span aria-hidden="true" className="h-3 w-px bg-purple-base/25" />
-        <DeltaItem label="this week" value={mockGrowthPlusDeltas.week} />
+        <DeltaItem label="this week" value={deltas.week} />
         <span aria-hidden="true" className="h-3 w-px bg-purple-base/25" />
-        <DeltaItem label="this month" value={mockGrowthPlusDeltas.month} />
+        <DeltaItem label="this month" value={deltas.month} />
       </dl>
     </section>
   )
