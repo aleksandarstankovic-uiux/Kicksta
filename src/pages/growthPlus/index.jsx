@@ -2,7 +2,7 @@ import { mockUser } from '@/mocks/user'
 import { useAccounts } from '@/stores/useAccounts'
 import { useGrowthPlusSubscription } from '@/stores/useGrowthPlusSubscription'
 import GrowthPlusActive from './GrowthPlusActive'
-import GrowthPlusLockedPreview from './GrowthPlusLockedPreview'
+import GrowthPlusUpsell from './GrowthPlusUpsell'
 
 // /growth-plus page entry. Reads subscription state from the Zustand
 // override (falls back to mockUser.growthPlusSubscribed) and renders
@@ -28,11 +28,7 @@ export default function GrowthPlusPage() {
         </p>
       </header>
 
-      {subscribed ? (
-        <GrowthPlusActive account={activeAccount} />
-      ) : (
-        <GrowthPlusLockedPreview account={activeAccount} />
-      )}
+      {subscribed ? <GrowthPlusActive account={activeAccount} /> : <GrowthPlusUpsell />}
     </div>
   )
 }

@@ -9,11 +9,7 @@ import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
 // Hero card for the Growth+ page. Reads the active tier from the
 // store; pill, hero number, and delta strip all key off that tier.
-//
-// previewMode: skips the count-up animation (used by the locked-state
-// preview wrapper before tier rework — kept as a prop in case the
-// upsell page wants to render the hero behind a peek).
-export default function GrowthPlusHero({ previewMode = false }) {
+export default function GrowthPlusHero() {
   const tierId = useGrowthConfig((s) => s.config.growthPlusControls.tier)
   const boostEnabled = useGrowthConfig(
     (s) => s.config.growthPlusControls.enabled,
@@ -23,8 +19,7 @@ export default function GrowthPlusHero({ previewMode = false }) {
   const deltas = mockGrowthPlusDeltas[tierId] ?? mockGrowthPlusDeltas.pro
 
   const target = insights.algorithmicBoost
-  const animatedValue = useCountUp(target, 600)
-  const value = previewMode ? target : animatedValue
+  const value = useCountUp(target, 600)
 
   return (
     <section className="overflow-hidden rounded-xl border border-purple-base/20 bg-gradient-to-br from-purple-tint via-purple-tint to-purple-base/15 p-5 shadow-sm md:p-6">
@@ -38,31 +33,29 @@ export default function GrowthPlusHero({ previewMode = false }) {
         <span className="text-[11px] font-semibold uppercase tracking-wide text-purple-text">
           GROWTH+
         </span>
-        {!previewMode && (
+        <span
+          className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+            boostEnabled
+              ? 'bg-green-tint text-green-text'
+              : 'bg-bg text-text-secondary'
+          }`}
+        >
           <span
-            className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-              boostEnabled
-                ? 'bg-green-tint text-green-text'
-                : 'bg-bg text-text-secondary'
+            aria-hidden="true"
+            className={`h-1.5 w-1.5 rounded-full ${
+              boostEnabled ? 'bg-green-base' : 'bg-text-muted'
             }`}
-          >
-            <span
-              aria-hidden="true"
-              className={`h-1.5 w-1.5 rounded-full ${
-                boostEnabled ? 'bg-green-base' : 'bg-text-muted'
-              }`}
-            />
-            {boostEnabled ? 'Active' : 'Paused'}
-            {tier && (
-              <>
-                <span aria-hidden="true" className="opacity-50">
-                  ·
-                </span>
-                <span>{tier.name}</span>
-              </>
-            )}
-          </span>
-        )}
+          />
+          {boostEnabled ? 'Active' : 'Paused'}
+          {tier && (
+            <>
+              <span aria-hidden="true" className="opacity-50">
+                ·
+              </span>
+              <span>{tier.name}</span>
+            </>
+          )}
+        </span>
       </div>
 
       <p className="mt-4 text-5xl font-semibold leading-none text-text-primary md:text-6xl">
