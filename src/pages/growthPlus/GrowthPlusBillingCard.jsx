@@ -21,11 +21,12 @@ function nextTier(currentId) {
   return mockGrowthPlusTiers[i + 1]
 }
 
-// Dedicated billing surface. Shows current tier name + price + next
-// billing date. When the user isn't on Elite, a slim upgrade ribbon
-// at the bottom points to the next tier — keeps upgrade discovery
-// visible without crowding the primary "Manage" CTA.
-export default function GrowthPlusBillingCard() {
+// Dedicated billing surface. "Manage" button opens the parent-owned
+// Growth+ Manage popup (not a route navigation) so the user gets the
+// Change-tier / Cancel choice without leaving the page first. When the
+// user isn't on Elite, a slim upgrade ribbon at the bottom points to
+// the next tier.
+export default function GrowthPlusBillingCard({ onManage }) {
   const tierId = useGrowthConfig((s) => s.config.growthPlusControls.tier)
   const tier = mockGrowthPlusTierById[tierId]
   const upgrade = nextTier(tierId)
@@ -41,13 +42,14 @@ export default function GrowthPlusBillingCard() {
             {formatBillingDate(mockGrowthPlusNextBillingAt)}
           </p>
         </div>
-        <Link
-          to="/account/growth-plus"
+        <button
+          type="button"
+          onClick={onManage}
           className="inline-flex h-10 items-center gap-1 rounded-lg border border-border bg-surface px-3 text-sm font-medium text-text-primary transition-colors hover:bg-bg"
         >
           Manage
           <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-        </Link>
+        </button>
       </div>
 
       {upgrade && (
