@@ -5,16 +5,23 @@ import { formatRelativeTime } from '@/utils/formatRelativeTime'
 
 // Recent Growth+ boost events. Default expanded — this is the page's
 // proof surface, earns being visible without a disclosure click.
+//
+// Row icons render bare (no chip background) to match the Overview
+// activity feed pattern — rows aren't interactive, so a chip would
+// over-decorate. Color carries the event kind: purple-text for
+// post-boosted, green-text for follower gains.
 function eventRow(event) {
   if (event.type === 'post_boosted') {
     return {
       icon: Sparkles,
+      iconColor: 'text-purple-text',
       title: `Your post "${event.postTitle}" boosted`,
       sub: `+${event.engagements} engagements from active accounts`,
     }
   }
   return {
     icon: UserPlus,
+    iconColor: 'text-green-text',
     title: `+${event.count} followers from boost network`,
     sub: 'Triggered by your 5 most recent posts',
   }
@@ -47,16 +54,14 @@ export default function GrowthPlusActivity() {
             return (
               <li
                 key={event.id}
-                className={`flex items-center gap-3 py-3 ${
+                className={`flex items-start gap-3 py-3 ${
                   i === 0 ? '' : 'border-t border-border'
                 }`}
               >
-                <span
+                <Icon
                   aria-hidden="true"
-                  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-purple-tint text-purple-text"
-                >
-                  <Icon className="h-4 w-4" />
-                </span>
+                  className={`mt-0.5 h-4 w-4 shrink-0 ${row.iconColor}`}
+                />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-text-primary">
                     {row.title}
