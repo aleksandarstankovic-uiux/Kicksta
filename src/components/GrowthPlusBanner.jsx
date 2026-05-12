@@ -71,7 +71,7 @@ export default function GrowthPlusBanner({ isSubscribed }) {
 
         {isSubscribed && (
           <Link
-            to="/account/growth-plus"
+            to="/growth-plus?manage=1"
             className="mt-1 inline-flex items-center text-xs font-medium text-purple-text hover:underline"
           >
             Manage subscription
@@ -121,7 +121,7 @@ export default function GrowthPlusBanner({ isSubscribed }) {
 
         {isSubscribed && (
           <Link
-            to="/account/growth-plus"
+            to="/growth-plus?manage=1"
             className="shrink-0 text-sm font-medium text-purple-text hover:underline"
           >
             Manage subscription
