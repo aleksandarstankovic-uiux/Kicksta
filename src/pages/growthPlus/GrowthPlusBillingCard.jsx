@@ -58,7 +58,7 @@ export default function GrowthPlusBillingCard() {
           <ArrowUpRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           <span className="flex-1">
             Upgrade to {upgrade.name} for ${upgrade.price}/mo — unlock{' '}
-            {upgrade.id === 'elite' ? 'Top accounts targeting' : 'Fast speed + Targeted quality'}
+            {upgrade.id === 'elite' ? 'Engaged-quality targeting' : 'Fast speed + Targeted quality'}
           </span>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
         </Link>

@@ -172,7 +172,7 @@ function TierCard({ tier, onChoose }) {
         />
         <FeatureRow
           included={tier.allowedQuality.includes('top')}
-          text="Top accounts targeting"
+          text="Engaged-quality targeting"
         />
       </ul>
 
