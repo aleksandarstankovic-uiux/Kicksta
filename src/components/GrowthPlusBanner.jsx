@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { mockGrowthPlusInsights } from '@/mocks/growth'
+import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
 // Shared Growth+ marketing banner. Used by both Overview and Growth.
 //
@@ -10,7 +11,8 @@ import { mockGrowthPlusInsights } from '@/mocks/growth'
 // Subscriber: same surface + "Active" pill + real-numbers headline +
 // "Manage subscription" text link → /account/growth-plus. No primary CTA.
 export default function GrowthPlusBanner({ isSubscribed }) {
-  const ins = mockGrowthPlusInsights
+  const tierId = useGrowthConfig((s) => s.config.growthPlusControls.tier)
+  const ins = mockGrowthPlusInsights[tierId] ?? mockGrowthPlusInsights.pro
 
   const headline = isSubscribed
     ? `Growth+ added +${ins.algorithmicBoost} extra followers this month`
