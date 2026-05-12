@@ -1,4 +1,4 @@
-import { Sparkles, UserPlus } from 'lucide-react'
+import { Activity, Sparkles, UserPlus } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import { mockGrowthPlusActivity } from '@/mocks/growthPlusActivity'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
@@ -28,12 +28,12 @@ function eventRow(event) {
 }
 
 export default function GrowthPlusActivity() {
-  const items = mockGrowthPlusActivity.slice(0, 5)
+  const items = mockGrowthPlusActivity
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 md:p-5">
       <div className="flex items-center gap-2">
-        <CardChip color="purple" icon={Sparkles} />
+        <CardChip color="purple" icon={Activity} />
         <h2 className="text-base font-semibold text-text-primary">
           Recent boost activity
         </h2>
@@ -41,13 +41,16 @@ export default function GrowthPlusActivity() {
           {items.length}
         </span>
       </div>
+      <p className="mt-3 text-xs leading-relaxed text-text-secondary">
+        Live feed of post boosts and follower gains from the Growth+ network.
+      </p>
 
       {items.length === 0 ? (
         <p className="mt-3 py-6 text-center text-sm text-text-muted">
           No boost activity yet — your first boost will appear here within 24 hours.
         </p>
       ) : (
-        <ul className="mt-3 flex flex-col">
+        <ul className="mt-3 flex max-h-[280px] flex-col overflow-y-auto pr-1 lg:max-h-[420px]">
           {items.map((event, i) => {
             const row = eventRow(event)
             const Icon = row.icon
