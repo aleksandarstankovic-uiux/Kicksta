@@ -1,6 +1,7 @@
-import { Sliders } from 'lucide-react'
+import { Lock, Sliders } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
+import { mockGrowthPlusTierById, mockGrowthPlusTiers } from '@/mocks/growth'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
 const SPEED_OPTIONS = [
@@ -15,18 +16,27 @@ const QUALITY_OPTIONS = [
   { value: 'top', label: 'Top accounts', note: 'Active accounts likely to like + save.' },
 ]
 
-// Growth+ operational controls — leads with a one-line "how it works"
-// orientation, then pause + speed + quality. Each segment's per-option
-// note sits above the segmented control (between the title and the
-// buttons) so the explanation reads before the choice, not after.
+// Returns the cheapest tier whose `allowed` set contains `value`.
+// Used to render the "Available on Pro+" tooltip on locked segments.
+function unlockTier(allowedKey, value) {
+  return mockGrowthPlusTiers.find((t) => t[allowedKey].includes(value))
+}
+
+// Growth+ operational controls. Leads with a one-line "how it works"
+// orientation, then pause + speed + quality. Locked segment options
+// (gated by the current tier) render with a Lock icon and refuse
+// clicks, but stay visible so users see what they unlock by upgrading.
 export default function GrowthPlusControls() {
   const config = useGrowthConfig((s) => s.config.growthPlusControls)
   const toggleEnabled = useGrowthConfig((s) => s.toggleGrowthPlusEnabled)
   const setSpeed = useGrowthConfig((s) => s.setGrowthPlusSpeed)
   const setQuality = useGrowthConfig((s) => s.setGrowthPlusQuality)
 
+  const tier = mockGrowthPlusTierById[config.tier]
   const speedNote = SPEED_OPTIONS.find((o) => o.value === config.speed)?.note
-  const qualityNote = QUALITY_OPTIONS.find((o) => o.value === config.quality)?.note
+  const qualityNote = QUALITY_OPTIONS.find(
+    (o) => o.value === config.quality,
+  )?.note
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 md:p-5">
@@ -64,6 +74,8 @@ export default function GrowthPlusControls() {
           value={config.speed}
           onChange={setSpeed}
           disabled={!config.enabled}
+          allowed={tier?.allowedSpeed}
+          allowedKey="allowedSpeed"
         />
       </div>
 
@@ -75,6 +87,8 @@ export default function GrowthPlusControls() {
           value={config.quality}
           onChange={setQuality}
           disabled={!config.enabled}
+          allowed={tier?.allowedQuality}
+          allowedKey="allowedQuality"
         />
       </div>
     </section>
@@ -103,7 +117,7 @@ function CardToggle({ checked, onClick, ariaLabel }) {
   )
 }
 
-function SegmentedControl({ options, value, onChange, disabled }) {
+function SegmentedControl({ options, value, onChange, disabled, allowed, allowedKey }) {
   return (
     <div
       className={`mt-3 flex w-full rounded-full bg-bg p-1 ${
@@ -113,22 +127,51 @@ function SegmentedControl({ options, value, onChange, disabled }) {
     >
       {options.map((opt) => {
         const selected = value === opt.value
+        const locked = allowed ? !allowed.includes(opt.value) : false
+        const unlocksOn = locked ? unlockTier(allowedKey, opt.value) : null
         return (
-          <button
+          <SegmentButton
             key={opt.value}
-            type="button"
-            onClick={() => onChange(opt.value)}
-            disabled={disabled}
-            className={`inline-flex h-8 flex-1 items-center justify-center rounded-full px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed ${
-              selected
-                ? 'bg-surface text-text-primary shadow-sm'
-                : 'text-text-secondary hover:text-text-primary'
-            }`}
-          >
-            {opt.label}
-          </button>
+            option={opt}
+            selected={selected}
+            locked={locked}
+            unlocksOn={unlocksOn}
+            onClick={() => !locked && onChange(opt.value)}
+            disabled={disabled || locked}
+          />
         )
       })}
     </div>
+  )
+}
+
+function SegmentButton({ option, selected, locked, unlocksOn, onClick, disabled }) {
+  return (
+    <span className="group relative flex-1">
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-disabled={locked || undefined}
+        className={`inline-flex h-8 w-full items-center justify-center gap-1 rounded-full px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed ${
+          selected
+            ? 'bg-surface text-text-primary shadow-sm'
+            : locked
+              ? 'text-text-muted'
+              : 'text-text-secondary hover:text-text-primary'
+        }`}
+      >
+        {locked && <Lock className="h-3 w-3" aria-hidden="true" />}
+        {option.label}
+      </button>
+      {locked && unlocksOn && (
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute left-1/2 top-full z-10 mt-1 w-max max-w-[200px] -translate-x-1/2 rounded-lg bg-text-primary px-2.5 py-1.5 text-[11px] leading-relaxed text-surface opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+        >
+          Available on {unlocksOn.name}
+        </span>
+      )}
+    </span>
   )
 }
