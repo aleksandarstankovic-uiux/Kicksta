@@ -14,9 +14,11 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 
 ---
 
-## Resume context (2026-05-11, end of session)
+## Resume context (2026-05-12, end of session)
 
-**State of the working tree:** clean except for the usual `.claude/settings.local.json` drift. All project work committed. No worktrees. Working directly on `main`. **Deployed to `https://kicksta.vercel.app/`** via the GitHub remote (`origin = git@github.com:aleksandarstankovic-uiux/Kicksta.git`).
+**State of the working tree:** clean except for the usual `.claude/settings.local.json` drift. All project work committed and pushed. No worktrees. Working directly on `main`. **Deployed to `https://kicksta.vercel.app/`** via the GitHub remote (`origin = git@github.com:aleksandarstankovic-uiux/Kicksta.git`). Auto-deploys on every push to `main`.
+
+**Cross-device workflow note:** today included a mobile-session that landed via fast-forward merge from `claude/kicksta-dashboard-LwK3F` (branch deleted post-merge). All work converged on `main`. If a new mobile session opens, it should pull `main` before starting and the Mac should pull before its next session.
 
 **Restore tags currently in place:**
 - `pre-settings-page-2026-04-29`
@@ -24,38 +26,51 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 - `pre-targeting-engagement-split-2026-04-30`
 - `pre-next-round-2026-05-07`
 - `pre-next-session-2026-05-07`
-- `pre-next-session-2026-05-08` — end of the big 5-spec batch
-- `pre-next-session-2026-05-11` — at HEAD, end of Growth+ page session
+- `pre-next-session-2026-05-08`
+- `pre-next-session-2026-05-11`
+- `pre-next-session-2026-05-12` — at HEAD, end of layout-pass session
 
 If anything's regressed, hard-reset to the relevant tag.
 
 **Last shipped (most recent first, summarized — see CHANGELOG for details):**
 
-- **Growth+ page** (2026-05-11) — new `/growth-plus` page. Premium subscriber dashboard with a purple-gradient hero (counting `+143` + sparkline), 3-card supporting metrics strip, recent boost activity feed, Growth+ controls (pause + speed + quality segmented controls + billing line), and a cardless safety/transparency strip. Non-subscribers see the same dashboard blurred behind a floating subscribe overlay that opens a shared confirm/processing/success modal (extracted from the signup step). Subscribing flips a Zustand flag (`useGrowthPlusSubscription`) and the live dashboard re-renders inline. 14 commits, 9 new files under `src/pages/growthPlus/` + a shared `GrowthPlusSubscribeModal`.
-- **Five specs from the 2026-05-08 brainstorm** (Nav server-change, Billing structure, Engagement collapse, Add Target popup redesign, Polish pass) — see CHANGELOG.
-- **Vercel deploy** (2026-05-08) — repo pushed to GitHub, linked to Vercel; live at `https://kicksta.vercel.app/`. `vercel.json` rewrites every path to `/index.html` so React Router deep links work.
+- **Growth+ layout pass** (2026-05-12, evening) — Six items addressing density issues after the QA pass on the merged mobile-session work. Upsell hero merged + shrunk (3 standalone benefit cards folded into a 3-icon row inside the hero). Active page hero is a 2-col grid on `lg:+` with the delta strip (`+12 today / +84 week / +143 month`) moved to the right column. Hero number `text-5xl/md:text-6xl` → `text-3xl/md:text-4xl`. Mobile delta strip is a 3-col grid with shortened labels (today/week/month). `GrowthPlusTierStrip` removed (file deleted) — tier already lives in the hero pill + Billing card upgrade ribbon. Activity + Controls go 2-col on `lg:+`. Boost-active toggle row `items-start` → `items-center`. Quality segment `Top accounts` → `Engaged` (label only, value key `'top'` stays) with cross-reference cleanup in Billing card + Upsell.
+- **Growth+ tiered pricing** (2026-05-12, mobile session) — 3-tier model: Starter $29 / Pro $49 / Elite $99. `mockGrowthPlusTiers` is the single source of truth for tier metadata; `mockGrowthPlusInsights` + `mockGrowthPlusDeltas` are per-tier. `mockUserGrowthPlus.growthPlusTier` defaults to `'pro'` (preserves prior visuals). `setGrowthPlusTier(tierId)` on `useGrowthConfig` snaps speed/quality back to the highest still-allowed value when downgrading. Replaced the blurred-locked-preview pattern with `GrowthPlusUpsell.jsx` (real marketing page: tier pricing grid + benefit grid + FAQ; clicking any tier opens the existing `GrowthPlusSubscribeModal` with the tier pre-selected). Locked segments stay visible with `Lock` badge + "Available on Pro/Elite" tooltip (decision: discovery > clean UI). `GrowthPlusLockedPreview` + `GrowthPlusSubscribeOverlay` deleted.
+- **Growth+ premium polish round 2** (2026-05-12, mobile session) — Hero sparkline dropped (cumulative count can only trend up; carried no info), replaced with delta strip. Metric cards match Overview MetricCard sizing (`text-xl lg:text-2xl`, label + value only, sub-line dropped). Activity icons bare (no chip background), color carries event type (purple for post-boosted, green for follower gains). Controls card leads with a one-line how-it-works intro (the bottom ShieldCheck strip was dropped). Per-segment notes moved ABOVE each segmented control. Billing extracted into its own `GrowthPlusBillingCard` (was inline at the bottom of Controls).
+- **Growth+ page polish pass** (2026-05-12, morning Mac session) — Seven QA fixes: hero state-aware pill (Active/Paused), hide pill in `previewMode`, headline swap when paused, page H1 + subtitle, dynamic billing date from `mockGrowthPlusNextBillingAt`, Top accounts → Engaged (first round, before round 2), Megaphone for Boosted posts.
+- **Growth+ page** (2026-05-11) — initial build; see CHANGELOG.
 
 Earlier shipped (still relevant):
+- **2026-05-08 batch of 5 specs** (Nav server-change, Billing structure, Engagement collapse, Add Target popup redesign, Polish pass) — see CHANGELOG.
+- **Vercel deploy** (2026-05-08) — repo on `github.com/aleksandarstankovic-uiux/Kicksta`; `vercel.json` rewrites every path to `/index.html`.
 - **Navigation overhaul** (2026-05-07) — see CHANGELOG.
 - **Targeting page restructure rounds 1–3** (2026-05-05 → 07) — see CHANGELOG.
 
 **Pending specs queue (in priority order):**
 
-1. **GrowthPlusBanner placement** — currently parked at the bottom of `/engagement`. Now that the dedicated Growth+ page ships, the banner may want to live somewhere else (Overview?) or be removed entirely. User asked me to surface this. **Don't decide unilaterally.**
-2. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove).
-3. **Targeting empty state polish** — layout is settled, this is unblocked.
-4. **Cancel subscription 6-step modal flow** — currently a stub modal; the flow exists in mocks/spec but the full implementation hasn't shipped.
-5. **Upgrade plan UX** — currently a stub modal; surfaces from CFA / Welcome DM "Advanced" gates.
-6. **`/account/growth-plus` stub page** — still a placeholder. The Growth+ controls section's "Manage" link routes there; needs a real subscription-management page (pause/resume billing, plan switch, cancel).
-7. **Avatar identity ambiguity** — IG-account avatars and Kicksta-user avatars look similar. Mostly mitigated by removing the user-identity card from nav, but reappears if a Kicksta-user avatar comes back later.
+1. **`/account/growth-plus` real subscription-management page** — still a stub. Growth+ controls Manage link + Billing card Manage button both route there. Needs: pause/resume billing, plan switch (downgrade/upgrade between Starter/Pro/Elite), cancel. Pricing + tier metadata reads from `mockGrowthPlusTiers`.
+2. **GrowthPlusBanner placement** — currently parked at the bottom of `/engagement`. Dedicated Growth+ page now exists; the banner may want to move to Overview or be dropped. **Don't decide unilaterally.**
+3. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove).
+4. **Targeting empty state polish** — layout settled, unblocked.
+5. **Cancel subscription 6-step modal flow** — currently a stub modal.
+6. **Upgrade plan UX** — currently a stub modal; surfaces from CFA / Welcome DM "Advanced" gates.
+7. **Avatar identity ambiguity** — IG-account avatars and Kicksta-user avatars look similar. If a Kicksta-user avatar reappears in chrome, give it a distinct shape (e.g. `rounded-md` instead of `rounded-full`).
 
 **Open architectural decisions (locked, don't revisit):**
 
-- **Growth+ page state model** — two states on the same route (no redirect). Subscriber dashboard composes Hero → Metrics strip → Activity → Controls → cardless Safety strip. Non-subscriber wraps the same `<GrowthPlusActive>` in `pointer-events-none opacity-60 blur-[2px]` + floats a subscribe overlay. Subscribing flips `useGrowthPlusSubscription.subscribed` → page re-renders inline.
-- **Subscribe modal is shared** — `<GrowthPlusSubscribeModal>` at `src/components/`. Confirm/processing/success three-state machine; parent owns state, modal owns the 1500ms processing timer via `onProcessingDone`. Both `/signup/growth-plus` (onboarding) and `/growth-plus` (locked-preview overlay) route through it.
-- **`useCountUp` is mount-only.** RAF-driven easeOutQuart easing. V1 mocks are stable; production with live data will need re-trigger on prop change but that's a follow-up.
-- **Premium-page visual treatment** — single big hero stat with count-up + 60–80px sparkline + purple gradient surface; supporting cards as second-tier proof; activity feed default-expanded (different from Engagement-card recents which default-collapsed — different role, different default).
-- **`blur-[2px]` is the right teaser-blur value.** Tailwind's preset `blur-sm` (4px) is too aggressive for a "see what you'd get" preview.
+- **Growth+ has 3 tiers: Starter $29 / Pro $49 / Elite $99.** Pricing data lives only in `mockGrowthPlusTiers`. Per-tier insights and deltas in `mockGrowthPlusInsights[tierId]` / `mockGrowthPlusDeltas[tierId]`. Gating: Speed Starter caps at Steady (Fast unlocks at Pro). Quality Starter caps at Broad (Targeted at Pro, Engaged at Elite). Pro is the "Recommended" tier. Downgrades auto-snap speed/quality back to the highest still-allowed value.
+- **Growth+ page state model** — two states on the same route (no redirect):
+  - Subscriber: `<GrowthPlusActive>` composing Hero → MetricsStrip → 2-col(Activity, Controls on `lg:+`) → Billing.
+  - Non-subscriber: `<GrowthPlusUpsell>` — full marketing page with tier pricing grid + 3-icon benefit row inside the hero + FAQ. (Previous blurred-preview pattern is gone.)
+- **Active page hero is 2-col on `lg:+`.** Left col: chip+pill row, hero number, headline. Right col: deltas stacked vertically with left-border separator. Mobile: 3-col delta grid with short labels (`today/week/month`). Hero number is `text-3xl md:text-4xl` (not 5xl/6xl).
+- **Locked Quality/Speed segments stay visible with Lock badge + tooltip.** Discovery > clean UI — hiding controls means users never learn what upgrading buys.
+- **`Engaged` is the third Quality option's user-visible label.** Value key `'top'` stays — only the label moves. Cross-refs in Billing card upgrade ribbon + Upsell pricing rows use "Engaged-quality targeting."
+- **Subscribe modal is shared** — `<GrowthPlusSubscribeModal>` at `src/components/`. Confirm/processing/success three-state machine; parent owns state, modal owns the 1500ms processing timer via `onProcessingDone`. Both `/signup/growth-plus` (onboarding) and `<GrowthPlusUpsell>` route through it with the tier pre-selected.
+- **No sparkline on cumulative metrics.** Always-ascending values get a delta strip instead.
+- **Per-segment notes read ABOVE the segmented control** (not below). Captions before a choice read as a prompt; after, as a footnote.
+- **Billing card is its own component.** Money lives separately from operational controls. Has an "Upgrade" ribbon when tier ≠ Elite linking to a future `/growth-plus/upgrade` route.
+- **`useCountUp` is mount-only.** RAF-driven easeOutQuart easing. Production with live data will need re-trigger on prop change — follow-up.
+- **`createPortal(..., document.body)` is the cross-component pattern** for any modal/sheet rendered from inside a transformed ancestor (originally for the AccountSwitcher sheet; still used for ChangeServerModal).
 
 - **Nav hierarchy** — desktop sidebar and mobile drawer agree: account switcher on top (with server row inside the active-account block), primary nav (Overview / Targeting / Engagement / Growth+), bottom zone (Settings / Theme / [Collapse] / Log out). Mobile bottom tab bar: Overview / Targeting / Engagement / Settings (Growth+ drawer-only on mobile).
 - **Active-state recipe trio** — `bg-blue-tint text-blue-text` (nav) · `bg-blue-base text-white` (CTAs) · `bg-text-primary text-bg` (page-level switchers).
