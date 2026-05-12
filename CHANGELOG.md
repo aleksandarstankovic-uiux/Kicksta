@@ -5,7 +5,65 @@
 
 ---
 
-> **2026-05-12 session note:** four 2026-05-12 entries total — `Layout pass` (this entry), `Tiered pricing`, `Premium polish (round 2)`, and `Polish pass`. The first three came from a Mac evening session that started after merging the mobile-session work; the polish pass was the morning Mac session. All fast-forwarded into `main`. Branches: mobile branch `claude/kicksta-dashboard-LwK3F` (merged + deleted) carried the tiered pricing + premium polish; the layout pass shipped directly on `main`.
+> **2026-05-12 session note:** six 2026-05-12 entries total — `Manage subscription` (this entry), `Hero & pills round`, `Layout pass`, `Tiered pricing`, `Premium polish (round 2)`, and `Polish pass`. The first three came from a Mac evening session that started after merging the mobile-session work; the polish pass was the morning Mac session. All fast-forwarded into `main`. Branches: mobile branch `claude/kicksta-dashboard-LwK3F` (merged + deleted) carried the tiered pricing + premium polish; the layout pass shipped directly on `main`.
+
+## 2026-05-12 — Growth+ Manage subscription
+
+Subscription management surface: tier change, cancellation flow, and the cancelled-pending-end paid-through state.
+
+### Added
+- **Manage popup** (`GrowthPlusManageModal`) — entry surface from BillingCard "Manage" button and the GrowthPlusBanner "Manage subscription" deep-link (`/growth-plus?manage=1`). Current plan summary + Change tier + Cancel rows on active subscriptions; Resume button only on cancelled_pending.
+- **Tier-change page** at `/account/growth-plus` — full rewrite of the stub. 3 cards with "Current plan" pill on the active tier, "Switch to {tier}" CTAs on the others. Route-guarded — redirects to `/growth-plus` if status is anything other than `active`.
+- **SwitchTierConfirmModal** — confirm → processing → success modal with deterministic mock proration. Upgrade displays `$X charged today`, downgrade displays `−$X credited to next bill`. Reused by the cancel flow's "Too expensive" inline downgrade deflection.
+- **CancelGrowthPlusModal** — 3-step cancel flow (reason → lose → confirm) + success ack. Reasons: Too expensive · Not enough results · Taking a break · I don't use it · Other. Picking "Too expensive" on a non-Starter tier surfaces an inline deflection card pointing to the next cheaper tier (Elite → Pro, Pro → Starter); Starter shows none.
+- **Cancelled-pending-end UI layer** on the Active dashboard — yellow banner (`GrowthPlusCancelledBanner`) above the hero with the end date + Resume CTA, hero pill swaps to yellow "Ending {date} · {tier}", BillingCard label becomes "Subscription ends" and the upgrade ribbon hides.
+- **Subscription store** (`useGrowthPlusSubscription`) gained `status: 'active' | 'cancelled_pending' | 'lapsed'`, `endsAt: ISOString | null`, `cancel(endsAt)`, `resume()`, and a `_lapseForTesting()` QA helper.
+- **Proration utility** (`src/utils/proration.js`) — `daysBetween(fromIso, toIso)` and `prorationFor({ oldPrice, newPrice, endsAt })` returning `{ kind: 'upgrade' | 'downgrade', amount }`. Deterministic linear interpolation over a 30-day cycle.
+
+### Changed
+- **BillingCard "Manage"** is no longer a `<Link>` to `/account/growth-plus`. It's a button that calls `onManage` from the parent, opening the Manage popup in place.
+- **GrowthPlusBanner "Manage subscription"** now links to `/growth-plus?manage=1` (was `/account/growth-plus`). The Growth+ page reads the query param on mount and auto-opens the popup, then strips the param.
+- **GrowthPlusPage** branches on `status` — `lapsed` users (after period ends) see the Upsell page rather than the Active dashboard.
+
+### Decisions (locked, don't revisit)
+- **Manage popup is the single front door for cancellation.** Cancel CTA does not appear on the tier-change page or anywhere else.
+- **Cancel flow is 3 user-facing steps + success ack.** No pause-billing save offer; the only save is the "Too expensive" inline downgrade deflection.
+- **Deflection target is the next cheaper tier.** Elite → Pro, Pro → Starter. Starter shows no deflection — flow proceeds to step 2.
+- **Tier-change uses real proration math, not "effective next cycle".** Upgrades charge prorated amount today, downgrades credit prorated amount toward the next bill. V1 math is deterministic mock; real proration ships with backend.
+- **Cancelled-pending users keep full access until `endsAt`.** Boost continues running, Controls remain editable, Activity feed continues. Only the banner + pill + Billing label communicate the pending end.
+- **Tier-change is gated to `status === 'active'`.** Cancelled-pending users must Resume first before changing tier.
+- **No automatic lapse transition in V1.** The store exposes `_lapseForTesting()` for QA. Real clock-driven transition ships with backend.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-12-growth-plus-manage-design.md`
+- Plan: `docs/superpowers/plans/2026-05-12-growth-plus-manage.md`
+
+## 2026-05-12 — Growth+ hero & pills round
+
+Post-layout-pass QA fixes — hero anchor metric, header icon diversity, upsell education.
+
+### Changed — Upsell page
+- **Subtitle rewritten to explain mechanism.** Was `Algorithmic post boosting from a network of real active accounts.` (duplicating the page H1). Now: `Your most recent posts get pushed to a network of real, active accounts — they engage, Instagram sees the signal, and your reach compounds. No bots, no fake engagement.` Educates the user instead of restating the headline.
+- **Benefit pills upgraded from flat icon-rows to proper pills.** Each benefit (`Algorithmic boost`, `Active accounts`, `IG-safe`) now renders as a rounded-full pill with `border-purple-base/30`, `bg-surface`, `shadow-sm`, and `text-purple-text` font-semibold. Centered flex-wrap layout. They look like commitments now, not labels.
+- **Tier CTA copy: `Start {tier}` → `Subscribe to {tier}`.** The action is subscribing, not starting. Applies to all three pricing cards.
+
+### Changed — Active subscriber page
+- **Hero number = total followers gained since subscribing.** Was the per-tier monthly `algorithmicBoost` (40/143/300). Now reads `totalFollowersGained` from `mockGrowthPlusInsights` (Starter 47 / Pro 312 / Elite 891) — a cumulative count carries more weight as the page's anchor metric. Subtitle: `total followers gained from Growth+`.
+- **Delta strip removed from hero.** The today/week/month strip introduced in the previous round is gone. The big cumulative number now does the proof-of-value work on its own. Hero collapses back to single-column.
+- **Active pill returns to far-right on every breakpoint.** With the 2-col grid gone, `ml-auto` no longer toggles — the pill sits flush right against the GROWTH+ chip on mobile, tablet, and desktop. Hero number rendering: `text-4xl md:text-5xl` (one step up from the layout-pass shrink, since deltas no longer compete).
+- **Activity card subtitle added.** `Live feed of post boosts and follower gains from the Growth+ network.` Mirrors the educational pattern set in Controls and brings header structure in line with the other surface cards.
+- **Activity card chip icon: `Sparkles` → `Activity`.** Hero already uses Sparkles as the Growth+ brand mark; Activity (pulse) makes the four chips on the page all unique now — Hero=Sparkles, Activity=Activity, Controls=Sliders, Billing=CreditCard.
+- **Activity ↔ Controls same height on desktop.** Dropped `lg:items-start` from the 2-col wrapper; grid default `items-stretch` makes both cards fill the row height. Mobile stacking unchanged.
+
+### Changed — Mock data
+- `mockGrowthPlusInsights` gained a `totalFollowersGained` field per tier (Starter 47, Pro 312, Elite 891). Powers the hero anchor metric.
+
+### Decisions (locked, don't revisit)
+- **Growth+ hero anchor metric is cumulative.** Total followers gained since subscribing, not monthly. Delta strip is gone; the cumulative number doesn't need supporting micro-stats.
+- **Every card chip on the Growth+ active page must be a unique icon.** Sparkles is reserved for the Growth+ brand chip (Hero). New cards pick from the lucide library, no duplicates.
+- **Upsell page subtitle is educational.** It explains the mechanism (how boost activity flows from network → IG → reach) rather than restating the H1.
+- **Benefit row uses pill styling, not bare icons.** Border + surface bg + shadow. Pills get equal visual weight to give the upsell some structure between the hero and the pricing grid.
+- **Upsell CTA verb is "Subscribe".** Never "Start", "Begin", or "Get". The action is a subscription.
 
 ## 2026-05-12 — Growth+ layout pass
 
