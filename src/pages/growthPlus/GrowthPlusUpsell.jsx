@@ -71,21 +71,21 @@ export default function GrowthPlusUpsell() {
           Boost your reach with Growth+
         </h2>
         <p className="mx-auto mt-1.5 max-w-xl text-sm leading-relaxed text-text-secondary">
-          Algorithmic post boosting from a network of real active accounts.
+          Your most recent posts get pushed to a network of real, active
+          accounts — they engage, Instagram sees the signal, and your reach
+          compounds. No bots, no fake engagement.
         </p>
 
-        <ul className="mx-auto mt-4 flex max-w-md flex-col gap-2 text-left sm:flex-row sm:gap-4 sm:justify-center">
+        <ul className="mx-auto mt-4 flex max-w-xl flex-wrap justify-center gap-2">
           {BENEFITS.map((b) => {
             const Icon = b.icon
             return (
-              <li key={b.shortLabel} className="flex items-center gap-2 text-xs text-text-secondary">
-                <span
-                  aria-hidden="true"
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-purple-tint text-purple-text"
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                </span>
-                <span className="font-medium text-text-primary">{b.shortLabel}</span>
+              <li
+                key={b.shortLabel}
+                className="inline-flex items-center gap-1.5 rounded-full border border-purple-base/30 bg-surface px-3 py-1.5 text-xs font-semibold text-purple-text shadow-sm"
+              >
+                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>{b.shortLabel}</span>
               </li>
             )
           })}
@@ -185,7 +185,7 @@ function TierCard({ tier, onChoose }) {
             : 'border border-purple-base/30 bg-surface text-purple-text'
         }`}
       >
-        Start {tier.name}
+        Subscribe to {tier.name}
       </button>
     </div>
   )

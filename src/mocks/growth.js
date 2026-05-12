@@ -71,18 +71,21 @@ export const mockProjectedDaily = (() => {
 export const mockGrowthPlusInsights = {
   starter: {
     algorithmicBoost: 40,
+    totalFollowersGained: 47,
     postReachLift: 0.12,
     engagementRate: 0.032,
     boostedPosts: 4,
   },
   pro: {
     algorithmicBoost: 143,
+    totalFollowersGained: 312,
     postReachLift: 0.34,
     engagementRate: 0.048,
     boostedPosts: 12,
   },
   elite: {
     algorithmicBoost: 300,
+    totalFollowersGained: 891,
     postReachLift: 0.68,
     engagementRate: 0.071,
     boostedPosts: 30,
