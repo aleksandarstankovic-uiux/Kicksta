@@ -5,7 +5,42 @@
 
 ---
 
-> **2026-05-12 session note:** the three 2026-05-12 entries below shipped across two sessions on the same day. **Mac (morning)** — the "polish pass" entry; pushed directly to `main`. **Mobile (afternoon)** — the "premium polish (round 2)" and "tiered pricing" entries; landed on `claude/kicksta-dashboard-LwK3F` and fast-forwarded into `main` as commits `bf5e8e7…7b58396`. The feature branch is being deleted post-merge; this log is the canonical record of the work.
+> **2026-05-12 session note:** four 2026-05-12 entries total — `Layout pass` (this entry), `Tiered pricing`, `Premium polish (round 2)`, and `Polish pass`. The first three came from a Mac evening session that started after merging the mobile-session work; the polish pass was the morning Mac session. All fast-forwarded into `main`. Branches: mobile branch `claude/kicksta-dashboard-LwK3F` (merged + deleted) carried the tiered pricing + premium polish; the layout pass shipped directly on `main`.
+
+## 2026-05-12 — Growth+ layout pass
+
+Tighter Growth+ layout after a QA pass on the freshly-merged mobile-session work. Six items addressing density issues across both Growth+ states.
+
+### Changed — Upsell page
+- **Hero is smaller and self-contained.** Padding `p-6 md:p-10` → `p-5 md:p-7`. Sparkles chip `h-14 w-14` → `h-10 w-10 md:h-12 md:w-12`. Headline `text-2xl md:text-3xl` → `text-xl md:text-2xl`. Body trimmed to one sentence (dropped "Stack it on top of Targeted Growth for compound results").
+- **3 standalone benefit cards are gone.** The "Algorithmic post boosting / Active-account engagement / Throttled to stay safe" cards that sat below the pricing grid have been removed. Their content folds into a compact 3-icon row INSIDE the hero: `[icon] Algorithmic boost · [icon] Active accounts · [icon] IG-safe`. The Upsell page is now hero → pricing → FAQ (was hero → pricing → benefits → FAQ). First pricing card now reaches above the fold on mobile.
+
+### Changed — Active subscriber page
+- **Hero is now a 2-col grid on `lg:+`.** Left column carries the chip+pill row, hero number, and headline. Right column carries the delta strip vertically with a left-border separator. Uses the empty gradient space that the original layout wasted. The `Active · Pro` pill loses `ml-auto` on `lg:+` so it sits inline with the chip on the left column.
+- **Hero number shrinks.** `text-5xl md:text-6xl` → `text-3xl md:text-4xl`. Still the page's anchor; no longer shouting.
+- **Mobile delta strip is a 3-col grid with shorter labels.** Switched from horizontal flex with vertical-rule separators to `grid grid-cols-3 gap-3` so values (`+12 / +84 / +143`) align at the same Y position. Labels changed from `today / this week / this month` to `today / week / month` — short enough not to wrap and the "this" is implied by the values being current deltas. `DeltaItem` is column-layout on mobile (value above label), row-layout on `lg:+` (inline baseline).
+- **`GrowthPlusTierStrip` deleted.** Tier is already shown in the hero pill (`Active · Pro`) and the Billing card upgrade ribbon (`Upgrade to Elite for $99/mo — unlock Engaged-quality targeting`), so the strip was duplicating without new info. File removed; `grep TierStrip` returns zero hits.
+- **Activity + Controls are 2-col on `lg:+`.** Inside `GrowthPlusActive`, the two sections are wrapped in `grid grid-cols-1 lg:grid-cols-2 lg:items-start` so they sit side-by-side on desktop and halve the page's vertical footprint between metrics and billing. Mobile keeps single-column stacking.
+- **Boost-active toggle row: `items-start` → `items-center`.** Toggle now vertically aligns with the midpoint of the 2-line label instead of the first line. Single-token change.
+- **Quality segment third option: `Top accounts` → `Engaged`.** Three single-word labels (Broad · Targeted · Engaged) read with parallel rhythm and fit on one line alongside the Lock icon on mobile. Underlying value key `'top'` is unchanged — only the user-visible label moves. Cross-references in `GrowthPlusBillingCard` and `GrowthPlusUpsell` were also updated to "Engaged-quality targeting" for consistency.
+
+### Removed
+- `src/pages/growthPlus/GrowthPlusTierStrip.jsx` (orphaned after the layout cleanup).
+- The standalone benefits `<section>` from `GrowthPlusUpsell.jsx` (folded into the hero).
+
+### Decisions (locked, don't revisit)
+- **Upsell page benefits live inside the hero.** No separate benefits section. If a description-level explanation is ever needed, FAQ.
+- **Active page hero is 2-col on desktop.** Deltas sit in the right column. Hero number is `text-3xl md:text-4xl` (not `text-5xl/6xl`). Anything else competes with the deltas + pill.
+- **`TierStrip` is gone.** Tier is communicated via the hero pill + Billing card upgrade ribbon. If a future spec needs a more prominent tier badge, it goes in the hero, not as its own row.
+- **Activity + Controls are 2-col on desktop.** Mobile stacks. Different heights are OK (`items-start`).
+- **"Engaged" is the Quality option name.** Underlying value key `'top'` stays for gating logic — never rename the key.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-12-growth-plus-layout-design.md`
+- Plan: `docs/superpowers/plans/2026-05-12-growth-plus-layout.md`
+- Commits: 2612e93, 895f2c2, a96f9dc, ae7541c, 29c6075
+
+---
 
 ## 2026-05-12 — Growth+ tiered pricing (Starter / Pro / Elite)
 
