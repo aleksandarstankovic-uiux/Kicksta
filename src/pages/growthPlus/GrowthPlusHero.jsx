@@ -1,15 +1,13 @@
 import { Sparkles } from 'lucide-react'
-import { Line, LineChart, ResponsiveContainer } from 'recharts'
-import { mockGrowthDaily, mockGrowthPlusInsights } from '@/mocks/growth'
+import { mockGrowthPlusDeltas, mockGrowthPlusInsights } from '@/mocks/growth'
 import { useCountUp } from '@/hooks/useCountUp'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
 // Hero card for the Growth+ page. Premium purple-gradient surface,
-// counting hero number, sparkline.
+// counting hero number, delta strip (today / week / month) underneath.
 //
-// previewMode: skips the count-up animation + sparkline animation
-// (used by the non-subscriber locked-preview wrapper, where animation
-// behind a blur reads as jittery).
+// previewMode: skips the count-up animation (used by the non-subscriber
+// locked-preview wrapper where animation behind a blur reads jittery).
 export default function GrowthPlusHero({ previewMode = false }) {
   const target = mockGrowthPlusInsights.algorithmicBoost
   const animatedValue = useCountUp(target, 600)
@@ -17,11 +15,6 @@ export default function GrowthPlusHero({ previewMode = false }) {
   const boostEnabled = useGrowthConfig(
     (s) => s.config.growthPlusControls.enabled,
   )
-
-  const data = mockGrowthDaily.map((d) => ({
-    date: d.date,
-    value: d.growthPlusGain,
-  }))
 
   return (
     <section className="overflow-hidden rounded-xl border border-purple-base/20 bg-gradient-to-br from-purple-tint via-purple-tint to-purple-base/15 p-5 shadow-sm md:p-6">
@@ -57,21 +50,25 @@ export default function GrowthPlusHero({ previewMode = false }) {
           : 'Boost paused — billing continues'}
       </p>
 
-      <div className="mt-4 h-16 md:h-20">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 4, right: 0, bottom: 4, left: 0 }}>
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke="var(--color-purple-base)"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 3, fill: 'var(--color-purple-base)' }}
-              isAnimationActive={!previewMode}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <dl className="mt-5 flex items-center gap-4 text-sm text-text-secondary sm:gap-6">
+        <DeltaItem label="today" value={mockGrowthPlusDeltas.today} />
+        <span aria-hidden="true" className="h-3 w-px bg-purple-base/25" />
+        <DeltaItem label="this week" value={mockGrowthPlusDeltas.week} />
+        <span aria-hidden="true" className="h-3 w-px bg-purple-base/25" />
+        <DeltaItem label="this month" value={mockGrowthPlusDeltas.month} />
+      </dl>
     </section>
+  )
+}
+
+function DeltaItem({ label, value }) {
+  return (
+    <div className="flex items-baseline gap-1.5">
+      <dt className="sr-only">{label}</dt>
+      <dd className="text-base font-semibold text-purple-text">+{value}</dd>
+      <span aria-hidden="true" className="text-xs text-text-secondary">
+        {label}
+      </span>
+    </div>
   )
 }
