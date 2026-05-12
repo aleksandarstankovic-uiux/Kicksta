@@ -5,6 +5,8 @@
 
 ---
 
+> **2026-05-12 session note:** the three 2026-05-12 entries below shipped across two sessions on the same day. **Mac (morning)** — the "polish pass" entry; pushed directly to `main`. **Mobile (afternoon)** — the "premium polish (round 2)" and "tiered pricing" entries; landed on `claude/kicksta-dashboard-LwK3F` and fast-forwarded into `main` as commits `bf5e8e7…7b58396`. The feature branch is being deleted post-merge; this log is the canonical record of the work.
+
 ## 2026-05-12 — Growth+ tiered pricing (Starter / Pro / Elite)
 
 Growth+ becomes a 3-tier product. The blurred-preview + floating-subscribe-overlay pattern is replaced with a real marketing page (tier cards + benefits + FAQ). Subscribers see their tier reflected throughout the dashboard, with locked controls staying visible to make upgrade paths discoverable.
