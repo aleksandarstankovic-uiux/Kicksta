@@ -5,6 +5,47 @@
 
 ---
 
+## 2026-05-12 — Growth+ page premium polish (round 2)
+
+Second polish pass on the Growth+ page after a real review surfaced that the page still didn't feel premium. Seven targeted fixes across the existing files plus one new component. Tier work is queued as a separate spec — not in this pass. Locked-preview / upsell rework is also deferred to the tier spec since the real upsell page needs tier pricing data.
+
+### Changed
+- **Hero sparkline removed.** Cumulative count can only trend up, so the line carried no information. Replaced with a delta strip: `+12 today · +84 this week · +143 this month`. Numbers `text-base font-semibold text-purple-text`, labels `text-xs text-text-secondary`, separated by `h-3 w-px bg-purple-base/25` rules. Renders as a `<dl>` with `sr-only` `<dt>`s for screen readers. Drops the `recharts` + `mockGrowthDaily` imports from the hero.
+- **Metric cards match Overview sizing.** Value bumped from `text-xl` flat to `text-xl lg:text-2xl`. Label bumped to `text-xs font-medium leading-tight` (was `text-xs font-medium`). Padding now `p-4 lg:p-6` matching `MetricCard` in `overview/index.jsx:387`. **Sub-line dropped entirely** — three cards each had a `text-[11px]` second line that mostly restated the label ("beyond your baseline reach", "active accounts that interact", "posts boosted this month"). Removing them removes noise and matches the rest of the dashboard, where metric cards are label + value only.
+- **Activity icons render bare** (no `bg-purple-tint` chip). Matches the Overview activity-feed pattern (`overview/index.jsx:1290` — "Bare icon — no chip background — since rows aren't interactive"). Icon color now carries event type: `text-purple-text` for `post_boosted`, `text-green-text` for `followers_gained`. Row alignment switched from `items-center` to `items-start` so the icon top-aligns with the title via `mt-0.5`, same recipe as Overview.
+- **Controls card now leads with a one-line "how it works"** instead of trailing the page. "Growth+ uses a network of active accounts to amplify your most recent posts. Boost activity is throttled to stay within Instagram's safety limits." Sits directly under the card title at `text-xs leading-relaxed text-text-secondary`. The orphaned `ShieldCheck` strip at the bottom of `GrowthPlusActive` is removed — it was disclaimer copy that no one read.
+- **Per-segment notes moved above each segmented control.** Reading order is now `Speed → note → control`, not `Speed → control → note`. Explanation arrives before the choice so users know what they're picking. Spacing: `mt-1` between title and note, `mt-3` between note and control. Same recipe for Quality.
+- **Billing extracted into its own component.** Was an inline `<div>` at the bottom of `GrowthPlusControls`; now `GrowthPlusBillingCard.jsx` — a standalone card with a `CreditCard`-icon chip, "Next billing" eyebrow, `$49.00 · Jun 6, 2026`-style price, and a proper ghost `Manage` button (`h-10 rounded-lg border bg-surface`) instead of the previous inline link. Slots between Controls and the end of the page.
+- **Section order rewritten** in `GrowthPlusActive.jsx`: Hero → Metrics → Activity → Controls → Billing. No bottom safety strip.
+
+### Added
+- `GrowthPlusBillingCard.jsx` — standalone card for next-billing + Manage.
+- `mockGrowthPlusDeltas` export in `src/mocks/growth.js` — `{ today, week, month }` values consumed by the hero delta strip.
+
+### Removed
+- `recharts` + `mockGrowthDaily` imports from `GrowthPlusHero.jsx` — sparkline gone.
+- The `sub` field from `GrowthPlusMetricsStrip` `CARDS` array (three lines).
+- Inline billing block from the bottom of `GrowthPlusControls.jsx` (moved to its own component).
+- Bottom `ShieldCheck` "How Growth+ works" strip from `GrowthPlusActive.jsx` (folded into the Controls card intro).
+
+### Decisions (locked, don't revisit)
+- **No sparkline on cumulative metrics.** Any always-ascending value gets a delta strip instead. The sparkline was decorative, not informative.
+- **Sub-lines on metric cards are not paying rent.** Restating the label in smaller text adds visual weight without information. If context is needed, use `InfoTooltip` on the card title (same pattern as elsewhere on the dashboard).
+- **How-it-works belongs next to the controls,** not at the page foot. Once a user lands here, the question is "what do these levers do," not "what is Growth+." The intro sits where the answer is useful.
+- **Per-option notes read before the control.** Selection notes that follow a control read as captions; placed above the control they read as a prompt. The prompt orientation matches how users learn the segments.
+- **Billing is its own card.** Money lives separately from operational controls — one card per concern reads more premium and clears the path for the future `/account/growth-plus` management page.
+
+### Queued for next spec (tiers)
+- 3-tier model: **Starter / Pro / Elite**. Each tier delivers progressively more boost volume, gates higher-quality segments (`Top accounts`, `Fast` speed), and shows up in the hero pill + a new tier strip + the Billing card's upgrade nudge.
+- Locked-preview blur → real marketing upsell page with tier pricing grid, benefit grid, FAQ. Sparkles + outcomes + three pricing cards.
+- Locked controls show with a small lock badge + "Available on Elite"-style tooltip (decision: discovery > clean UI).
+
+### Spec & plan
+- (Polish-pass executed inline from in-session brainstorm — no separate spec doc this round.)
+- Commits: bf5e8e7, a3eaaae, 1d9b6f4, 65e9088, 261583f, 0899629, 4e1e04d
+
+---
+
 ## 2026-05-12 — Growth+ page polish pass
 
 Fixes 7 QA issues found during a real review of the freshly-shipped Growth+ page. Six commits across five files. All issues from the QA report bundled as one short polish-pass spec.
