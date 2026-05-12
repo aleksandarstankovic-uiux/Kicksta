@@ -13,21 +13,9 @@ import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import { useGrowthPlusSubscription } from '@/stores/useGrowthPlusSubscription'
 
 const BENEFITS = [
-  {
-    icon: Sparkles,
-    title: 'Algorithmic post boosting',
-    body: 'Your latest posts get pushed to Explore and hashtag feeds by a network of real, active accounts.',
-  },
-  {
-    icon: Network,
-    title: 'Active-account engagement',
-    body: 'Likes and saves from accounts that actually engage — the signals Instagram weighs most.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Throttled to stay safe',
-    body: 'Boost activity is paced inside Instagram’s safety limits. No bot behavior, no risk to your account.',
-  },
+  { icon: Sparkles, shortLabel: 'Algorithmic boost' },
+  { icon: Network, shortLabel: 'Active accounts' },
+  { icon: ShieldCheck, shortLabel: 'IG-safe' },
 ]
 
 const FAQS = [
@@ -72,20 +60,36 @@ export default function GrowthPlusUpsell() {
 
   return (
     <>
-      <section className="overflow-hidden rounded-xl border border-purple-base/20 bg-gradient-to-br from-purple-tint via-purple-tint to-purple-base/15 p-6 text-center shadow-sm md:p-10">
+      <section className="overflow-hidden rounded-xl border border-purple-base/20 bg-gradient-to-br from-purple-tint via-purple-tint to-purple-base/15 p-5 text-center shadow-sm md:p-7">
         <span
           aria-hidden="true"
-          className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-text text-surface shadow-sm"
+          className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-purple-text text-surface shadow-sm md:h-12 md:w-12"
         >
-          <Sparkles className="h-7 w-7" />
+          <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
         </span>
-        <h2 className="mt-4 text-2xl font-semibold leading-snug text-text-primary md:text-3xl">
+        <h2 className="mt-3 text-xl font-semibold leading-snug text-text-primary md:text-2xl">
           Boost your reach with Growth+
         </h2>
-        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-text-secondary md:text-base">
+        <p className="mx-auto mt-1.5 max-w-xl text-sm leading-relaxed text-text-secondary">
           Algorithmic post boosting from a network of real active accounts.
-          Stack it on top of Targeted Growth for compound results.
         </p>
+
+        <ul className="mx-auto mt-4 flex max-w-md flex-col gap-2 text-left sm:flex-row sm:gap-4 sm:justify-center">
+          {BENEFITS.map((b) => {
+            const Icon = b.icon
+            return (
+              <li key={b.shortLabel} className="flex items-center gap-2 text-xs text-text-secondary">
+                <span
+                  aria-hidden="true"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-purple-tint text-purple-text"
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                </span>
+                <span className="font-medium text-text-primary">{b.shortLabel}</span>
+              </li>
+            )
+          })}
+        </ul>
       </section>
 
       <section className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5">
@@ -94,32 +98,7 @@ export default function GrowthPlusUpsell() {
         ))}
       </section>
 
-      <section className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
-        {BENEFITS.map((b) => {
-          const Icon = b.icon
-          return (
-            <div
-              key={b.title}
-              className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-5"
-            >
-              <span
-                aria-hidden="true"
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-tint text-purple-text"
-              >
-                <Icon className="h-[18px] w-[18px]" />
-              </span>
-              <h3 className="mt-3 text-sm font-semibold text-text-primary">
-                {b.title}
-              </h3>
-              <p className="mt-1 text-xs leading-relaxed text-text-secondary">
-                {b.body}
-              </p>
-            </div>
-          )
-        })}
-      </section>
-
-      <section className="mt-8">
+<section className="mt-8">
         <h3 className="text-base font-semibold text-text-primary">
           Frequently asked questions
         </h3>
