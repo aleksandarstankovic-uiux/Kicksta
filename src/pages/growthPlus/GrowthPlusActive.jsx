@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CancelGrowthPlusModal from '@/components/CancelGrowthPlusModal'
 import GrowthPlusManageModal from '@/components/GrowthPlusManageModal'
@@ -33,6 +33,7 @@ export default function GrowthPlusActive({ account, manageOpenOnMount = false })
   const [manageOpen, setManageOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
   const [switchTierTargetId, setSwitchTierTargetId] = useState(null)
+  const controlsRef = useRef(null)
 
   useEffect(() => {
     if (manageOpenOnMount) setManageOpen(true)
@@ -83,9 +84,11 @@ export default function GrowthPlusActive({ account, manageOpenOnMount = false })
       )}
       <GrowthPlusHero />
       <GrowthPlusMetricsStrip />
-      <div className="grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-2">
-        <GrowthPlusActivity />
-        <GrowthPlusControls />
+      <div className="grid grid-cols-1 gap-4 md:gap-5 lg:grid-cols-2 lg:items-start">
+        <GrowthPlusActivity matchHeightOf={controlsRef} />
+        <div ref={controlsRef}>
+          <GrowthPlusControls />
+        </div>
       </div>
       <GrowthPlusBillingCard onManage={() => setManageOpen(true)} />
 

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { Activity, Sparkles, UserPlus } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import { mockGrowthPlusActivity } from '@/mocks/growthPlusActivity'
@@ -5,6 +6,11 @@ import { formatRelativeTime } from '@/utils/formatRelativeTime'
 
 // Recent Growth+ boost events. Default expanded — this is the page's
 // proof surface, earns being visible without a disclosure click.
+//
+// `matchHeightOf` is a ref to a sibling element (Controls). On lg:+,
+// we observe its height and cap the event list so the two cards line
+// up bottom-to-bottom while Controls hugs its natural content. List
+// scrolls internally when overflow.
 //
 // Row icons render bare (no chip background) to match the Overview
 // activity feed pattern — rows aren't interactive, so a chip would
@@ -27,30 +33,81 @@ function eventRow(event) {
   }
 }
 
-export default function GrowthPlusActivity() {
+export default function GrowthPlusActivity({ matchHeightOf }) {
   const items = mockGrowthPlusActivity
+  const sectionRef = useRef(null)
+  const headerRef = useRef(null)
+  const [listMaxHeight, setListMaxHeight] = useState(null)
+
+  // Match Activity card height to the Controls card height on lg:+ by
+  // computing the list's max-height = Controls height − Activity
+  // chrome (card padding + header block). Recompute on resize.
+  useEffect(() => {
+    if (!matchHeightOf?.current || !sectionRef.current || !headerRef.current) {
+      return
+    }
+    const isDesktop = () =>
+      typeof window !== 'undefined' && window.innerWidth >= 1024
+
+    function compute() {
+      if (!isDesktop()) {
+        setListMaxHeight(null)
+        return
+      }
+      const target = matchHeightOf.current
+      const section = sectionRef.current
+      const header = headerRef.current
+      if (!target || !section || !header) return
+      const targetH = target.getBoundingClientRect().height
+      const sectionStyle = window.getComputedStyle(section)
+      const paddingY =
+        parseFloat(sectionStyle.paddingTop) +
+        parseFloat(sectionStyle.paddingBottom)
+      const headerH = header.getBoundingClientRect().height
+      const max = Math.max(120, Math.round(targetH - paddingY - headerH))
+      setListMaxHeight(max)
+    }
+
+    compute()
+    const ro = new ResizeObserver(compute)
+    ro.observe(matchHeightOf.current)
+    ro.observe(sectionRef.current)
+    window.addEventListener('resize', compute)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', compute)
+    }
+  }, [matchHeightOf])
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 md:p-5">
-      <div className="flex items-center gap-2">
-        <CardChip color="purple" icon={Activity} />
-        <h2 className="text-base font-semibold text-text-primary">
-          Recent boost activity
-        </h2>
-        <span className="inline-flex rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
-          {items.length}
-        </span>
+    <section
+      ref={sectionRef}
+      className="rounded-xl border border-border bg-surface p-4 md:p-5"
+    >
+      <div ref={headerRef}>
+        <div className="flex items-center gap-2">
+          <CardChip color="purple" icon={Activity} />
+          <h2 className="text-base font-semibold text-text-primary">
+            Recent boost activity
+          </h2>
+          <span className="inline-flex rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
+            {items.length}
+          </span>
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-text-secondary">
+          Live feed of post boosts and follower gains from the Growth+ network.
+        </p>
       </div>
-      <p className="mt-3 text-xs leading-relaxed text-text-secondary">
-        Live feed of post boosts and follower gains from the Growth+ network.
-      </p>
 
       {items.length === 0 ? (
         <p className="mt-3 py-6 text-center text-sm text-text-muted">
           No boost activity yet — your first boost will appear here within 24 hours.
         </p>
       ) : (
-        <ul className="mt-3 flex max-h-[280px] flex-col overflow-y-auto pr-1 lg:max-h-[420px]">
+        <ul
+          className="mt-3 flex max-h-[320px] flex-col overflow-y-auto pr-1"
+          style={listMaxHeight ? { maxHeight: `${listMaxHeight}px` } : undefined}
+        >
           {items.map((event, i) => {
             const row = eventRow(event)
             const Icon = row.icon
