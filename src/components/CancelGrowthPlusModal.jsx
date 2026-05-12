@@ -60,12 +60,14 @@ export default function CancelGrowthPlusModal({
 
   const [step, setStep] = useState('reason')
   const [selectedReason, setSelectedReason] = useState(null)
+  const [otherDetail, setOtherDetail] = useState('')
 
   // Reset whenever the modal opens.
   useEffect(() => {
     if (open) {
       setStep('reason')
       setSelectedReason(null)
+      setOtherDetail('')
     }
   }, [open])
 
@@ -157,6 +159,25 @@ export default function CancelGrowthPlusModal({
                         </span>
                         <span className="font-medium">{r.label}</span>
                       </button>
+
+                      {selected && r.id === 'other' && (
+                        <div className="mt-2">
+                          <label
+                            htmlFor="cancel-other-detail"
+                            className="sr-only"
+                          >
+                            Tell us more
+                          </label>
+                          <textarea
+                            id="cancel-other-detail"
+                            value={otherDetail}
+                            onChange={(e) => setOtherDetail(e.target.value)}
+                            rows={3}
+                            placeholder="Tell us more (optional, but helpful)"
+                            className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-purple-base focus:outline-none focus:ring-2 focus:ring-purple-base/20"
+                          />
+                        </div>
+                      )}
 
                       {selected && r.id === 'price' && deflection && (
                         <div className="mt-2 rounded-lg border border-purple-base/30 bg-purple-tint/40 p-4">
