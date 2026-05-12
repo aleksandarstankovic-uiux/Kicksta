@@ -1,17 +1,7 @@
-import { Link } from 'react-router-dom'
-import { ChevronRight, Sliders } from 'lucide-react'
+import { Sliders } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
-import { mockGrowthPlusNextBillingAt } from '@/mocks/user'
-
-function formatBillingDate(iso) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
 
 const SPEED_OPTIONS = [
   { value: 'slow', label: 'Slow', note: 'Easier on IG; fewer boosts per day.' },
@@ -25,9 +15,10 @@ const QUALITY_OPTIONS = [
   { value: 'top', label: 'Top accounts', note: 'Active accounts likely to like + save.' },
 ]
 
-// Growth+ operational controls — pause toggle + speed + quality segmented
-// controls + billing link. All in one section so the user has one place
-// to find every Growth+ lever.
+// Growth+ operational controls — leads with a one-line "how it works"
+// orientation, then pause + speed + quality. Each segment's per-option
+// note sits above the segmented control (between the title and the
+// buttons) so the explanation reads before the choice, not after.
 export default function GrowthPlusControls() {
   const config = useGrowthConfig((s) => s.config.growthPlusControls)
   const toggleEnabled = useGrowthConfig((s) => s.toggleGrowthPlusEnabled)
@@ -45,6 +36,12 @@ export default function GrowthPlusControls() {
         <InfoTooltip text="These controls only affect Growth+. Targeted Growth settings live on the Engagement page." />
       </div>
 
+      <p className="mt-3 text-xs leading-relaxed text-text-secondary">
+        Growth+ uses a network of active accounts to amplify your most recent
+        posts. Boost activity is throttled to stay within Instagram's safety
+        limits.
+      </p>
+
       <div className="mt-4 flex items-start justify-between gap-3 border-t border-border pt-4">
         <div className="min-w-0">
           <p className="text-sm font-medium text-text-primary">Boost active</p>
@@ -61,40 +58,24 @@ export default function GrowthPlusControls() {
 
       <div className="mt-4 border-t border-border pt-4">
         <p className="text-sm font-medium text-text-primary">Speed</p>
+        <p className="mt-1 text-xs text-text-muted">{speedNote}</p>
         <SegmentedControl
           options={SPEED_OPTIONS}
           value={config.speed}
           onChange={setSpeed}
           disabled={!config.enabled}
         />
-        <p className="mt-2 text-xs text-text-muted">{speedNote}</p>
       </div>
 
       <div className="mt-4 border-t border-border pt-4">
         <p className="text-sm font-medium text-text-primary">Quality</p>
+        <p className="mt-1 text-xs text-text-muted">{qualityNote}</p>
         <SegmentedControl
           options={QUALITY_OPTIONS}
           value={config.quality}
           onChange={setQuality}
           disabled={!config.enabled}
         />
-        <p className="mt-2 text-xs text-text-muted">{qualityNote}</p>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-4">
-        <p className="text-sm text-text-secondary">
-          Next billing{' '}
-          <span className="font-medium text-text-primary">
-            $49.00 on {formatBillingDate(mockGrowthPlusNextBillingAt)}
-          </span>
-        </p>
-        <Link
-          to="/account/growth-plus"
-          className="inline-flex items-center gap-1 text-sm font-medium text-purple-text hover:underline"
-        >
-          Manage
-          <ChevronRight className="h-3.5 w-3.5" />
-        </Link>
       </div>
     </section>
   )
@@ -125,7 +106,7 @@ function CardToggle({ checked, onClick, ariaLabel }) {
 function SegmentedControl({ options, value, onChange, disabled }) {
   return (
     <div
-      className={`mt-2 flex w-full rounded-full bg-bg p-1 ${
+      className={`mt-3 flex w-full rounded-full bg-bg p-1 ${
         disabled ? 'opacity-60' : ''
       }`}
       aria-disabled={disabled}
