@@ -65,20 +65,86 @@ export const mockProjectedDaily = (() => {
   return projected
 })()
 
-// Growth+ insights (for subscribers)
+// Growth+ insights (for subscribers) — per-tier so the dashboard
+// reflects the actual ceiling each tier delivers. Keyed by tier id;
+// consumers select via mockUser.growthPlusTier.
 export const mockGrowthPlusInsights = {
-  algorithmicBoost: 143,
-  postReachLift: 0.34,
-  engagementRate: 0.048,
-  boostedPosts: 12,
+  starter: {
+    algorithmicBoost: 40,
+    postReachLift: 0.12,
+    engagementRate: 0.032,
+    boostedPosts: 4,
+  },
+  pro: {
+    algorithmicBoost: 143,
+    postReachLift: 0.34,
+    engagementRate: 0.048,
+    boostedPosts: 12,
+  },
+  elite: {
+    algorithmicBoost: 300,
+    postReachLift: 0.68,
+    engagementRate: 0.071,
+    boostedPosts: 30,
+  },
 }
 
-// Hero delta strip — today / this-week / this-month gains. Replaces
-// the sparkline (a cumulative count can only trend up, so the line
-// didn't carry information). Numbers sum from mockGrowthDaily so
-// they stay coherent with the rest of the page.
+// Hero delta strip — today / this-week / this-month gains per tier.
+// Replaces the sparkline (a cumulative count can only trend up, so the
+// line didn't carry information). Month total matches the matching
+// tier's algorithmicBoost so the page stays internally coherent.
 export const mockGrowthPlusDeltas = {
-  today: 12,
-  week: 84,
-  month: 143,
+  starter: { today: 3, week: 18, month: 40 },
+  pro: { today: 12, week: 84, month: 143 },
+  elite: { today: 24, week: 168, month: 300 },
 }
+
+// Tier catalog. Order matters — Starter < Pro < Elite. Pricing is the
+// single source of truth: billing card, upsell page, and hero pill
+// all read from here. `recommended` flags the Pro card on the upsell.
+// allowedSpeed/allowedQuality define what each tier can pick; the
+// controls card renders un-allowed options with a Lock badge.
+export const mockGrowthPlusTiers = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    price: 29,
+    tagline: 'For accounts just starting to grow',
+    recommended: false,
+    allowedSpeed: ['slow', 'steady'],
+    allowedQuality: ['broad'],
+    monthlyBoosts: 40,
+    boostedPosts: 4,
+    reachLift: 0.12,
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: 49,
+    tagline: 'Best for most growing accounts',
+    recommended: true,
+    allowedSpeed: ['slow', 'steady', 'fast'],
+    allowedQuality: ['broad', 'targeted'],
+    monthlyBoosts: 143,
+    boostedPosts: 12,
+    reachLift: 0.34,
+  },
+  {
+    id: 'elite',
+    name: 'Elite',
+    price: 99,
+    tagline: 'Maximum reach + top-account network',
+    recommended: false,
+    allowedSpeed: ['slow', 'steady', 'fast'],
+    allowedQuality: ['broad', 'targeted', 'top'],
+    monthlyBoosts: 300,
+    boostedPosts: 30,
+    reachLift: 0.68,
+  },
+]
+
+// Convenience: tier lookup by id. Returns undefined for unknown ids
+// so callers can fall back to "no tier" (locked) state.
+export const mockGrowthPlusTierById = Object.fromEntries(
+  mockGrowthPlusTiers.map((t) => [t.id, t]),
+)
