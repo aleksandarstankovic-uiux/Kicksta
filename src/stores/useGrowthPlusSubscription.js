@@ -1,19 +1,31 @@
 import { create } from 'zustand'
 
-// V1 override flag for the user's Growth+ subscription state. Starts
-// `null` (consumers use mockUser.growthPlusSubscribed as the default).
-// Flipped to `true` when the subscribe modal completes its success step
-// on the Growth+ page; lets the dashboard re-render inline without
-// mutating the mock data.
+// V1 override flag + cancellation lifecycle for the user's Growth+
+// subscription. Status state machine:
+//   active             → subscriber, full dashboard
+//   cancelled_pending  → cancelled but paid-through; renders dashboard
+//                        with banner + pill + billing-card adjustments
+//   lapsed             → period ended; renders Upsell page
 //
-// Consumer pattern:
-//   const subscribed = useGrowthPlusSubscription(
-//     (s) => s.subscribed ?? mockUser.growthPlusSubscribed,
-//   )
+// `subscribed` stays for back-compat with the existing consumer in
+// /growth-plus index.jsx until that consumer is migrated to `status`.
+// Treat `subscribed === true` as `status === 'active'` for now.
 //
-// In production: subscription state is per-IG-account via
-// useSubscriptions[].growthPlus; this store goes away.
+// `endsAt` is an ISO date string set when the user cancels (mirrors
+// `mockGrowthPlusNextBillingAt` at cancel time) and cleared on resume.
+//
+// _lapseForTesting() is a QA helper to flip into the lapsed state
+// without waiting for the clock.
 export const useGrowthPlusSubscription = create((set) => ({
   subscribed: null,
-  markSubscribed: () => set({ subscribed: true }),
+  status: 'active', // 'active' | 'cancelled_pending' | 'lapsed'
+  endsAt: null,
+  markSubscribed: () =>
+    set({ subscribed: true, status: 'active', endsAt: null }),
+  cancel: (endsAt) =>
+    set({ status: 'cancelled_pending', endsAt }),
+  resume: () =>
+    set({ status: 'active', endsAt: null }),
+  _lapseForTesting: () =>
+    set({ status: 'lapsed', subscribed: false, endsAt: null }),
 }))
