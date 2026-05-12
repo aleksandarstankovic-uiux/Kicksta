@@ -13,7 +13,7 @@ const SPEED_OPTIONS = [
 const QUALITY_OPTIONS = [
   { value: 'broad', label: 'Broad', note: 'Wider reach across audiences.' },
   { value: 'targeted', label: 'Targeted', note: 'Match your niche; balanced reach + engagement.' },
-  { value: 'top', label: 'Top accounts', note: 'Active accounts likely to like + save.' },
+  { value: 'top', label: 'Engaged', note: 'Active accounts likely to like + save.' },
 ]
 
 // Returns the cheapest tier whose `allowed` set contains `value`.
@@ -52,7 +52,7 @@ export default function GrowthPlusControls() {
         limits.
       </p>
 
-      <div className="mt-4 flex items-start justify-between gap-3 border-t border-border pt-4">
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-4">
         <div className="min-w-0">
           <p className="text-sm font-medium text-text-primary">Boost active</p>
           <p className="mt-0.5 text-xs text-text-secondary">
