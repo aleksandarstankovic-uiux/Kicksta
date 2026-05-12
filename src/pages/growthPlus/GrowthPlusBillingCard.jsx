@@ -4,6 +4,7 @@ import CardChip from '@/components/CardChip'
 import { mockGrowthPlusNextBillingAt } from '@/mocks/user'
 import { mockGrowthPlusTierById, mockGrowthPlusTiers } from '@/mocks/growth'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
+import { useGrowthPlusSubscription } from '@/stores/useGrowthPlusSubscription'
 
 function formatBillingDate(iso) {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -22,24 +23,30 @@ function nextTier(currentId) {
 }
 
 // Dedicated billing surface. "Manage" button opens the parent-owned
-// Growth+ Manage popup (not a route navigation) so the user gets the
-// Change-tier / Cancel choice without leaving the page first. When the
-// user isn't on Elite, a slim upgrade ribbon at the bottom points to
-// the next tier.
+// Growth+ Manage popup. Label/date adapt to the cancelled_pending
+// state (Next billing → Subscription ends), and the upgrade ribbon
+// hides — they're leaving, no point in selling them up.
 export default function GrowthPlusBillingCard({ onManage }) {
   const tierId = useGrowthConfig((s) => s.config.growthPlusControls.tier)
   const tier = mockGrowthPlusTierById[tierId]
   const upgrade = nextTier(tierId)
+  const status = useGrowthPlusSubscription((s) => s.status)
+  const endsAt = useGrowthPlusSubscription((s) => s.endsAt)
+
+  const isCancelledPending = status === 'cancelled_pending'
+  const label = isCancelledPending ? 'Subscription ends' : 'Next billing'
+  const dateIso = isCancelledPending ? endsAt : mockGrowthPlusNextBillingAt
+  const showUpgrade = upgrade && !isCancelledPending
 
   return (
     <section className="rounded-xl border border-border bg-surface shadow-sm">
       <div className="flex items-center gap-3 p-4 md:p-5">
         <CardChip color="purple" icon={CreditCard} />
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-text-secondary">Next billing</p>
+          <p className="text-xs font-medium text-text-secondary">{label}</p>
           <p className="mt-0.5 text-sm font-semibold text-text-primary">
             {tier ? `${tier.name} · $${tier.price}.00` : '$49.00'} ·{' '}
-            {formatBillingDate(mockGrowthPlusNextBillingAt)}
+            {formatBillingDate(dateIso)}
           </p>
         </div>
         <button
@@ -52,7 +59,7 @@ export default function GrowthPlusBillingCard({ onManage }) {
         </button>
       </div>
 
-      {upgrade && (
+      {showUpgrade && (
         <Link
           to="/growth-plus/upgrade"
           className="flex items-center gap-2 border-t border-border bg-purple-tint/40 px-4 py-3 text-xs font-medium text-purple-text transition-colors hover:bg-purple-tint md:px-5"

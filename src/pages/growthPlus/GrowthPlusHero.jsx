@@ -1,93 +1,95 @@
 import { Sparkles } from 'lucide-react'
 import {
-  mockGrowthPlusDeltas,
   mockGrowthPlusInsights,
   mockGrowthPlusTierById,
 } from '@/mocks/growth'
 import { useCountUp } from '@/hooks/useCountUp'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
+import { useGrowthPlusSubscription } from '@/stores/useGrowthPlusSubscription'
 
-// Hero card for the Growth+ page. Reads the active tier from the
-// store; pill, hero number, and delta strip all key off that tier.
+function formatShortDate(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+// Hero card for the Growth+ page. Big number = total followers gained
+// from Growth+ since subscribing. The header pill branches on
+// subscription status:
+//   active            → green-tint "Active · Pro"
+//   cancelled_pending → yellow-tint "Ending Jun 12 · Pro"
+//   (paused boost)    → bg/text-secondary "Paused · Pro"
 export default function GrowthPlusHero() {
   const tierId = useGrowthConfig((s) => s.config.growthPlusControls.tier)
   const boostEnabled = useGrowthConfig(
     (s) => s.config.growthPlusControls.enabled,
   )
+  const status = useGrowthPlusSubscription((s) => s.status)
+  const endsAt = useGrowthPlusSubscription((s) => s.endsAt)
   const tier = mockGrowthPlusTierById[tierId]
   const insights = mockGrowthPlusInsights[tierId] ?? mockGrowthPlusInsights.pro
-  const deltas = mockGrowthPlusDeltas[tierId] ?? mockGrowthPlusDeltas.pro
 
-  const target = insights.algorithmicBoost
+  const target = insights.totalFollowersGained
   const value = useCountUp(target, 600)
+
+  const isCancelledPending = status === 'cancelled_pending'
+
+  // Pill copy + theme classes.
+  let pillLabel
+  let pillClasses
+  let dotClass
+  if (isCancelledPending) {
+    pillLabel = `Ending ${formatShortDate(endsAt)}`
+    pillClasses = 'bg-yellow-tint text-yellow-text'
+    dotClass = 'bg-yellow-base'
+  } else if (boostEnabled) {
+    pillLabel = 'Active'
+    pillClasses = 'bg-green-tint text-green-text'
+    dotClass = 'bg-green-base'
+  } else {
+    pillLabel = 'Paused'
+    pillClasses = 'bg-bg text-text-secondary'
+    dotClass = 'bg-text-muted'
+  }
 
   return (
     <section className="overflow-hidden rounded-xl border border-purple-base/20 bg-gradient-to-br from-purple-tint via-purple-tint to-purple-base/15 p-5 shadow-sm md:p-6">
-      <div className="lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-8">
-        <div>
-          <div className="flex items-center gap-2">
-            <span
-              aria-hidden="true"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-purple-text text-surface shadow-sm"
-            >
-              <Sparkles className="h-4 w-4" />
-            </span>
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-purple-text">
-              GROWTH+
-            </span>
-            <span
-              className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide lg:ml-0 ${
-                boostEnabled
-                  ? 'bg-green-tint text-green-text'
-                  : 'bg-bg text-text-secondary'
-              }`}
-            >
-              <span
-                aria-hidden="true"
-                className={`h-1.5 w-1.5 rounded-full ${
-                  boostEnabled ? 'bg-green-base' : 'bg-text-muted'
-                }`}
-              />
-              {boostEnabled ? 'Active' : 'Paused'}
-              {tier && (
-                <>
-                  <span aria-hidden="true" className="opacity-50">
-                    ·
-                  </span>
-                  <span>{tier.name}</span>
-                </>
-              )}
-            </span>
-          </div>
-
-          <p className="mt-4 text-3xl font-semibold leading-none text-text-primary md:text-4xl">
-            +{value}
-          </p>
-          <p className="mt-2 text-sm text-text-secondary">
-            {boostEnabled
-              ? 'extra followers from Growth+ this month'
-              : 'Boost paused — billing continues'}
-          </p>
-        </div>
-
-        <dl className="mt-5 grid grid-cols-3 gap-3 text-sm text-text-secondary lg:mt-0 lg:flex lg:flex-col lg:items-end lg:gap-3 lg:border-l lg:border-purple-base/20 lg:pl-6">
-          <DeltaItem label="today" value={deltas.today} />
-          <DeltaItem label="week" value={deltas.week} />
-          <DeltaItem label="month" value={deltas.month} />
-        </dl>
+      <div className="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-purple-text text-surface shadow-sm"
+        >
+          <Sparkles className="h-4 w-4" />
+        </span>
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-purple-text">
+          GROWTH+
+        </span>
+        <span
+          className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${pillClasses}`}
+        >
+          <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${dotClass}`} />
+          {pillLabel}
+          {tier && (
+            <>
+              <span aria-hidden="true" className="opacity-50">·</span>
+              <span>{tier.name}</span>
+            </>
+          )}
+        </span>
       </div>
-    </section>
-  )
-}
 
-function DeltaItem({ label, value }) {
-  return (
-    <div className="flex flex-col items-start gap-0.5 lg:flex-row lg:items-baseline lg:gap-1.5">
-      <dt className="sr-only">{label}</dt>
-      <dd className="text-base font-semibold text-purple-text">+{value}</dd>
-      <span aria-hidden="true" className="text-xs text-text-secondary">
-        {label}
-      </span>
-    </div>
+      <p className="mt-4 text-4xl font-semibold leading-none text-text-primary md:text-5xl">
+        +{value}
+      </p>
+      <p className="mt-2 text-sm text-text-secondary">
+        {isCancelledPending
+          ? 'total followers gained from Growth+'
+          : boostEnabled
+            ? 'total followers gained from Growth+'
+            : 'Boost paused — billing continues'}
+      </p>
+    </section>
   )
 }
