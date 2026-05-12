@@ -2,6 +2,7 @@ import { Sparkles } from 'lucide-react'
 import { Line, LineChart, ResponsiveContainer } from 'recharts'
 import { mockGrowthDaily, mockGrowthPlusInsights } from '@/mocks/growth'
 import { useCountUp } from '@/hooks/useCountUp'
+import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
 // Hero card for the Growth+ page. Premium purple-gradient surface,
 // counting hero number, sparkline.
@@ -13,6 +14,9 @@ export default function GrowthPlusHero({ previewMode = false }) {
   const target = mockGrowthPlusInsights.algorithmicBoost
   const animatedValue = useCountUp(target, 600)
   const value = previewMode ? target : animatedValue
+  const boostEnabled = useGrowthConfig(
+    (s) => s.config.growthPlusControls.enabled,
+  )
 
   const data = mockGrowthDaily.map((d) => ({
     date: d.date,
@@ -31,16 +35,26 @@ export default function GrowthPlusHero({ previewMode = false }) {
         <span className="text-[11px] font-semibold uppercase tracking-wide text-purple-text">
           GROWTH+
         </span>
-        <span className="ml-auto rounded-full bg-green-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-green-text">
-          Active
-        </span>
+        {!previewMode && (
+          <span
+            className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+              boostEnabled
+                ? 'bg-green-tint text-green-text'
+                : 'bg-bg text-text-secondary'
+            }`}
+          >
+            {boostEnabled ? 'Active' : 'Paused'}
+          </span>
+        )}
       </div>
 
       <p className="mt-4 text-5xl font-semibold leading-none text-text-primary md:text-6xl">
         +{value}
       </p>
       <p className="mt-2 text-sm text-text-secondary">
-        extra followers from Growth+ this month
+        {boostEnabled
+          ? 'extra followers from Growth+ this month'
+          : 'Boost paused — billing continues'}
       </p>
 
       <div className="mt-4 h-16 md:h-20">
