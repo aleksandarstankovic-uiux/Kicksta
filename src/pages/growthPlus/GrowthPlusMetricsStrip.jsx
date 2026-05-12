@@ -2,29 +2,27 @@ import { Heart, Megaphone, TrendingUp } from 'lucide-react'
 import { mockGrowthPlusInsights } from '@/mocks/growth'
 
 // Three supporting metric cards under the hero. Read from
-// mockGrowthPlusInsights. Each card has a purple icon chip so the
-// strip reads as Growth+-owned (rather than a generic dashboard row).
+// mockGrowthPlusInsights. Sizing matches the Overview MetricCard recipe
+// (text-xl lg:text-2xl value, text-xs font-medium label) so the page
+// reads consistent with the rest of the dashboard.
 const CARDS = [
   {
     key: 'reach',
     icon: TrendingUp,
     value: `+${Math.round(mockGrowthPlusInsights.postReachLift * 100)}%`,
     label: 'Post reach lift',
-    sub: 'beyond your baseline reach',
   },
   {
     key: 'engagement',
     icon: Heart,
     value: `${(mockGrowthPlusInsights.engagementRate * 100).toFixed(1)}%`,
     label: 'Engagement rate',
-    sub: 'active accounts that interact',
   },
   {
     key: 'posts',
     icon: Megaphone,
     value: String(mockGrowthPlusInsights.boostedPosts),
     label: 'Boosted posts',
-    sub: 'posts boosted this month',
   },
 ]
 
@@ -36,17 +34,17 @@ export default function GrowthPlusMetricsStrip() {
         return (
           <div
             key={c.key}
-            className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-5"
+            className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm lg:p-6"
           >
-            <span
-              aria-hidden="true"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-purple-tint text-purple-text"
-            >
-              <Icon className="h-4 w-4" />
-            </span>
-            <p className="mt-3 text-xl font-semibold text-text-primary">{c.value}</p>
-            <p className="mt-0.5 text-xs font-medium text-text-primary">{c.label}</p>
-            <p className="text-[11px] leading-tight text-text-muted">{c.sub}</p>
+            <div className="flex min-w-0 items-center gap-1.5 text-text-muted">
+              <Icon className="h-3.5 w-3.5 shrink-0" />
+              <p className="min-w-0 truncate text-xs font-medium leading-tight">
+                {c.label}
+              </p>
+            </div>
+            <p className="text-xl font-semibold text-text-primary lg:text-2xl">
+              {c.value}
+            </p>
           </div>
         )
       })}
