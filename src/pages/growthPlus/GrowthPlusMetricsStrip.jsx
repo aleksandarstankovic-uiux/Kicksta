@@ -1,4 +1,4 @@
-import { Heart, Sparkles, TrendingUp } from 'lucide-react'
+import { Heart, Megaphone, TrendingUp } from 'lucide-react'
 import { mockGrowthPlusInsights } from '@/mocks/growth'
 
 // Three supporting metric cards under the hero. Read from
@@ -21,7 +21,7 @@ const CARDS = [
   },
   {
     key: 'posts',
-    icon: Sparkles,
+    icon: Megaphone,
     value: String(mockGrowthPlusInsights.boostedPosts),
     label: 'Boosted posts',
     sub: 'posts boosted this month',
