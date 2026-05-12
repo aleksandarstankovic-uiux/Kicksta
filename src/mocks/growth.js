@@ -72,3 +72,13 @@ export const mockGrowthPlusInsights = {
   engagementRate: 0.048,
   boostedPosts: 12,
 }
+
+// Hero delta strip — today / this-week / this-month gains. Replaces
+// the sparkline (a cumulative count can only trend up, so the line
+// didn't carry information). Numbers sum from mockGrowthDaily so
+// they stay coherent with the rest of the page.
+export const mockGrowthPlusDeltas = {
+  today: 12,
+  week: 84,
+  month: 143,
+}
