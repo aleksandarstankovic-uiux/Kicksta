@@ -26,16 +26,27 @@ const COMPETITORS = [
 
 // Does the picked reason have a save offer for this subscription?
 // Returns true when step 2 should render; false skips to step 3.
+//
+// Note: "Too expensive" is handled INLINE in the reason step via a
+// deflection card (matching the Growth+ cancel flow pattern), so it
+// never triggers the save step.
 function hasSaveOffer(reasonId, subscription) {
   if (!reasonId) return false
   if (reasonId === 'other') return false
+  if (reasonId === 'price') return false // handled inline
   // Past-due users skip all save offers — they're not paying.
   if (subscription?.status === 'past_due') return false
-  if (reasonId === 'price') {
-    // No downgrade target for Growth users (already on cheaper plan).
-    return subscription?.plan === 'advanced'
-  }
   return true // results, break, switching all get a save step
+}
+
+// Returns the inline downgrade deflection target for "Too expensive".
+// Advanced users see Growth as the offer; Growth users see nothing.
+function deflectionTarget(subscription) {
+  if (subscription?.status === 'past_due') return null
+  if (subscription?.plan === 'advanced') {
+    return { plan: 'growth', label: 'Growth', price: 29 }
+  }
+  return null
 }
 
 // Computes the date the cancelled subscription will end. For trial
@@ -54,10 +65,6 @@ function endsAtFor(subscription) {
 //   lose     → cumulative gain headline + what they'll lose list
 //   confirm  → equal-weight Keep vs Cancel buttons
 //   success  → "Subscription cancelled" ack, then Done
-//
-// "Cancel anyway" footer link appears on reason / save / lose. It
-// jumps directly to confirm. The final confirm step is the only
-// gate that doesn't expose the shortcut — that screen IS the cancel.
 //
 // Saves trigger sub-confirmation modals (Pause, Downgrade) or
 // inline mutations (Server). On any save success, the cancel flow
@@ -117,6 +124,7 @@ export default function CancelSubscriptionModal({
 
   const endsAt = endsAtFor(subscription)
   const offers = hasSaveOffer(selectedReason, subscription)
+  const priceDeflection = deflectionTarget(subscription)
 
   function handleContinueReason() {
     setStep(offers ? 'save' : 'lose')
@@ -124,10 +132,6 @@ export default function CancelSubscriptionModal({
 
   function handleSkipSave() {
     setStep('lose')
-  }
-
-  function handleCancelAnyway() {
-    setStep('confirm')
   }
 
   function handleFinalConfirm() {
@@ -154,8 +158,8 @@ export default function CancelSubscriptionModal({
       }}
     >
       <div className="w-full rounded-t-2xl bg-surface shadow-xl lg:mx-4 lg:max-w-md lg:rounded-2xl">
-        <div className="flex items-center justify-between px-5 pt-5">
-          <h2 className="text-base font-semibold text-text-primary">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+          <h2 className="min-w-0 flex-1 truncate text-base font-semibold text-text-primary">
             Cancel subscription for {username}
           </h2>
           {step !== 'processing' && (
@@ -163,14 +167,14 @@ export default function CancelSubscriptionModal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        <div className="px-5 pb-5 pt-3">
+        <div className="px-5 pb-5 pt-4">
           {step === 'reason' && (
             <>
               <p className="text-sm text-text-secondary">
@@ -216,6 +220,26 @@ export default function CancelSubscriptionModal({
                           />
                         </div>
                       )}
+
+                      {selected && r.id === 'price' && priceDeflection && (
+                        <div className="mt-2 rounded-lg border border-blue-base/30 bg-blue-tint/40 p-4">
+                          <p className="text-sm font-semibold text-blue-text">
+                            Try {priceDeflection.label} at ${priceDeflection.price}/mo instead?
+                          </p>
+                          <p className="mt-1 text-xs text-text-secondary">
+                            Save $20/mo. Effective immediately. You'll
+                            keep core targeting; only Advanced-tier
+                            features are removed.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setDowngradeOpen(true)}
+                            className="mt-3 inline-flex h-10 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                          >
+                            Downgrade to {priceDeflection.label}
+                          </button>
+                        </div>
+                      )}
                     </li>
                   )
                 })}
@@ -229,26 +253,11 @@ export default function CancelSubscriptionModal({
               >
                 Continue
               </button>
-              <button
-                type="button"
-                onClick={handleCancelAnyway}
-                disabled={!selectedReason}
-                className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Cancel anyway
-              </button>
             </>
           )}
 
           {step === 'save' && (
             <>
-              {selectedReason === 'price' && (
-                <SaveOfferPrice
-                  onAccept={() => setDowngradeOpen(true)}
-                  onSkip={handleSkipSave}
-                  onCancelAnyway={handleCancelAnyway}
-                />
-              )}
               {selectedReason === 'results' && (
                 <SaveOfferServer
                   subscription={subscription}
@@ -256,14 +265,12 @@ export default function CancelSubscriptionModal({
                   setServerPick={setServerPick}
                   onAccept={handleServerSave}
                   onSkip={handleSkipSave}
-                  onCancelAnyway={handleCancelAnyway}
                 />
               )}
               {selectedReason === 'break' && (
                 <SaveOfferPause
                   onPick={(days) => setPauseDays(days)}
                   onSkip={handleSkipSave}
-                  onCancelAnyway={handleCancelAnyway}
                 />
               )}
               {selectedReason === 'switching' && (
@@ -273,7 +280,6 @@ export default function CancelSubscriptionModal({
                   detail={switchingDetail}
                   setDetail={setSwitchingDetail}
                   onContinue={handleSkipSave}
-                  onCancelAnyway={handleCancelAnyway}
                 />
               )}
             </>
@@ -335,13 +341,6 @@ export default function CancelSubscriptionModal({
                   Continue
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={handleCancelAnyway}
-                className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
-              >
-                Cancel anyway
-              </button>
             </>
           )}
 
@@ -452,51 +451,12 @@ function LoseRow({ text }) {
   )
 }
 
-function SaveOfferPrice({ onAccept, onSkip, onCancelAnyway }) {
-  return (
-    <>
-      <p className="text-sm font-semibold text-text-primary">
-        Try Growth at $29/mo instead?
-      </p>
-      <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-        You'd save $20/mo. You'll keep core targeting, filters, and
-        whitelist/blacklist — only Advanced-tier features (Welcome DMs,
-        gender targeting, close friends adder) would be removed.
-      </p>
-      <div className="mt-5 flex flex-col gap-3">
-        <button
-          type="button"
-          onClick={onAccept}
-          className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-blue-base text-base font-semibold text-white transition-opacity hover:opacity-90"
-        >
-          Downgrade to Growth
-        </button>
-        <button
-          type="button"
-          onClick={onSkip}
-          className="inline-flex h-12 w-full items-center justify-center rounded-lg border border-border bg-surface text-base font-medium text-text-primary transition-colors hover:bg-bg"
-        >
-          No thanks, continue cancelling
-        </button>
-      </div>
-      <button
-        type="button"
-        onClick={onCancelAnyway}
-        className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
-      >
-        Cancel anyway
-      </button>
-    </>
-  )
-}
-
 function SaveOfferServer({
   subscription,
   serverPick,
   setServerPick,
   onAccept,
   onSkip,
-  onCancelAnyway,
 }) {
   const current = mockServers.find((s) => s.id === subscription.server)
   const others = mockServers.filter((s) => s.id !== subscription.server)
@@ -554,18 +514,11 @@ function SaveOfferServer({
           No thanks, continue cancelling
         </button>
       </div>
-      <button
-        type="button"
-        onClick={onCancelAnyway}
-        className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
-      >
-        Cancel anyway
-      </button>
     </>
   )
 }
 
-function SaveOfferPause({ onPick, onSkip, onCancelAnyway }) {
+function SaveOfferPause({ onPick, onSkip }) {
   return (
     <>
       <p className="text-sm font-semibold text-text-primary">
@@ -595,13 +548,6 @@ function SaveOfferPause({ onPick, onSkip, onCancelAnyway }) {
       >
         No thanks, continue cancelling
       </button>
-      <button
-        type="button"
-        onClick={onCancelAnyway}
-        className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
-      >
-        Cancel anyway
-      </button>
     </>
   )
 }
@@ -612,7 +558,6 @@ function SaveOfferSwitching({
   detail,
   setDetail,
   onContinue,
-  onCancelAnyway,
 }) {
   return (
     <>
@@ -661,13 +606,6 @@ function SaveOfferSwitching({
         className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-lg bg-text-primary text-base font-semibold text-bg transition-opacity hover:opacity-90"
       >
         Continue cancelling
-      </button>
-      <button
-        type="button"
-        onClick={onCancelAnyway}
-        className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
-      >
-        Cancel anyway
       </button>
     </>
   )

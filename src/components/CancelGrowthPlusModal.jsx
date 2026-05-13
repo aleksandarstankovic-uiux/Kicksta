@@ -109,8 +109,8 @@ export default function CancelGrowthPlusModal({
       }}
     >
       <div className="w-full rounded-t-2xl bg-surface shadow-xl lg:mx-4 lg:max-w-md lg:rounded-2xl">
-        <div className="flex items-center justify-between px-5 pt-5">
-          <h2 className="text-base font-semibold text-text-primary">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+          <h2 className="min-w-0 flex-1 truncate text-base font-semibold text-text-primary">
             Cancel Growth+
           </h2>
           {step !== 'processing' && (
@@ -118,14 +118,14 @@ export default function CancelGrowthPlusModal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        <div className="px-5 pb-5 pt-3">
+        <div className="px-5 pb-5 pt-4">
           {step === 'reason' && (
             <>
               <p className="text-sm text-text-secondary">
