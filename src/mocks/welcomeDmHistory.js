@@ -14,4 +14,11 @@ export const mockWelcomeDmHistory = [
   { id: 'wdm_5', username: '@brand.partner', createdAt: hoursAgo(12) },
   { id: 'wdm_6', username: '@runners.club', createdAt: hoursAgo(20) },
   { id: 'wdm_7', username: '@trail.tales', createdAt: hoursAgo(28) },
+  { id: 'wdm_8', username: '@chefjules.co', createdAt: hoursAgo(34) },
+  { id: 'wdm_9', username: '@morning.moves', createdAt: hoursAgo(40) },
+  { id: 'wdm_10', username: '@studioflora', createdAt: hoursAgo(46) },
+  { id: 'wdm_11', username: '@bikepacker.ben', createdAt: hoursAgo(52) },
+  { id: 'wdm_12', username: '@ceramics.kai', createdAt: hoursAgo(60) },
+  { id: 'wdm_13', username: '@homebrew.dan', createdAt: hoursAgo(68) },
+  { id: 'wdm_14', username: '@espresso.eva', createdAt: hoursAgo(76) },
 ]
