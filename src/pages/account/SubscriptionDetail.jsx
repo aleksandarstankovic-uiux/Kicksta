@@ -8,12 +8,14 @@ import { findServer } from '@/mocks/servers'
 import PlanCard from './PlanCard'
 import InvoicesTable from './InvoicesTable'
 import CancelSubscriptionModal from './CancelSubscriptionModal'
+import SubscriptionStateBanner from './SubscriptionStateBanner'
 import { STATUS_PILL, letterFor } from './subscriptionShared'
 
 export default function SubscriptionDetail() {
   const { id } = useParams()
   const sub = useSubscriptions((s) => s.subscriptions.find((x) => x.id === id))
   const accounts = useAccounts((s) => s.accounts)
+  const resume = useSubscriptions((s) => s.resume)
   const [cancelOpen, setCancelOpen] = useState(false)
 
   if (!sub) return <Navigate to="/account/billing" replace />
@@ -23,12 +25,11 @@ export default function SubscriptionDetail() {
   const profilePic = account?.profilePic ?? null
   const pill = STATUS_PILL[sub.status] ?? STATUS_PILL.active
   const invoices = invoicesForSubscription(sub.id)
+  const isOnHold =
+    sub.status === 'paused' || sub.status === 'cancelled_pending'
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6 lg:px-8">
-      {/* Standalone header — no settings shell wrapper. Smaller
-          back button + avatar on phones so the username + status
-          pill have room. Username truncates if needed. */}
       <div className="flex items-center gap-2 sm:gap-3">
         <Link
           to="/account/billing"
@@ -53,6 +54,12 @@ export default function SubscriptionDetail() {
       </div>
 
       <div className="mt-6 flex flex-col gap-6">
+        {isOnHold && (
+          <SubscriptionStateBanner
+            subscription={sub}
+            onResume={() => resume(sub.id)}
+          />
+        )}
         <PlanCard subscription={sub} />
         <p className="text-xs text-text-secondary">
           Server: <span className="font-medium text-text-primary">{findServer(sub.server).label}</span> · {findServer(sub.server).region}
@@ -66,23 +73,29 @@ export default function SubscriptionDetail() {
           />
         </div>
 
-        <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border bg-bg p-4 md:flex-row md:items-center md:justify-between md:p-6">
-          <div>
-            <h2 className="text-base font-semibold text-text-primary">Cancel subscription</h2>
-            <p className="mt-0.5 text-xs text-text-secondary">
-              Cancel to stop growth and end billing for this account.
-            </p>
+        {!isOnHold && (
+          <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border bg-bg p-4 md:flex-row md:items-center md:justify-between md:p-6">
+            <div>
+              <h2 className="text-base font-semibold text-text-primary">Cancel subscription</h2>
+              <p className="mt-0.5 text-xs text-text-secondary">
+                Cancel to stop growth and end billing for this account.
+              </p>
+            </div>
+            <button
+              onClick={() => setCancelOpen(true)}
+              className="inline-flex h-10 shrink-0 items-center rounded-lg bg-red-tint px-4 text-sm font-medium text-red-text hover:bg-red-tint/80"
+            >
+              Cancel subscription
+            </button>
           </div>
-          <button
-            onClick={() => setCancelOpen(true)}
-            className="inline-flex h-10 shrink-0 items-center rounded-lg bg-red-tint px-4 text-sm font-medium text-red-text hover:bg-red-tint/80"
-          >
-            Cancel subscription
-          </button>
-        </div>
+        )}
       </div>
 
-      <CancelSubscriptionModal open={cancelOpen} onClose={() => setCancelOpen(false)} />
+      <CancelSubscriptionModal
+        open={cancelOpen}
+        subscription={sub}
+        onClose={() => setCancelOpen(false)}
+      />
     </div>
   )
 }
