@@ -114,9 +114,20 @@ function RecentDmsSubsection() {
   return (
     <CollapsibleRecents title="Recent DMs sent">
       {items.length === 0 ? (
-        <p className="py-3 text-center text-xs text-text-muted">
-          No DMs sent yet — check back after your first follow-back.
-        </p>
+        <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-bg/50 px-4 py-6 text-center">
+          <span
+            aria-hidden="true"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-green-tint text-green-text"
+          >
+            <MessageSquare className="h-4 w-4" />
+          </span>
+          <p className="text-sm font-medium text-text-primary">
+            No DMs sent yet
+          </p>
+          <p className="text-xs leading-relaxed text-text-muted">
+            Your Welcome DM will land here after the first follow-back.
+          </p>
+        </div>
       ) : (
         <ul className="flex flex-col">
           {items.map((event) => (
