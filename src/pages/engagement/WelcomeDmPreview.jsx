@@ -10,7 +10,7 @@ import { Pencil } from 'lucide-react'
 // clickable so the icon is a marker, not the only target.
 export default function WelcomeDmPreview({ message, onEdit, enabled }) {
   return (
-    <div className="mt-5 pb-3">
+    <div className="mt-3 pb-3">
       <button
         type="button"
         onClick={enabled ? onEdit : undefined}
