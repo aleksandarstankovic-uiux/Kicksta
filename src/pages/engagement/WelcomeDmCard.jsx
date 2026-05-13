@@ -110,7 +110,7 @@ function CardToggle({ checked, locked, onClick, ariaLabel }) {
 // gates this with `showPreview`). When no DMs have been sent yet,
 // renders a muted empty-state line.
 function RecentDmsSubsection() {
-  const items = mockWelcomeDmHistory.slice(0, 6)
+  const items = mockWelcomeDmHistory.slice(0, 7)
   return (
     <CollapsibleRecents title="Recent DMs sent">
       {items.length === 0 ? (
