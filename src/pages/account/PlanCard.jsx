@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Layers } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
+import { useSubscriptions } from '@/stores/useSubscriptions'
 import ConfirmGrowthPlusModal from './ConfirmGrowthPlusModal'
 
 const PLAN_PRICE = { growth: 29, advanced: 49 }
@@ -20,14 +21,21 @@ function daysSince(iso) {
   return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)))
 }
 
+// Plan summary card. When the subscription is paused or
+// cancelled_pending we hide the Upgrade / Growth+ controls — they're
+// on their way out — and replace them with a single Resume button.
 export default function PlanCard({ subscription }) {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const resume = useSubscriptions((s) => s.resume)
 
   const planPrice = PLAN_PRICE[subscription.plan]
   const total = planPrice + (subscription.growthPlus ? 10 : 0)
   const isAdvanced = subscription.plan === 'advanced'
   const memberDays = daysSince(subscription.startedAt)
+  const isOnHold =
+    subscription.status === 'paused' ||
+    subscription.status === 'cancelled_pending'
 
   return (
     <div className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
@@ -64,22 +72,33 @@ export default function PlanCard({ subscription }) {
         </p>
       )}
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button
-          disabled={isAdvanced}
-          onClick={() => setUpgradeOpen(true)}
-          title={isAdvanced ? 'Already on the Advanced plan' : undefined}
-          className="inline-flex h-10 items-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Upgrade plan
-        </button>
-        <button
-          onClick={() => setConfirmOpen(true)}
-          className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-text-primary hover:bg-bg"
-        >
-          {subscription.growthPlus ? 'Remove Growth+' : 'Add Growth+'}
-        </button>
-      </div>
+      {isOnHold ? (
+        <div className="mt-4">
+          <button
+            onClick={() => resume(subscription.id)}
+            className="inline-flex h-10 items-center rounded-lg bg-green-base px-4 text-sm font-semibold text-white hover:opacity-90"
+          >
+            Resume subscription
+          </button>
+        </div>
+      ) : (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            disabled={isAdvanced}
+            onClick={() => setUpgradeOpen(true)}
+            title={isAdvanced ? 'Already on the Advanced plan' : undefined}
+            className="inline-flex h-10 items-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Upgrade plan
+          </button>
+          <button
+            onClick={() => setConfirmOpen(true)}
+            className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-text-primary hover:bg-bg"
+          >
+            {subscription.growthPlus ? 'Remove Growth+' : 'Add Growth+'}
+          </button>
+        </div>
+      )}
 
       <UpgradeStubModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
       <ConfirmGrowthPlusModal
