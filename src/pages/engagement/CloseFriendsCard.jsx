@@ -116,7 +116,9 @@ export default function CloseFriendsCard({ onRequestUpgrade }) {
             )
           })}
         </div>
-        <CloseFriendsProgress mode={cfMode} enabled={showCfControls} />
+        <div className="pb-3">
+          <CloseFriendsProgress mode={cfMode} enabled={showCfControls} />
+        </div>
         {showCfControls && <CloseFriendsState />}
       </div>
     </section>
