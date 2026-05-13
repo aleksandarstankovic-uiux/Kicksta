@@ -7,6 +7,43 @@
 
 > **2026-05-12 session note:** six 2026-05-12 entries total — `Manage subscription` (this entry), `Hero & pills round`, `Layout pass`, `Tiered pricing`, `Premium polish (round 2)`, and `Polish pass`. The first three came from a Mac evening session that started after merging the mobile-session work; the polish pass was the morning Mac session. All fast-forwarded into `main`. Branches: mobile branch `claude/kicksta-dashboard-LwK3F` (merged + deleted) carried the tiered pricing + premium polish; the layout pass shipped directly on `main`.
 
+## 2026-05-13 — Subscription cancellation flow
+
+Real cancellation experience for the main subscription. Replaces the "coming soon" stub with a 4–5 step honest flow that reduces churn through real save offers without any dark patterns.
+
+### Added
+- **CancelSubscriptionModal full rewrite** — 5-step state machine: Reason → Save offer (conditional) → What you'll lose → Confirm → Success. Each step (except final confirm) has a "Cancel anyway" shortcut to the confirm step.
+- **Save offers** — four reason-tailored offers, every one a real store mutation:
+  - "Too expensive" (Advanced users only) → Downgrade to Growth via `DowngradePlanConfirmModal`
+  - "Not enough results" → Inline server-region picker reusing `setServer`
+  - "Taking a break" → 30/60/90 day pause via `PauseConfirmModal`
+  - "Switching to another tool" → No save attempt; optional research question (tool dropdown + textarea)
+- **`paused` subscription state** — store action `pause(id, days)` sets `status: 'paused'` + `pauseUntil`. SubscriptionDetail page renders a yellow banner with "Resume now" button. Growth halts, billing skipped during pause.
+- **`cancelled_pending` subscription state** — store action `cancel(id)` sets `status: 'cancelled_pending'` + `endsAt` (trialEndsAt for trial users, nextBillingAt otherwise, today for past-due users). Banner reads "Ending {date}. Full access until then." with Resume button.
+- **`SubscriptionStateBanner`** — yellow banner component shared by both paused and cancelled_pending. Renders above PlanCard on the subscription detail page.
+- **`PauseConfirmModal`** — confirm → processing → success modal for pause action. Shows duration, resume date, "billing skipped" line.
+- **`DowngradePlanConfirmModal`** — confirm → processing → success modal for plan downgrade. Shows from/to/savings/proration credit. Uses the existing `prorationFor` helper.
+- **Subscription store** (`useSubscriptions`) gained `cancel`, `resume`, `pause`, `setPlan` actions. All fire toasts via `useToasts`.
+- **Mock data** — added `pauseUntil`, `endsAt`, `totalFollowersGained` fields to each entry in `mockSubscriptions`.
+- **Status pill registry** — added `paused` and `cancelled_pending` entries to `STATUS_PILL` (both yellow-tint).
+
+### Changed
+- **PlanCard** — when paused or cancelled_pending, hides Upgrade and Add/Remove Growth+ buttons, renders a single "Resume subscription" green-base button instead.
+- **SubscriptionDetail page** — renders the new banner when subscription is on hold; hides the bottom Cancel section in those states (already on the way out).
+
+### Decisions (locked, don't revisit)
+- **Anti-dark-pattern principles** — Close X always works; Cancel-anyway shortcut on every step except final confirm; final confirm has equal-weight Keep vs Cancel buttons; save offers are real or absent (never decoys); no fake urgency; no multi-step "are you sure" pile-on after final decision.
+- **Save step is conditional.** Skipped for "Other" reason, for Growth-plan users picking "Too expensive" (already on cheaper plan), and for past-due users (not paying anyway).
+- **Pause durations are 30/60/90 days only.** No indefinite pause — drifting subscriptions in limbo serves no one. Real return dates only.
+- **Single tier downgrade.** Advanced → Growth is the only plan-change in V1. Future tiers (if any) ship with backend.
+- **No automatic lapse from cancelled_pending.** Like Growth+, the period-end clock-driven transition ships with the backend. V1 stays in cancelled_pending until manual resume or QA reset.
+- **Final cancel button label is "Cancel subscription".** Never "Yes" / "OK" / "Confirm" — action name communicates the action.
+- **Resume from any on-hold state is the same action.** Clears endsAt and pauseUntil; sets status to active. No proration since the user hasn't received refunds.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-12-subscription-cancel-design.md`
+- Plan: `docs/superpowers/plans/2026-05-13-subscription-cancel.md`
+
 ## 2026-05-12 — Growth+ Manage subscription
 
 Subscription management surface: tier change, cancellation flow, and the cancelled-pending-end paid-through state.
