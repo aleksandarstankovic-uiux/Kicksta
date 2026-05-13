@@ -25,6 +25,17 @@ function formatDate(iso) {
   })
 }
 
+// Header title for the Growth+ cancel modal — reflects the current
+// step so the prompt doubles as the page title.
+function stepTitle(step) {
+  if (step === 'reason') return 'Why are you cancelling?'
+  if (step === 'lose') return "Here's what you'll lose"
+  if (step === 'confirm') return 'Confirm cancellation'
+  if (step === 'processing') return 'Cancelling...'
+  if (step === 'success') return 'Subscription cancelled'
+  return ''
+}
+
 // Smallest tier-jump downgrade target. Elite → Pro. Pro → Starter.
 // Starter → null (no deflection possible).
 function deflectionTarget(currentTierId) {
@@ -111,7 +122,7 @@ export default function CancelGrowthPlusModal({
       <div className="w-full rounded-t-2xl bg-surface shadow-xl lg:mx-4 lg:max-w-md lg:rounded-2xl">
         <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
           <h2 className="min-w-0 flex-1 truncate text-base font-semibold text-text-primary">
-            Cancel Growth+
+            {stepTitle(step)}
           </h2>
           {step !== 'processing' && (
             <button
@@ -128,10 +139,7 @@ export default function CancelGrowthPlusModal({
         <div className="px-5 pb-5 pt-4">
           {step === 'reason' && (
             <>
-              <p className="text-sm text-text-secondary">
-                Why are you cancelling? (helps us improve)
-              </p>
-              <ul className="mt-3 flex flex-col gap-2">
+              <ul className="flex flex-col gap-2">
                 {REASONS.map((r) => {
                   const selected = selectedReason === r.id
                   return (
@@ -216,11 +224,7 @@ export default function CancelGrowthPlusModal({
 
           {step === 'lose' && (
             <>
-              <p className="text-sm text-text-secondary">
-                Here's what you'll lose:
-              </p>
-
-              <div className="mt-3 flex items-start gap-3 rounded-xl border border-purple-base/20 bg-purple-tint/40 p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-purple-base/20 bg-purple-tint/40 p-4">
                 <Sparkles
                   className="mt-0.5 h-5 w-5 shrink-0 text-purple-text"
                   aria-hidden="true"
@@ -282,10 +286,7 @@ export default function CancelGrowthPlusModal({
 
           {step === 'confirm' && (
             <>
-              <p className="text-sm font-semibold text-text-primary">
-                Are you sure?
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+              <p className="text-sm leading-relaxed text-text-secondary">
                 Your Growth+ subscription will end on{' '}
                 <span className="font-semibold text-text-primary">
                   {formatDate(mockGrowthPlusNextBillingAt)}
@@ -305,7 +306,7 @@ export default function CancelGrowthPlusModal({
                 <button
                   type="button"
                   onClick={handleConfirm}
-                  className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-red-tint text-base font-semibold text-red-text transition-colors hover:bg-red-tint/70"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-red-base text-base font-semibold text-white transition-opacity hover:opacity-90"
                 >
                   Cancel subscription
                 </button>
@@ -327,10 +328,7 @@ export default function CancelGrowthPlusModal({
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-tint">
                 <CheckCircle2 className="h-6 w-6 text-green-text" />
               </div>
-              <h2 className="text-lg font-semibold text-text-primary">
-                Subscription cancelled
-              </h2>
-              <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">
+              <p className="text-sm leading-relaxed text-text-secondary">
                 You have full access until{' '}
                 {formatDate(mockGrowthPlusNextBillingAt)}. We'll let you know
                 before it ends.

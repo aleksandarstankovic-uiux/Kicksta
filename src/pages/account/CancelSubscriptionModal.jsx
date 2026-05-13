@@ -49,6 +49,23 @@ function deflectionTarget(subscription) {
   return null
 }
 
+// Header title for the modal — reflects the user's current step
+// so the prompt doubles as the page title.
+function stepTitle(step, reason) {
+  if (step === 'reason') return 'Why are you cancelling?'
+  if (step === 'save') {
+    if (reason === 'results') return 'Try a different server first?'
+    if (reason === 'break') return 'Pause instead?'
+    if (reason === 'switching') return 'Which tool are you switching to?'
+    return 'Before you go'
+  }
+  if (step === 'lose') return "Here's what you'll lose"
+  if (step === 'confirm') return 'Confirm cancellation'
+  if (step === 'processing') return 'Cancelling...'
+  if (step === 'success') return 'Subscription cancelled'
+  return ''
+}
+
 // Computes the date the cancelled subscription will end. For trial
 // users it's trialEndsAt; for past-due users it's today (immediate);
 // otherwise it's the next billing date.
@@ -160,7 +177,7 @@ export default function CancelSubscriptionModal({
       <div className="w-full rounded-t-2xl bg-surface shadow-xl lg:mx-4 lg:max-w-md lg:rounded-2xl">
         <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
           <h2 className="min-w-0 flex-1 truncate text-base font-semibold text-text-primary">
-            Cancel subscription for {username}
+            {stepTitle(step, selectedReason)}
           </h2>
           {step !== 'processing' && (
             <button
@@ -177,10 +194,7 @@ export default function CancelSubscriptionModal({
         <div className="px-5 pb-5 pt-4">
           {step === 'reason' && (
             <>
-              <p className="text-sm text-text-secondary">
-                Why are you cancelling?
-              </p>
-              <ul className="mt-3 flex flex-col gap-2">
+              <ul className="flex flex-col gap-2">
                 {REASONS.map((r) => {
                   const selected = selectedReason === r.id
                   return (
@@ -287,11 +301,7 @@ export default function CancelSubscriptionModal({
 
           {step === 'lose' && (
             <>
-              <p className="text-sm text-text-secondary">
-                Here's what will happen:
-              </p>
-
-              <div className="mt-3 flex items-start gap-3 rounded-xl border border-blue-base/20 bg-blue-tint/40 p-4">
+              <div className="flex items-start gap-3 rounded-xl border border-blue-base/20 bg-blue-tint/40 p-4">
                 <Users
                   className="mt-0.5 h-5 w-5 shrink-0 text-blue-text"
                   aria-hidden="true"
@@ -346,10 +356,7 @@ export default function CancelSubscriptionModal({
 
           {step === 'confirm' && (
             <>
-              <p className="text-sm font-semibold text-text-primary">
-                Are you sure?
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+              <p className="text-sm leading-relaxed text-text-secondary">
                 Your subscription for{' '}
                 <span className="font-semibold text-text-primary">
                   {username}
@@ -395,10 +402,7 @@ export default function CancelSubscriptionModal({
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-tint">
                 <CheckCircle2 className="h-6 w-6 text-green-text" />
               </div>
-              <h2 className="text-lg font-semibold text-text-primary">
-                Subscription cancelled
-              </h2>
-              <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">
+              <p className="text-sm leading-relaxed text-text-secondary">
                 {username} will keep full access until {formatDate(endsAt)}.
                 We'll send a reminder before it ends.
               </p>
@@ -463,10 +467,7 @@ function SaveOfferServer({
   const canSave = serverPick && serverPick !== subscription.server
   return (
     <>
-      <p className="text-sm font-semibold text-text-primary">
-        Want to try a different server first?
-      </p>
-      <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+      <p className="text-sm leading-relaxed text-text-secondary">
         Server region affects growth speed and Instagram safety
         limits. Switching takes effect immediately and your targets
         carry over.
@@ -521,10 +522,7 @@ function SaveOfferServer({
 function SaveOfferPause({ onPick, onSkip }) {
   return (
     <>
-      <p className="text-sm font-semibold text-text-primary">
-        Want to pause instead?
-      </p>
-      <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+      <p className="text-sm leading-relaxed text-text-secondary">
         Growth stops, billing pauses, your targets and settings are
         kept. Auto-resumes on the date you choose.
       </p>
@@ -561,10 +559,7 @@ function SaveOfferSwitching({
 }) {
   return (
     <>
-      <p className="text-sm font-semibold text-text-primary">
-        Which tool are you switching to?
-      </p>
-      <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+      <p className="text-sm leading-relaxed text-text-secondary">
         Optional — your honest answer helps us improve. We won't try
         to sell you on staying.
       </p>
