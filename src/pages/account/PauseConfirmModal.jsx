@@ -53,32 +53,37 @@ export default function PauseConfirmModal({
         if (e.target === e.currentTarget && state === 'confirm') onClose?.()
       }}
     >
-      <div className="w-full rounded-t-2xl bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-sm lg:rounded-2xl lg:pb-6">
+      <div className="w-full overflow-hidden rounded-t-2xl bg-surface pb-[calc(env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-sm lg:rounded-2xl lg:pb-0">
         {state === 'confirm' && (
           <>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 <span
                   aria-hidden="true"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-yellow-tint text-yellow-text"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-yellow-tint text-yellow-text"
                 >
                   <PauseCircle className="h-5 w-5" />
                 </span>
-                <h2 className="text-lg font-semibold text-text-primary">
-                  Pause for {days} days
-                </h2>
+                <div className="min-w-0">
+                  <h2 className="truncate text-base font-semibold leading-tight text-text-primary">
+                    Pause for {days} days
+                  </h2>
+                  <p className="mt-0.5 truncate text-xs leading-relaxed text-text-secondary">
+                    Growth halts, billing skipped, settings kept.
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
-
-            <div className="mt-4 space-y-2 rounded-xl border border-border bg-bg p-4 text-sm">
+            <div className="px-5 pb-5 pt-4 lg:pb-6">
+            <div className="space-y-2 rounded-xl border border-border bg-bg p-4 text-sm">
               <div className="flex items-baseline justify-between gap-3">
                 <span className="text-text-secondary">Duration</span>
                 <span className="font-semibold text-text-primary">
@@ -119,11 +124,12 @@ export default function PauseConfirmModal({
                 Cancel
               </button>
             </div>
+            </div>
           </>
         )}
 
         {state === 'processing' && (
-          <div className="flex flex-col items-center py-4 text-center">
+          <div className="flex flex-col items-center px-5 py-8 text-center">
             <Loader2 className="h-8 w-8 animate-spin text-yellow-base" />
             <p className="mt-3 text-base font-medium text-text-primary">
               Pausing your subscription...
@@ -132,7 +138,7 @@ export default function PauseConfirmModal({
         )}
 
         {state === 'success' && (
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col items-center px-5 py-6 text-center">
             <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-tint">
               <CheckCircle2 className="h-6 w-6 text-green-text" />
             </div>

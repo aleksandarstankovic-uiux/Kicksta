@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CheckCircle2, Loader2, Sparkles, X } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Loader2, Sparkles, X } from 'lucide-react'
+import CardChip from '@/components/CardChip'
 import { mockGrowthPlusNextBillingAt } from '@/mocks/user'
 import {
   mockGrowthPlusInsights,
@@ -120,18 +121,26 @@ export default function CancelGrowthPlusModal({
       }}
     >
       <div className="w-full rounded-t-2xl bg-surface shadow-xl lg:mx-4 lg:max-w-md lg:rounded-2xl">
-        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-          <h2 className="min-w-0 flex-1 truncate text-base font-semibold text-text-primary">
-            {stepTitle(step)}
-          </h2>
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <CardChip color="red" icon={AlertTriangle} />
+            <div className="min-w-0">
+              <h2 className="truncate text-base font-semibold leading-tight text-text-primary">
+                {stepTitle(step)}
+              </h2>
+              <p className="mt-0.5 truncate text-xs leading-relaxed text-text-secondary">
+                Growth+ subscription
+              </p>
+            </div>
+          </div>
           {step !== 'processing' && (
             <button
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-bg hover:text-text-primary"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           )}
         </div>

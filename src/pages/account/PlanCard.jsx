@@ -16,11 +16,6 @@ function formatDate(iso) {
   })
 }
 
-function daysSince(iso) {
-  const ms = Date.now() - new Date(iso).getTime()
-  return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)))
-}
-
 // Plan summary card. When the subscription is paused or
 // cancelled_pending we hide the Upgrade / Growth+ controls — they're
 // on their way out — and replace them with a single Resume button.
@@ -32,7 +27,6 @@ export default function PlanCard({ subscription }) {
   const planPrice = PLAN_PRICE[subscription.plan]
   const total = planPrice + (subscription.growthPlus ? 10 : 0)
   const isAdvanced = subscription.plan === 'advanced'
-  const memberDays = daysSince(subscription.startedAt)
   const isOnHold =
     subscription.status === 'paused' ||
     subscription.status === 'cancelled_pending'
@@ -62,12 +56,8 @@ export default function PlanCard({ subscription }) {
         </div>
       </dl>
 
-      <p className="mt-3 text-xs text-text-muted">
-        Subscribed since {formatDate(subscription.startedAt)} · {memberDays} {memberDays === 1 ? 'day' : 'days'}
-      </p>
-
       {subscription.status === 'trialing' && subscription.trialEndsAt && (
-        <p className="mt-1 text-xs text-text-secondary">
+        <p className="mt-3 text-xs text-text-secondary">
           Trial ends {formatDate(subscription.trialEndsAt)}.
         </p>
       )}
@@ -76,24 +66,24 @@ export default function PlanCard({ subscription }) {
         <div className="mt-4">
           <button
             onClick={() => resume(subscription.id)}
-            className="inline-flex h-10 items-center rounded-lg bg-green-base px-4 text-sm font-semibold text-white hover:opacity-90"
+            className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-green-base px-4 text-sm font-semibold text-white hover:opacity-90 md:w-auto"
           >
             Resume subscription
           </button>
         </div>
       ) : (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 grid grid-cols-2 gap-2 md:flex md:flex-wrap">
           <button
             disabled={isAdvanced}
             onClick={() => setUpgradeOpen(true)}
             title={isAdvanced ? 'Already on the Advanced plan' : undefined}
-            className="inline-flex h-10 items-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
           >
             Upgrade plan
           </button>
           <button
             onClick={() => setConfirmOpen(true)}
-            className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-text-primary hover:bg-bg"
+            className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-text-primary hover:bg-bg md:w-auto"
           >
             {subscription.growthPlus ? 'Remove Growth+' : 'Add Growth+'}
           </button>

@@ -110,30 +110,34 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
         </table>
       </div>
 
-      {/* Mobile: each invoice is its own card so rows read as
-          discrete records rather than cells in a list. The wrapper
-          gets a max-height + overflow-y-auto so a long history
-          doesn't push the page; ~5 cards visible before scroll
-          (each card ~84px tall + 12px gap). */}
+      {/* Mobile: each invoice is its own card. Heading is the plan
+          + account (description); metadata (date, amount, status,
+          download) lives below. Reads as a real record — plan first,
+          numbers second. */}
       <div className="max-h-[480px] overflow-y-auto pr-1 md:hidden">
         <ul className="flex flex-col gap-3">
           {sorted.map((inv) => (
             <li
               key={inv.id}
-              className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3 shadow-sm"
+              className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 shadow-sm"
             >
-              <div className="flex items-center gap-2 text-sm">
-                <span className="font-medium text-text-primary">{formatDate(inv.date)}</span>
-                <span className="text-text-muted">·</span>
-                <span className="font-semibold text-text-primary">${inv.amount.toFixed(2)}</span>
-                <span className="ml-auto"><StatusPill status={inv.status} /></span>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <p className="min-w-0 flex-1 truncate text-xs text-text-secondary" title={inv.description}>
+              <div className="min-w-0 flex-1">
+                <p
+                  className="truncate text-sm font-semibold text-text-primary"
+                  title={inv.description}
+                >
                   {inv.description}
                 </p>
-                <DownloadButton onClick={handleDownload} />
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
+                  <span>{formatDate(inv.date)}</span>
+                  <span aria-hidden="true">·</span>
+                  <span className="font-medium text-text-primary">
+                    ${inv.amount.toFixed(2)}
+                  </span>
+                  <StatusPill status={inv.status} />
+                </div>
               </div>
+              <DownloadButton onClick={handleDownload} />
             </li>
           ))}
         </ul>

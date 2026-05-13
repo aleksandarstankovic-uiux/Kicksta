@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Globe, X } from 'lucide-react'
+import CardChip from '@/components/CardChip'
 import {
   findCountry,
   findServer,
@@ -70,28 +71,31 @@ export default function ChangeServerModal({ open, subscription, onClose }) {
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-tint text-blue-text">
-              <Globe className="h-4 w-4" />
-            </span>
-            <h2 className="text-base font-semibold text-text-primary">
-              Change server
-            </h2>
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <CardChip color="blue" icon={Globe} />
+            <div className="min-w-0">
+              <h2 className="truncate text-base font-semibold leading-tight text-text-primary">
+                Change server
+              </h2>
+              <p className="mt-0.5 truncate text-xs leading-relaxed text-text-secondary">
+                Pick the country and city closest to your audience.
+              </p>
+            </div>
           </div>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-text-muted hover:bg-bg hover:text-text-primary"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-muted hover:bg-bg hover:text-text-primary"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="px-5 pb-5 pt-4">
-          <p className="text-sm leading-relaxed text-text-secondary">
-            Pick the country and city closest to your audience. Closer
-            servers improve growth speed and Instagram safety.
+          <p className="text-xs leading-relaxed text-text-muted">
+            Closer servers improve growth speed and Instagram safety
+            limits.
           </p>
 
           <label
@@ -104,7 +108,7 @@ export default function ChangeServerModal({ open, subscription, onClose }) {
             id="server-country"
             value={countryId ?? ''}
             onChange={(e) => handleCountryChange(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20"
+            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2.5 pr-9 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20"
           >
             {mockServerCountries.map((c) => (
               <option key={c.countryId} value={c.countryId}>
@@ -124,7 +128,7 @@ export default function ChangeServerModal({ open, subscription, onClose }) {
             value={cityId ?? ''}
             onChange={(e) => setCityId(e.target.value)}
             disabled={!country}
-            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2.5 pr-9 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {cities.map((s) => (
               <option key={s.id} value={s.id}>

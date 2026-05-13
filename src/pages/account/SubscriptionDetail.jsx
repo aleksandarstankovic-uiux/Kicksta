@@ -16,6 +16,7 @@ export default function SubscriptionDetail() {
   const sub = useSubscriptions((s) => s.subscriptions.find((x) => x.id === id))
   const accounts = useAccounts((s) => s.accounts)
   const resume = useSubscriptions((s) => s.resume)
+  const payOverdue = useSubscriptions((s) => s.payOverdue)
   const [cancelOpen, setCancelOpen] = useState(false)
 
   if (!sub) return <Navigate to="/account/billing" replace />
@@ -26,7 +27,9 @@ export default function SubscriptionDetail() {
   const pill = STATUS_PILL[sub.status] ?? STATUS_PILL.active
   const invoices = invoicesForSubscription(sub.id)
   const isOnHold =
-    sub.status === 'paused' || sub.status === 'cancelled_pending'
+    sub.status === 'paused' ||
+    sub.status === 'cancelled_pending' ||
+    sub.status === 'past_due'
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6 lg:px-8">
@@ -58,6 +61,7 @@ export default function SubscriptionDetail() {
           <SubscriptionStateBanner
             subscription={sub}
             onResume={() => resume(sub.id)}
+            onPayOverdue={() => payOverdue(sub.id)}
           />
         )}
         <PlanCard subscription={sub} />
@@ -73,15 +77,17 @@ export default function SubscriptionDetail() {
 
         {!isOnHold && (
           <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border bg-bg p-4 md:flex-row md:items-center md:justify-between md:p-6">
-            <div>
-              <h2 className="text-base font-semibold text-text-primary">Cancel subscription</h2>
+            <div className="text-center md:text-left">
+              <h2 className="text-base font-semibold text-text-primary">
+                End this subscription
+              </h2>
               <p className="mt-0.5 text-xs text-text-secondary">
-                Cancel to stop growth and end billing for this account.
+                Stop growth and end billing for this account.
               </p>
             </div>
             <button
               onClick={() => setCancelOpen(true)}
-              className="inline-flex h-10 shrink-0 items-center rounded-lg bg-red-tint px-4 text-sm font-medium text-red-text hover:bg-red-tint/80"
+              className="inline-flex h-10 w-full shrink-0 items-center justify-center rounded-lg bg-red-tint px-4 text-sm font-medium text-red-text hover:bg-red-tint/80 md:w-auto"
             >
               Cancel subscription
             </button>

@@ -94,6 +94,28 @@ export const useSubscriptions = create((set, get) => ({
     })
   },
 
+  payOverdue: (id) => {
+    // Simulates settling the outstanding invoice — flips the
+    // subscription back to active. Real billing path posts a charge
+    // attempt to the backend.
+    set((state) => ({
+      subscriptions: state.subscriptions.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              status: 'active',
+              endsAt: null,
+              pauseUntil: null,
+            }
+          : s,
+      ),
+    }))
+    useToasts.getState().addToast({
+      message: 'Payment received. Subscription reactivated.',
+      tone: 'success',
+    })
+  },
+
   resume: (id) => {
     set((state) => ({
       subscriptions: state.subscriptions.map((s) =>
