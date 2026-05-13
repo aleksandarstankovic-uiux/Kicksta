@@ -174,7 +174,7 @@ export default function CancelSubscriptionModal({
           {step === 'reason' && (
             <>
               <p className="text-sm text-text-secondary">
-                Why are you cancelling? (helps us improve)
+                Why are you cancelling?
               </p>
               <ul className="mt-3 flex flex-col gap-2">
                 {REASONS.map((r) => {
@@ -233,7 +233,7 @@ export default function CancelSubscriptionModal({
                 type="button"
                 onClick={handleCancelAnyway}
                 disabled={!selectedReason}
-                className="mt-2 inline-flex h-10 w-full items-center justify-center text-xs font-medium text-text-secondary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
+                className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Cancel anyway
               </button>
@@ -338,7 +338,7 @@ export default function CancelSubscriptionModal({
               <button
                 type="button"
                 onClick={handleCancelAnyway}
-                className="mt-2 inline-flex h-10 w-full items-center justify-center text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+                className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
               >
                 Cancel anyway
               </button>
@@ -374,7 +374,7 @@ export default function CancelSubscriptionModal({
                 <button
                   type="button"
                   onClick={handleFinalConfirm}
-                  className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-red-tint text-base font-semibold text-red-text transition-colors hover:bg-red-tint/70"
+                  className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-red-base text-base font-semibold text-white transition-opacity hover:opacity-90"
                 >
                   Cancel subscription
                 </button>
@@ -482,7 +482,7 @@ function SaveOfferPrice({ onAccept, onSkip, onCancelAnyway }) {
       <button
         type="button"
         onClick={onCancelAnyway}
-        className="mt-2 inline-flex h-10 w-full items-center justify-center text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+        className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
       >
         Cancel anyway
       </button>
@@ -507,9 +507,9 @@ function SaveOfferServer({
         Want to try a different server first?
       </p>
       <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-        Server region affects growth speed and IG safety. Switching takes
-        effect immediately — some users see 40% better results within 2
-        weeks of changing servers.
+        Server region affects growth speed and Instagram safety
+        limits. Switching takes effect immediately and your targets
+        carry over.
       </p>
       <div className="mt-4 rounded-lg border border-border bg-bg p-3 text-sm">
         <p className="text-text-secondary">
@@ -557,7 +557,7 @@ function SaveOfferServer({
       <button
         type="button"
         onClick={onCancelAnyway}
-        className="mt-2 inline-flex h-10 w-full items-center justify-center text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+        className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
       >
         Cancel anyway
       </button>
@@ -598,7 +598,7 @@ function SaveOfferPause({ onPick, onSkip, onCancelAnyway }) {
       <button
         type="button"
         onClick={onCancelAnyway}
-        className="mt-2 inline-flex h-10 w-full items-center justify-center text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+        className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
       >
         Cancel anyway
       </button>
@@ -665,7 +665,7 @@ function SaveOfferSwitching({
       <button
         type="button"
         onClick={onCancelAnyway}
-        className="mt-2 inline-flex h-10 w-full items-center justify-center text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+        className="mt-3 inline-flex h-12 w-full items-center justify-center rounded-lg border border-red-base/30 bg-surface text-base font-medium text-red-text transition-colors hover:bg-red-tint/40"
       >
         Cancel anyway
       </button>
