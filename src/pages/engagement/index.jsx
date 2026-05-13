@@ -2,9 +2,7 @@ import { useState } from 'react'
 import EngagementStatsCard from './EngagementStatsCard'
 import WelcomeDmCard from './WelcomeDmCard'
 import CloseFriendsCard from './CloseFriendsCard'
-import GrowthPlusBanner from '@/components/GrowthPlusBanner'
 import UpgradeBottomSheet from '@/components/UpgradeBottomSheet'
-import { mockUser } from '@/mocks/user'
 
 // Engagement page — what Kicksta does AFTER a follow-back lands.
 // Two cards (Welcome DM + Close Friends), single-column on mobile,
@@ -16,8 +14,10 @@ import { mockUser } from '@/mocks/user'
 // heights was attempted earlier but produced empty padding on
 // whichever card had less content — hugging reads cleaner.
 //
-// GrowthPlusBanner stays parked at the bottom for now — its final
-// home gets revisited at the end of the broader refactor pass.
+// GrowthPlusBanner removed from this page — Engagement is about
+// post-follow interactions; Growth+ is about reach amplification.
+// The banner lives on Overview where it makes sense alongside
+// growth data.
 export default function EngagementPage() {
   const [upgradeFeature, setUpgradeFeature] = useState(null)
 
@@ -41,10 +41,6 @@ export default function EngagementPage() {
           <WelcomeDmCard onRequestUpgrade={openUpgrade} />
           <CloseFriendsCard onRequestUpgrade={openUpgrade} />
         </div>
-      </div>
-
-      <div className="mt-4">
-        <GrowthPlusBanner isSubscribed={mockUser.growthPlusSubscribed} />
       </div>
 
       <UpgradeBottomSheet

@@ -162,9 +162,20 @@ function CloseFriendsState() {
   return (
     <CollapsibleRecents title="Recent">
       {items.length === 0 ? (
-        <p className="py-3 text-center text-xs text-text-muted">
-          No recent activity yet.
-        </p>
+        <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-bg/50 px-4 py-6 text-center">
+          <span
+            aria-hidden="true"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-tint text-purple-text"
+          >
+            <Star className="h-4 w-4" />
+          </span>
+          <p className="text-sm font-medium text-text-primary">
+            No recent activity yet
+          </p>
+          <p className="text-xs leading-relaxed text-text-muted">
+            Adds and removes will appear here as your follower list changes.
+          </p>
+        </div>
       ) : (
         <ul className="flex flex-col">
           {items.map((event) => (

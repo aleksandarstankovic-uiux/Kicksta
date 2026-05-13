@@ -30,6 +30,10 @@ export default function PlanCard({ subscription }) {
   const isOnHold =
     subscription.status === 'paused' ||
     subscription.status === 'cancelled_pending'
+  // Past-due users can't change plan or add Growth+ until they
+  // resolve the outstanding invoice — keep CTAs hidden, the
+  // SubscriptionStateBanner above handles their path forward.
+  const isPastDue = subscription.status === 'past_due'
 
   return (
     <div className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
@@ -71,7 +75,7 @@ export default function PlanCard({ subscription }) {
             Resume subscription
           </button>
         </div>
-      ) : (
+      ) : isPastDue ? null : (
         <div className="mt-4 grid grid-cols-2 gap-2 md:flex md:flex-wrap">
           <button
             disabled={isAdvanced}
