@@ -148,7 +148,7 @@ function RecentDmsSubsection() {
 // Duplicated inline in CloseFriendsCard.jsx — the ~15 lines aren't
 // worth a shared module.
 function CollapsibleRecents({ title, children }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
   return (
     <div className="mt-3 border-t border-border pt-3">
       <button

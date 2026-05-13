@@ -7,10 +7,10 @@ import UpgradeBottomSheet from '@/components/UpgradeBottomSheet'
 import { mockUser } from '@/mocks/user'
 
 // Engagement page — what Kicksta does AFTER a follow-back lands.
-// Two cards (Welcome DM + Close Friends), stacked single-column on
-// every breakpoint because each has substantial inner content
-// (chat-bubble preview, progress strip) that reads better at full
-// width than crammed into a 2-col grid.
+// Two cards (Welcome DM + Close Friends), single-column on mobile,
+// 2-col on lg:+ so they sit side-by-side on desktop. items-start
+// keeps each card hugging its natural content height instead of
+// stretching to match the taller neighbor.
 //
 // GrowthPlusBanner stays parked at the bottom for now — its final
 // home gets revisited at the end of the broader refactor pass.
@@ -33,8 +33,10 @@ export default function EngagementPage() {
 
       <div className="mt-4 flex flex-col gap-4">
         <EngagementStatsCard />
-        <WelcomeDmCard onRequestUpgrade={openUpgrade} />
-        <CloseFriendsCard onRequestUpgrade={openUpgrade} />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+          <WelcomeDmCard onRequestUpgrade={openUpgrade} />
+          <CloseFriendsCard onRequestUpgrade={openUpgrade} />
+        </div>
       </div>
 
       <div className="mt-4">
