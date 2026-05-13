@@ -235,44 +235,38 @@ function PanelContent({
 
   return (
     <>
-      <div className={`${rowClasses} bg-bg`}>
-        <Avatar account={active} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <p className="truncate text-sm font-semibold text-text-primary">
-              @{active.username}
-            </p>
-            <PlanPill plan={active.plan} />
-          </div>
-          <SubLine account={active} />
-        </div>
-        <Check className="h-4 w-4 shrink-0 text-green-base" aria-label="Active" />
-      </div>
-
-      {server && onChangeServerClick && (
-        <button
-          type="button"
-          onClick={onChangeServerClick}
-          aria-label={`Change server for @${active.username} (currently ${server.label})`}
-          className={`${rowClasses} text-left transition-colors hover:bg-bg`}
-        >
-          <span
-            aria-hidden
-            className={`flex shrink-0 items-center justify-center rounded-full bg-blue-tint text-blue-text ring-1 ring-border ${
-              density === 'comfy' ? 'h-8 w-8' : 'h-7 w-7'
-            }`}
-          >
-            <Globe className={density === 'comfy' ? 'h-4 w-4' : 'h-3.5 w-3.5'} aria-hidden="true" />
-          </span>
+      <div className="overflow-hidden rounded-lg bg-bg">
+        <div className={rowClasses}>
+          <Avatar account={active} />
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-medium text-text-primary">
-              Server: {server.label}
+            <div className="flex items-center gap-1.5">
+              <p className="truncate text-sm font-semibold text-text-primary">
+                @{active.username}
+              </p>
+              <PlanPill plan={active.plan} />
             </div>
-            <div className="truncate text-xs text-text-muted">{server.region}</div>
+            <SubLine account={active} />
           </div>
-          <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden="true" />
-        </button>
-      )}
+          <Check className="h-4 w-4 shrink-0 text-green-base" aria-label="Active" />
+        </div>
+
+        {server && onChangeServerClick && (
+          <button
+            type="button"
+            onClick={onChangeServerClick}
+            aria-label={`Change server for @${active.username} (currently ${server.city})`}
+            className="flex w-full items-center gap-2 border-t border-border/70 px-3 py-2 text-left transition-colors hover:bg-bg/40"
+          >
+            <Globe className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden="true" />
+            <span className="min-w-0 flex-1 truncate text-xs text-text-secondary">
+              <span className="font-medium text-text-primary">{server.city}</span>
+              <span className="mx-1 text-text-muted">·</span>
+              <span>{server.country}</span>
+            </span>
+            <ChevronRight className="h-3 w-3 shrink-0 text-text-muted" aria-hidden="true" />
+          </button>
+        )}
+      </div>
 
       {others.length > 0 && (
         <>

@@ -103,7 +103,30 @@
       "Bash(cat tailwind.config.js)",
       "Bash(cat tailwind.config.ts)",
       "Bash(xargs ls *)",
-      "Bash(grep -n \"bg-\\\\${color}-tint text-\\\\${color}-base\" src/components/CardChip.jsx)"
+      "Bash(grep -n \"bg-\\\\${color}-tint text-\\\\${color}-base\" src/components/CardChip.jsx)",
+      "Bash(git rm *)",
+      "Bash(node node_modules/.bin/eslint src/pages/targeting/index.jsx)",
+      "Bash(node node_modules/.bin/eslint src --ext .js,.jsx)",
+      "Bash(node node_modules/.bin/eslint src/pages/engagement/ src/mocks/engagementStats.js src/mocks/welcomeDmHistory.js src/mocks/closeFriendsState.js --ext .js,.jsx)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
+      "Bash(/Users/aleksandarstankovic/.local/nodejs/bin/node node_modules/.bin/eslint src/pages/engagement/ src/mocks/engagementStats.js src/mocks/welcomeDmHistory.js src/mocks/closeFriendsState.js --ext .js,.jsx)",
+      "Bash(node --check \"/Users/aleksandarstankovic/Desktop/Vibe Dash/src/mocks/suggestedTargets.js\")",
+      "Bash(node --check \"/Users/aleksandarstankovic/Desktop/Vibe Dash/src/mocks/targetSearch.js\")",
+      "Bash(git config *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(ssh -T -o StrictHostKeyChecking=accept-new git@github.com)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "WebFetch(domain:kicksta.vercel.app)",
+      "Bash(git fetch *)",
+      "Bash(git checkout *)",
+      "Bash(export PATH=\"/Users/aleksandarstankovic/.local/nodejs/bin:$PATH\")",
+      "Bash(git merge *)",
+      "Bash(node --check src/pages/growthPlus/GrowthPlusUpsell.jsx)",
+      "Bash(sed -n '60,62p' src/pages/growthPlus/GrowthPlusBillingCard.jsx)",
+      "Bash(sed -n '173,177p' src/pages/growthPlus/GrowthPlusUpsell.jsx)",
+      "mcp__Claude_in_Chrome__list_connected_browsers"
     ]
   }
 }

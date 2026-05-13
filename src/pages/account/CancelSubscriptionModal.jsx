@@ -474,7 +474,10 @@ function SaveOfferServer({
       </p>
       <div className="mt-4 rounded-lg border border-border bg-bg p-3 text-sm">
         <p className="text-text-secondary">
-          Current: <span className="font-medium text-text-primary">{current.region}</span>
+          Current:{' '}
+          <span className="font-medium text-text-primary">
+            {current.city}, {current.country}
+          </span>
         </p>
         <label
           htmlFor="server-pick"
@@ -489,11 +492,11 @@ function SaveOfferServer({
           className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20"
         >
           <option value={subscription.server} disabled>
-            {current.region} (current)
+            {current.city}, {current.country} (current)
           </option>
           {others.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.region}
+              {s.city}, {s.country}
             </option>
           ))}
         </select>

@@ -4,10 +4,10 @@ import { ChevronLeft } from 'lucide-react'
 import { useSubscriptions } from '@/stores/useSubscriptions'
 import { useAccounts } from '@/stores/useAccounts'
 import { invoicesForSubscription } from '@/mocks/invoices'
-import { findServer } from '@/mocks/servers'
 import PlanCard from './PlanCard'
 import InvoicesTable from './InvoicesTable'
 import CancelSubscriptionModal from './CancelSubscriptionModal'
+import ServerCard from './ServerCard'
 import SubscriptionStateBanner from './SubscriptionStateBanner'
 import { STATUS_PILL, letterFor } from './subscriptionShared'
 
@@ -61,9 +61,7 @@ export default function SubscriptionDetail() {
           />
         )}
         <PlanCard subscription={sub} />
-        <p className="text-xs text-text-secondary">
-          Server: <span className="font-medium text-text-primary">{findServer(sub.server).label}</span> · {findServer(sub.server).region}
-        </p>
+        <ServerCard subscription={sub} />
 
         <div className="flex flex-col gap-3">
           <h2 className="text-base font-semibold text-text-primary">Invoices</h2>
