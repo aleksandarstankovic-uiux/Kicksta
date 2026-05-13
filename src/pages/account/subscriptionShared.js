@@ -9,6 +9,11 @@ export const STATUS_PILL = {
   trialing: { cls: 'bg-blue-tint text-blue-text', label: 'Trialing' },
   past_due: { cls: 'bg-red-tint text-red-text', label: 'Past due' },
   canceled: { cls: 'bg-bg text-text-secondary', label: 'Canceled' },
+  paused: { cls: 'bg-yellow-tint text-yellow-text', label: 'Paused' },
+  cancelled_pending: {
+    cls: 'bg-yellow-tint text-yellow-text',
+    label: 'Ending soon',
+  },
 }
 
 export function letterFor(username) {
