@@ -123,8 +123,42 @@ export default function InstagramAuditCard() {
       </div>
 
       <p className="text-sm leading-relaxed text-text-secondary">
-        Generated weekly. Includes follower growth, top targets, and
-        engagement rate.
+        A weekly PDF snapshot of your account's growth from the last
+        7 days. Each audit includes:
+      </p>
+      <ul className="mt-2 flex flex-col gap-1.5 text-sm text-text-secondary">
+        <li className="flex items-start gap-2.5">
+          <span
+            aria-hidden="true"
+            className="mt-2 h-1 w-1 shrink-0 rounded-full bg-blue-base"
+          />
+          Daily follower growth and weekly totals
+        </li>
+        <li className="flex items-start gap-2.5">
+          <span
+            aria-hidden="true"
+            className="mt-2 h-1 w-1 shrink-0 rounded-full bg-blue-base"
+          />
+          Top-performing targets and their follow-back rates
+        </li>
+        <li className="flex items-start gap-2.5">
+          <span
+            aria-hidden="true"
+            className="mt-2 h-1 w-1 shrink-0 rounded-full bg-blue-base"
+          />
+          Engagement rate trend across likes, saves, and DMs
+        </li>
+        <li className="flex items-start gap-2.5">
+          <span
+            aria-hidden="true"
+            className="mt-2 h-1 w-1 shrink-0 rounded-full bg-blue-base"
+          />
+          Activity breakdown per target
+        </li>
+      </ul>
+      <p className="mt-3 text-xs text-text-muted">
+        Useful for tracking progress, sharing with collaborators, or
+        auditing your account's performance over time.
       </p>
     </section>
   )
