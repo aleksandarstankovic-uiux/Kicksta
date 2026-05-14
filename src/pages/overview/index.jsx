@@ -906,7 +906,7 @@ function GrowthChart({ data, period, customRange, isOnTrial, connection, trialSt
           row cards (Top Targets / Targeting / Engagement) so the
           Overview reads as a coherent stack of cards with consistent
           chrome. Title + trial pill left, color legend right. */}
-      <div className="-mx-4 -mt-4 mb-3 rounded-t-xl border-b border-border bg-bg/50 px-4 py-3 lg:-mx-6 lg:-mt-6 lg:px-6">
+      <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-border bg-bg/50 px-4 py-4 lg:-mx-6 lg:-mt-6 lg:px-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <h2 className="text-base font-semibold text-text-primary">Follower Growth</h2>
@@ -1258,7 +1258,7 @@ function ActivityFeed({ items, period, customRange }) {
       {/* Tinted header band — matches the chart + bottom-row cards
           so the Overview reads as a coherent set with consistent
           chrome. Title on the left, Live pill pinned right. */}
-      <div className="-mx-4 -mt-4 mb-3 rounded-t-xl border-b border-border bg-bg/50 px-4 py-3 lg:-mx-6 lg:-mt-6 lg:px-6">
+      <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-border bg-bg/50 px-4 py-4 lg:-mx-6 lg:-mt-6 lg:px-6">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-base font-semibold text-text-primary">Activity feed</h2>
           <span
@@ -1377,7 +1377,7 @@ function TargetsOverviewBody({ targets, plan }) {
           negative margins so it reads as a "title bar" sitting above
           the body. Border on the bottom marks the seam. Same recipe
           shared with the Targeting + Engagement snapshot cards. */}
-      <div className="-mx-4 -mt-4 mb-3 rounded-t-xl border-b border-border bg-bg/50 px-4 py-3 lg:-mx-6 lg:-mt-6 lg:px-6">
+      <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-border bg-bg/50 px-4 py-4 lg:-mx-6 lg:-mt-6 lg:px-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
             <h2 className="text-base font-semibold text-text-primary">Top Targets</h2>

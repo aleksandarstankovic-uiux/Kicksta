@@ -19,7 +19,7 @@ export default function EngagementSnapshot() {
       {/* Tinted header band — extends to the card's outer edges via
           negative margins so it reads as a "title bar" sitting above
           the body. Border on the bottom marks the seam. */}
-      <div className="-mx-4 -mt-4 mb-3 rounded-t-xl border-b border-border bg-bg/50 px-4 py-3 lg:-mx-6 lg:-mt-6 lg:px-6">
+      <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-border bg-bg/50 px-4 py-4 lg:-mx-6 lg:-mt-6 lg:px-6">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-base font-semibold text-text-primary">
             Engagement settings
