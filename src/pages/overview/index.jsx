@@ -1615,18 +1615,17 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Bottom block — two 2-col rows. Row 1 pairs the Top Targets list
-            with the Targeting settings snapshot (both about who/how to
-            target). Row 2 holds the Engagement snapshot; its right cell is
-            reserved for the Instagram Audit card (separate spec landing
-            next), so we span the snapshot across both columns on lg: for
-            now to avoid an empty half-cell. */}
+        {/* Bottom block — single 2-col row. Left column is the Top
+            Targets list (one tall card). Right column stacks the
+            Targeting + Engagement snapshots with a matching gap.
+            `items-stretch` on the grid + `h-full` on the left card
+            makes the two outer columns share the same height —
+            whichever side has the larger natural content drives the
+            row height and the other stretches to match. */}
         <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
           <TargetsOverview plan={user.plan} />
-          <TargetingSettingsSnapshot />
-        </div>
-        <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-          <div className="lg:col-span-2">
+          <div className="flex flex-col gap-4">
+            <TargetingSettingsSnapshot />
             <EngagementSnapshot />
           </div>
         </div>
