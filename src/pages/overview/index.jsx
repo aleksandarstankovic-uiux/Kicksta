@@ -1370,9 +1370,11 @@ function TargetsOverviewBody({ targets, plan }) {
     // card's container stretches to match.
     <div className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 lg:p-6">
       {/* Header row — title + slots pill on the left, View all link
-          pinned right. Matches the title-row CTA pattern used by the
-          two snapshot cards in the right column. */}
-      <div className="flex items-center justify-between gap-3">
+          pinned right. Hairline separator below to mark the boundary
+          between the dense header (title + pill + CTA) and the body's
+          row list. Matches the existing divide-y rhythm inside the
+          card so the line reads as part of the same visual language. */}
+      <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
         <div className="flex min-w-0 items-center gap-2">
           <h2 className="text-base font-semibold text-text-primary">Top Targets</h2>
           <span className="shrink-0 rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
@@ -1390,7 +1392,7 @@ function TargetsOverviewBody({ targets, plan }) {
 
       {/* Column header — establishes the Name | Follow-backs layout.
           px-3 matches the row padding so labels align with their columns. */}
-      <div className="mt-4 flex items-center justify-between px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-text-muted">
+      <div className="mt-3 flex items-center justify-between px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-text-muted">
         <span>Name</span>
         <span>Follow-backs</span>
       </div>

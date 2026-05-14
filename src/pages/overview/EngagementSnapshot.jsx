@@ -16,20 +16,25 @@ export default function EngagementSnapshot() {
 
   return (
     <div className="rounded-xl border border-border bg-surface p-4 lg:p-6">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-text-primary">
-          Engagement settings
-        </h2>
-        <Link
-          to="/engagement"
-          className="inline-flex items-center gap-1 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
-        >
-          Edit
-          <ChevronRight className="h-4 w-4" />
-        </Link>
+      {/* Tinted header band — extends to the card's outer edges via
+          negative margins so it reads as a "title bar" sitting above
+          the body. Border on the bottom marks the seam. */}
+      <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-border bg-bg/50 px-4 py-3 lg:-mx-6 lg:-mt-6 lg:px-6">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-text-primary">
+            Engagement settings
+          </h2>
+          <Link
+            to="/engagement"
+            className="inline-flex items-center gap-1 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
+          >
+            Edit
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
 
-      <div className="mt-4 divide-y divide-border">
+      <div className="divide-y divide-border">
         {/* Welcome DM */}
         <div className="py-3.5">
           <div className="flex items-center justify-between">
