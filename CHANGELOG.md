@@ -7,6 +7,29 @@
 
 > **2026-05-12 session note:** six 2026-05-12 entries total — `Manage subscription` (this entry), `Hero & pills round`, `Layout pass`, `Tiered pricing`, `Premium polish (round 2)`, and `Polish pass`. The first three came from a Mac evening session that started after merging the mobile-session work; the polish pass was the morning Mac session. All fast-forwarded into `main`. Branches: mobile branch `claude/kicksta-dashboard-LwK3F` (merged + deleted) carried the tiered pricing + premium polish; the layout pass shipped directly on `main`.
 
+## 2026-05-13 — Instagram Audit card
+
+Adds the Instagram Audit affordance to the Overview page. Users can pull a weekly PDF snapshot of their account's growth, gated by a 24h cooldown.
+
+### Added
+- `InstagramAuditCard` component (`src/components/InstagramAuditCard.jsx`) — single-CTA card on the Overview page. CTA label encodes the cooldown state: "Get Instagram Audit" (available) → "Generating audit…" with spinner (1500ms processing) → "Available in {N}h" (cooldown).
+- `useInstagramAudit` Zustand store — tracks `lastDownloadedAt`. `download()` stamps the timestamp and fires a "Audit downloaded." toast. `_reset()` QA helper flips back to "available" for testing.
+- `src/utils/auditCooldown.js` — `isAuditAvailable(iso)` + `nextAuditAvailableIn(iso)` pure helpers. 24h cooldown constant lives here.
+
+### Changed
+- Overview page renders the audit card in a new full-width row between the GrowthChart/ActivityFeed row and the bottom 2-col block. Placement is adjacent to the chart it summarizes.
+
+### Decisions (locked, don't revisit)
+- **24h cooldown.** Single source of truth: `COOLDOWN_MS` constant in `src/utils/auditCooldown.js`.
+- **CTA label encodes state.** No separate cooldown pill. Disabled state's label tells the user when it's available.
+- **No PDF in V1.** Click triggers the spinner + toast only. Real PDF generation ships with backend; the store's `download()` action will be extended to call the real endpoint.
+- **Per-account audit selection out of scope.** Audit reflects the active IG account; the page header already shows which one.
+- **No audit history list.** Just the latest cooldown stamp. Multi-download history is a future spec if needed.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-13-instagram-audit-design.md`
+- Plan: `docs/superpowers/plans/2026-05-13-instagram-audit.md`
+
 ## 2026-05-13 — Overview snapshot split
 
 The Overview page's bundled "Growth Settings" snapshot has been replaced with two single-purpose snapshot cards, each routing to the correct destination page.
