@@ -61,10 +61,19 @@ export default function TargetingSettingsSnapshot() {
   ]
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 lg:p-6">
-      <h2 className="text-base font-semibold text-text-primary">
-        Targeting settings
-      </h2>
+    <div className="rounded-xl border border-border bg-surface p-4 lg:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-base font-semibold text-text-primary">
+          Targeting settings
+        </h2>
+        <Link
+          to="/targeting?tab=settings"
+          className="inline-flex items-center gap-1 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
+        >
+          Edit
+          <ChevronRight className="h-4 w-4" />
+        </Link>
+      </div>
 
       <div className="mt-4 divide-y divide-border">
         <div className="flex items-center justify-between py-3.5">
@@ -114,15 +123,6 @@ export default function TargetingSettingsSnapshot() {
         </div>
       </div>
 
-      <div className="mt-auto flex justify-center pt-4">
-        <Link
-          to="/targeting?tab=settings"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
-        >
-          Edit Targeting
-          <ChevronRight className="h-4 w-4" />
-        </Link>
-      </div>
     </div>
   )
 }

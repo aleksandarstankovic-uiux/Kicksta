@@ -15,10 +15,19 @@ export default function EngagementSnapshot() {
   const cfaEnabled = config.closeFriendsAdder.enabled && isAdvanced
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 lg:p-6">
-      <h2 className="text-base font-semibold text-text-primary">
-        Engagement settings
-      </h2>
+    <div className="rounded-xl border border-border bg-surface p-4 lg:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-base font-semibold text-text-primary">
+          Engagement settings
+        </h2>
+        <Link
+          to="/engagement"
+          className="inline-flex items-center gap-1 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
+        >
+          Edit
+          <ChevronRight className="h-4 w-4" />
+        </Link>
+      </div>
 
       <div className="mt-4 divide-y divide-border">
         {/* Welcome DM */}
@@ -88,15 +97,6 @@ export default function EngagementSnapshot() {
         </div>
       </div>
 
-      <div className="mt-auto flex justify-center pt-4">
-        <Link
-          to="/engagement"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
-        >
-          Edit Engagement
-          <ChevronRight className="h-4 w-4" />
-        </Link>
-      </div>
     </div>
   )
 }
