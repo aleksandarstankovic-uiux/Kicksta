@@ -1365,16 +1365,26 @@ function TargetsOverviewBody({ targets, plan }) {
   }
 
   return (
-    // h-full + flex-col so when the sibling Growth Settings card is taller,
-    // this card's container stretches to match and the footer link stays
-    // pinned to the bottom (via mt-auto).
+    // h-full + flex-col so when the right column is taller, this
+    // card's container stretches to match.
     <div className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 lg:p-6">
-      {/* Header row — title + compact slots-used pill. */}
-      <div className="flex items-center gap-2">
-        <h2 className="text-base font-semibold text-text-primary">Top Targets</h2>
-        <span className="shrink-0 rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
-          {activeTargets.length}/{maxSlots} slots
-        </span>
+      {/* Header row — title + slots pill on the left, View all link
+          pinned right. Matches the title-row CTA pattern used by the
+          two snapshot cards in the right column. */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <h2 className="text-base font-semibold text-text-primary">Top Targets</h2>
+          <span className="shrink-0 rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
+            {activeTargets.length}/{maxSlots} slots
+          </span>
+        </div>
+        <Link
+          to="/targeting"
+          className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
+        >
+          View all
+          <ChevronRight className="h-4 w-4" />
+        </Link>
       </div>
 
       {/* Column header — establishes the Name | Follow-backs layout.
@@ -1461,17 +1471,6 @@ function TargetsOverviewBody({ targets, plan }) {
         })}
       </div>
 
-      {/* Centered CTA so the card's footer reads as a clear "more" action.
-          mt-auto pins it to the bottom when the sibling card is taller. */}
-      <div className="mt-auto flex justify-center pt-4">
-        <Link
-          to="/targets"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
-        >
-          View all targets
-          <ChevronRight className="h-4 w-4" />
-        </Link>
-      </div>
     </div>
   )
 }
