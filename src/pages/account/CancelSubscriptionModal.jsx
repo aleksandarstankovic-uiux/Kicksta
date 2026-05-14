@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { AlertTriangle, CheckCircle2, Loader2, Users, X } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, ChevronDown, Loader2, Users, X } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import { mockServers } from '@/mocks/servers'
 import { useAccounts } from '@/stores/useAccounts'
@@ -494,21 +494,27 @@ function SaveOfferServer({
         >
           Switch to
         </label>
-        <select
-          id="server-pick"
-          value={serverPick ?? subscription.server}
-          onChange={(e) => setServerPick(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 pr-9 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20"
-        >
-          <option value={subscription.server} disabled>
-            {current.city}, {current.country} (current)
-          </option>
-          {others.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.city}, {s.country}
+        <div className="relative mt-1">
+          <select
+            id="server-pick"
+            value={serverPick ?? subscription.server}
+            onChange={(e) => setServerPick(e.target.value)}
+            className="w-full appearance-none rounded-lg border border-border bg-surface px-3 py-2 pr-10 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20"
+          >
+            <option value={subscription.server} disabled>
+              {current.city}, {current.country} (current)
             </option>
-          ))}
-        </select>
+            {others.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.city}, {s.country}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+            aria-hidden="true"
+          />
+        </div>
       </div>
       <div className="mt-5 flex flex-col gap-3">
         <button
@@ -581,18 +587,24 @@ function SaveOfferSwitching({
       >
         Tool
       </label>
-      <select
-        id="switching-tool"
-        value={tool}
-        onChange={(e) => setTool(e.target.value)}
-        className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 pr-9 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20"
-      >
-        {COMPETITORS.map((c) => (
-          <option key={c.value || 'empty'} value={c.value}>
-            {c.label}
-          </option>
-        ))}
-      </select>
+      <div className="relative mt-1">
+        <select
+          id="switching-tool"
+          value={tool}
+          onChange={(e) => setTool(e.target.value)}
+          className="w-full appearance-none rounded-lg border border-border bg-surface px-3 py-2 pr-10 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20"
+        >
+          {COMPETITORS.map((c) => (
+            <option key={c.value || 'empty'} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+          aria-hidden="true"
+        />
+      </div>
       <label
         htmlFor="switching-detail"
         className="mt-3 block text-xs font-medium text-text-secondary"

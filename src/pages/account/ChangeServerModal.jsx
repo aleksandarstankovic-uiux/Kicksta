@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Globe, X } from 'lucide-react'
+import { ChevronDown, Globe, X } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import {
   findCountry,
@@ -104,18 +104,24 @@ export default function ChangeServerModal({ open, subscription, onClose }) {
           >
             Country
           </label>
-          <select
-            id="server-country"
-            value={countryId ?? ''}
-            onChange={(e) => handleCountryChange(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2.5 pr-9 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20"
-          >
-            {mockServerCountries.map((c) => (
-              <option key={c.countryId} value={c.countryId}>
-                {c.country}
-              </option>
-            ))}
-          </select>
+          <div className="relative mt-1">
+            <select
+              id="server-country"
+              value={countryId ?? ''}
+              onChange={(e) => handleCountryChange(e.target.value)}
+              className="w-full appearance-none rounded-lg border border-border bg-surface px-3 py-2.5 pr-10 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20"
+            >
+              {mockServerCountries.map((c) => (
+                <option key={c.countryId} value={c.countryId}>
+                  {c.country}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+              aria-hidden="true"
+            />
+          </div>
 
           <label
             htmlFor="server-city"
@@ -123,19 +129,25 @@ export default function ChangeServerModal({ open, subscription, onClose }) {
           >
             City
           </label>
-          <select
-            id="server-city"
-            value={cityId ?? ''}
-            onChange={(e) => setCityId(e.target.value)}
-            disabled={!country}
-            className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2.5 pr-9 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {cities.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.city}
-              </option>
-            ))}
-          </select>
+          <div className="relative mt-1">
+            <select
+              id="server-city"
+              value={cityId ?? ''}
+              onChange={(e) => setCityId(e.target.value)}
+              disabled={!country}
+              className="w-full appearance-none rounded-lg border border-border bg-surface px-3 py-2.5 pr-10 text-sm font-medium text-text-primary focus:border-blue-base focus:outline-none focus:ring-2 focus:ring-blue-base/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {cities.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.city}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+              aria-hidden="true"
+            />
+          </div>
 
           <div className="mt-5 flex items-center justify-end gap-2">
             <button

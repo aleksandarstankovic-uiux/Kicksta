@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Phone, X } from 'lucide-react'
+import { ChevronDown, Phone, X } from 'lucide-react'
 import { useUserProfile } from '@/stores/useUserProfile'
 
 export default function EditPhoneModal({ open, onClose }) {
@@ -65,10 +65,11 @@ export default function EditPhoneModal({ open, onClose }) {
           <label className="flex flex-col gap-1">
             <span className="text-sm font-medium text-text-secondary">Phone</span>
             <div className="flex gap-2">
+              <div className="relative">
               <select
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
-                className="h-10 rounded-lg border border-border bg-surface px-2 text-sm text-text-primary focus:border-blue-base focus:outline-none"
+                className="h-10 appearance-none rounded-lg border border-border bg-surface pl-3 pr-9 text-sm text-text-primary focus:border-blue-base focus:outline-none"
               >
                 <option value="US">US +1</option>
                 <option value="GB">GB +44</option>
@@ -76,6 +77,11 @@ export default function EditPhoneModal({ open, onClose }) {
                 <option value="FR">FR +33</option>
                 <option value="AU">AU +61</option>
               </select>
+              <ChevronDown
+                className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted"
+                aria-hidden="true"
+              />
+              </div>
               <input
                 type="tel"
                 value={number}
