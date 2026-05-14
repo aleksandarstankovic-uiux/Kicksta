@@ -49,6 +49,7 @@ import { useToasts } from '@/stores/useToasts'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import InstagramConnectionBanner from '@/components/InstagramConnectionBanner'
+import InstagramAuditCard from '@/components/InstagramAuditCard'
 import TargetingSettingsSnapshot from './TargetingSettingsSnapshot'
 import EngagementSnapshot from './EngagementSnapshot'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
@@ -1612,6 +1613,14 @@ export default function OverviewPage() {
               <ActivityFeed items={mockActivity} period={effectivePeriod} />
             </div>
           </div>
+        </div>
+
+        {/* Instagram Audit — full-width row between the chart and the
+            bottom 2-col block. Adjacency with the chart is deliberate:
+            the audit is a PDF snapshot of the same growth data the
+            chart just rendered on screen. */}
+        <div className="mt-4">
+          <InstagramAuditCard />
         </div>
 
         {/* Bottom block — single 2-col row. Left column is the Top
