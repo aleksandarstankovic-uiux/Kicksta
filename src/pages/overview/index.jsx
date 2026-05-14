@@ -902,45 +902,47 @@ function GrowthChart({ data, period, customRange, isOnTrial, connection, trialSt
 
   return (
     <div className="rounded-xl border border-border bg-surface p-4 lg:p-6">
-      {/* Header row — title + trial-scope pill on the left, compact
-          color legend on the right. Swatches mirror the bar treatments:
-          striped fill for gained (past), dashed outline + tint for
-          predicted (future). */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <h2 className="text-base font-semibold text-text-primary">Follower Growth</h2>
-          {/* Trial scope indicator — matches the "Trial" pill pattern
-              on the AccountCard plan label so the user reads the chart's
-              numbers as trial-period data at a glance. */}
-          {period === 'trial' && (
-            <span className="rounded-full bg-blue-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-text">
-              Trial
-            </span>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 text-xs text-text-secondary">
-            <span
-              aria-hidden
-              className="h-3 w-3 shrink-0 rounded-sm"
-              style={{
-                background:
-                  'repeating-linear-gradient(45deg, var(--color-green-base) 0 3px, var(--color-green-text) 3px 5px)',
-              }}
-            />
-            Gained
-          </span>
-          {hasPredicted && (
+      {/* Tinted header band — matches the recipe used by the bottom
+          row cards (Top Targets / Targeting / Engagement) so the
+          Overview reads as a coherent stack of cards with consistent
+          chrome. Title + trial pill left, color legend right. */}
+      <div className="-mx-4 -mt-4 mb-3 rounded-t-xl border-b border-border bg-bg/50 px-4 py-3 lg:-mx-6 lg:-mt-6 lg:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-semibold text-text-primary">Follower Growth</h2>
+            {/* Trial scope indicator — matches the "Trial" pill pattern
+                on the AccountCard plan label so the user reads the chart's
+                numbers as trial-period data at a glance. */}
+            {period === 'trial' && (
+              <span className="rounded-full bg-blue-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-text">
+                Trial
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center gap-1.5 text-xs text-text-secondary">
-              {/* Dashed border + tint fill mirrors the predicted bar shape
-                  so the legend is a literal preview of the chart marks. */}
               <span
                 aria-hidden
-                className="h-3 w-3 shrink-0 rounded-sm border border-dashed border-green-base bg-green-tint"
+                className="h-3 w-3 shrink-0 rounded-sm"
+                style={{
+                  background:
+                    'repeating-linear-gradient(45deg, var(--color-green-base) 0 3px, var(--color-green-text) 3px 5px)',
+                }}
               />
-              Predicted
+              Gained
             </span>
-          )}
+            {hasPredicted && (
+              <span className="inline-flex items-center gap-1.5 text-xs text-text-secondary">
+                {/* Dashed border + tint fill mirrors the predicted bar shape
+                    so the legend is a literal preview of the chart marks. */}
+                <span
+                  aria-hidden
+                  className="h-3 w-3 shrink-0 rounded-sm border border-dashed border-green-base bg-green-tint"
+                />
+                Predicted
+              </span>
+            )}
+          </div>
         </div>
       </div>
       {/* Summary strip — matches the Growth Settings filter-pill pattern
@@ -1253,34 +1255,36 @@ function ActivityFeed({ items, period, customRange }) {
     // history scrolls inside the card (~5 rows visible) instead of
     // pushing the page.
     <div className="flex h-full max-h-[420px] min-h-0 flex-col rounded-xl border border-border bg-surface p-4 lg:max-h-none lg:p-6">
-      {/* Title on the left, Live pill pinned to the right — the pill
-          (red-tint bg + red-text) keeps the live signal readable without
-          stealing the card's chrome. */}
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-base font-semibold text-text-primary">Activity feed</h2>
-        <span
-          aria-label="Live feed"
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-red-tint px-2.5 py-1"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-base opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-red-base" />
+      {/* Tinted header band — matches the chart + bottom-row cards
+          so the Overview reads as a coherent set with consistent
+          chrome. Title on the left, Live pill pinned right. */}
+      <div className="-mx-4 -mt-4 mb-3 rounded-t-xl border-b border-border bg-bg/50 px-4 py-3 lg:-mx-6 lg:-mt-6 lg:px-6">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-base font-semibold text-text-primary">Activity feed</h2>
+          <span
+            aria-label="Live feed"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-red-tint px-2.5 py-1"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-base opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-red-base" />
+            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-red-text">
+              Live
+            </span>
           </span>
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-red-text">
-            Live
-          </span>
-        </span>
+        </div>
       </div>
 
       {visible.length === 0 ? (
-        <div className="mt-4 flex flex-1 flex-col items-center justify-center gap-1 py-6 text-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-1 py-6 text-center">
           <p className="text-sm font-medium text-text-primary">No activity yet</p>
           <p className="text-xs text-text-secondary">
             Nothing in this range yet — try a longer period.
           </p>
         </div>
       ) : (
-        <ul className="mt-4 flex min-h-0 flex-1 flex-col overflow-y-auto pr-1">
+        <ul className="flex min-h-0 flex-1 flex-col overflow-y-auto pr-1">
           {visible.map((item, i) => (
             <li
               key={item.id}
