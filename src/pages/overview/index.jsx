@@ -8,14 +8,10 @@ import {
   Activity,
   Flame,
   Settings,
-  Settings2,
-  MessageSquare,
   Search,
   UserMinus,
   UserPlus,
   Users,
-  Heart,
-  Shield,
   ChevronRight,
   Hash,
   Star,
@@ -53,6 +49,8 @@ import { useToasts } from '@/stores/useToasts'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import InstagramConnectionBanner from '@/components/InstagramConnectionBanner'
+import TargetingSettingsSnapshot from './TargetingSettingsSnapshot'
+import EngagementSnapshot from './EngagementSnapshot'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 
 // --- Helpers ---
@@ -1478,133 +1476,6 @@ function TargetsOverviewBody({ targets, plan }) {
   )
 }
 
-function GrowthSettingsSnapshot({ plan }) {
-  // Read live config from the Zustand store so Mode / Engagement /
-  // Filter changes made on the Growth page are reflected here.
-  const config = useGrowthConfig((s) => s.config)
-  return <GrowthSettingsSnapshotBody config={config} plan={plan} />
-}
-
-function GrowthSettingsSnapshotBody({ config, plan }) {
-  const modeLabels = { auto: 'Auto', follow_only: 'Follow only', unfollow_only: 'Unfollow only' }
-  const isAdvanced = plan === 'advanced'
-
-  const toggles = [
-    { label: 'Like after follow', icon: Heart, enabled: config.likeAfterFollow, locked: false },
-    { label: 'Welcome DM', icon: MessageSquare, enabled: config.welcomeDm.enabled, locked: !isAdvanced },
-    { label: 'Close Friends Adder', icon: Shield, enabled: config.closeFriendsAdder, locked: !isAdvanced },
-  ]
-
-  // Compact number formatter for filter pills. "5K" instead of "5,000" keeps
-  // all six pills readable even when they share a single narrow row.
-  const fmt = (n) => {
-    if (n == null) return '∞'
-    if (n >= 1000) return n % 1000 === 0 ? `${n / 1000}K` : `${(n / 1000).toFixed(1)}K`
-    return String(n)
-  }
-  const range = (min, max) => (max == null ? `${fmt(min)}+` : `${fmt(min)}–${fmt(max)}`)
-
-  const privacyLabel = {
-    all: 'All',
-    public: 'Public only',
-    private: 'Private only',
-  }[config.filters.accountPrivacy] ?? 'All'
-
-  const genderLabel = config.filters.genderTarget
-    ? config.filters.genderTarget === 'male'
-      ? 'Male'
-      : 'Female'
-    : 'Any'
-
-  // Six filter facets rendered as labelled pills — each one gets its own tag
-  // so users can scan the surface area of the targeting filter at a glance.
-  const filterPills = [
-    { label: 'Following', value: range(config.filters.followingMin, config.filters.followingMax) },
-    { label: 'Followers', value: range(config.filters.followerMin, config.filters.followerMax) },
-    { label: 'Media', value: range(config.filters.mediaMin, config.filters.mediaMax) },
-    { label: 'NSFW', value: config.filters.excludeNsfw ? 'Excluded' : 'Allowed' },
-    { label: 'Privacy', value: privacyLabel },
-    { label: 'Gender', value: genderLabel },
-  ]
-
-  return (
-    // h-full + flex-col so the card stretches to match the sibling Targets
-    // card's height when they sit side by side, and the Edit Growth footer
-    // link pins to the bottom (via mt-auto).
-    <div className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 lg:p-6">
-      <h2 className="text-base font-semibold text-text-primary">Growth Settings</h2>
-
-      {/* Rows share a py-3.5 rhythm with hairline dividers so the card reads
-          like a settings summary sheet and fills the vertical space opened up
-          by stacking Targets above it. */}
-      <div className="mt-4 divide-y divide-border">
-        <div className="flex items-center justify-between py-3.5">
-          <div className="flex items-center gap-2.5">
-            <Settings2 className="h-4 w-4 text-text-muted" />
-            <span className="text-sm text-text-secondary">Mode</span>
-          </div>
-          <span className="rounded-full bg-blue-tint px-2.5 py-1 text-xs font-medium text-blue-text">
-            {modeLabels[config.mode]}
-          </span>
-        </div>
-
-        {toggles.map((toggle) => (
-          <div key={toggle.label} className="flex items-center justify-between py-3.5">
-            <div className="flex items-center gap-2.5">
-              <toggle.icon className="h-4 w-4 text-text-muted" />
-              <span className="text-sm text-text-secondary">{toggle.label}</span>
-            </div>
-            {toggle.locked ? (
-              <span className="rounded-full bg-bg px-2.5 py-1 text-xs font-medium text-text-muted">
-                Advanced
-              </span>
-            ) : toggle.enabled ? (
-              <span className="rounded-full bg-green-tint px-2.5 py-1 text-xs font-medium text-green-text">
-                On
-              </span>
-            ) : (
-              <span className="rounded-full bg-bg px-2.5 py-1 text-xs font-medium text-text-muted">
-                Off
-              </span>
-            )}
-          </div>
-        ))}
-
-        <div className="py-4">
-          <div className="flex items-center gap-2.5">
-            <Target className="h-4 w-4 text-text-muted" />
-            <span className="text-sm text-text-secondary">Filters</span>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {filterPills.map((f) => (
-              <span
-                key={f.label}
-                className="inline-flex items-center gap-1 rounded-full bg-bg px-3 py-1 text-xs"
-              >
-                <span className="text-text-muted">{f.label}:</span>
-                <span className="font-medium text-text-primary">{f.value}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Centered footer CTA mirrors Targets so the two side-by-side cards
-          share a visual rhythm. mt-auto pins it to the bottom when the
-          sibling card is taller. Copy is "Edit Growth" per product direction. */}
-      <div className="mt-auto flex justify-center pt-4">
-        <Link
-          to="/growth"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
-        >
-          Edit Growth
-          <ChevronRight className="h-4 w-4" />
-        </Link>
-      </div>
-    </div>
-  )
-}
-
 // --- Main Page ---
 
 export default function OverviewPage() {
@@ -1744,13 +1615,20 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Targets + Growth Settings — side by side on lg:, stacked on mobile.
-            Both are targeting-related so they share a row as sibling cards. */}
+        {/* Bottom block — two 2-col rows. Row 1 pairs the Top Targets list
+            with the Targeting settings snapshot (both about who/how to
+            target). Row 2 holds the Engagement snapshot; its right cell is
+            reserved for the Instagram Audit card (separate spec landing
+            next), so we span the snapshot across both columns on lg: for
+            now to avoid an empty half-cell. */}
         <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-          {/* Both snapshots subscribe to the live Zustand stores so changes
-              made on the Targeting / Growth pages propagate here. */}
           <TargetsOverview plan={user.plan} />
-          <GrowthSettingsSnapshot plan={user.plan} />
+          <TargetingSettingsSnapshot />
+        </div>
+        <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+          <div className="lg:col-span-2">
+            <EngagementSnapshot />
+          </div>
         </div>
       </div>
     </div>
