@@ -1369,30 +1369,31 @@ function TargetsOverviewBody({ targets, plan }) {
     // h-full + flex-col so when the right column is taller, this
     // card's container stretches to match.
     <div className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 lg:p-6">
-      {/* Header row — title + slots pill on the left, View all link
-          pinned right. Hairline separator below to mark the boundary
-          between the dense header (title + pill + CTA) and the body's
-          row list. Matches the existing divide-y rhythm inside the
-          card so the line reads as part of the same visual language. */}
-      <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <h2 className="text-base font-semibold text-text-primary">Top Targets</h2>
-          <span className="shrink-0 rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
-            {activeTargets.length}/{maxSlots} slots
-          </span>
+      {/* Tinted header band — extends to the card's outer edges via
+          negative margins so it reads as a "title bar" sitting above
+          the body. Border on the bottom marks the seam. Same recipe
+          shared with the Targeting + Engagement snapshot cards. */}
+      <div className="-mx-4 -mt-4 mb-3 rounded-t-xl border-b border-border bg-bg/50 px-4 py-2.5 lg:-mx-6 lg:-mt-6 lg:px-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <h2 className="text-base font-semibold text-text-primary">Top Targets</h2>
+            <span className="shrink-0 rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
+              {activeTargets.length}/{maxSlots} slots
+            </span>
+          </div>
+          <Link
+            to="/targeting"
+            className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
+          >
+            View all
+            <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
-        <Link
-          to="/targeting"
-          className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
-        >
-          View all
-          <ChevronRight className="h-4 w-4" />
-        </Link>
       </div>
 
       {/* Column header — establishes the Name | Follow-backs layout.
           px-3 matches the row padding so labels align with their columns. */}
-      <div className="mt-3 flex items-center justify-between px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-text-muted">
+      <div className="flex items-center justify-between px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-text-muted">
         <span>Name</span>
         <span>Follow-backs</span>
       </div>
