@@ -7,6 +7,30 @@
 
 > **2026-05-12 session note:** six 2026-05-12 entries total — `Manage subscription` (this entry), `Hero & pills round`, `Layout pass`, `Tiered pricing`, `Premium polish (round 2)`, and `Polish pass`. The first three came from a Mac evening session that started after merging the mobile-session work; the polish pass was the morning Mac session. All fast-forwarded into `main`. Branches: mobile branch `claude/kicksta-dashboard-LwK3F` (merged + deleted) carried the tiered pricing + premium polish; the layout pass shipped directly on `main`.
 
+## 2026-05-13 — Overview snapshot split
+
+The Overview page's bundled "Growth Settings" snapshot has been replaced with two single-purpose snapshot cards, each routing to the correct destination page.
+
+### Added
+- `TargetingSettingsSnapshot` component — shows Mode + Like-after-follow + Filters (6 pills). Footer CTA "Edit Targeting" → `/targeting?tab=settings`.
+- `EngagementSnapshot` component — shows Welcome DM toggle + 1-line message preview when on, and Close Friends Adder toggle + mode caption when on. Plan-locked rows render an "Advanced" pill. Footer CTA "Edit Engagement" → `/engagement`.
+
+### Changed
+- Overview page bottom block reorganized into two `grid-cols-1 lg:grid-cols-2` rows. Row 1: `TargetsOverview` + `TargetingSettingsSnapshot`. Row 2: `EngagementSnapshot` (currently `lg:col-span-2` pending the Instagram Audit card landing in the next spec).
+
+### Removed
+- Inline `GrowthSettingsSnapshot` and `GrowthSettingsSnapshotBody` functions from `src/pages/overview/index.jsx`. The "Edit Growth" CTA they shipped pointed to `/growth` — a route that doesn't exist — and the bundling of Targeting + Engagement settings under one card created mental-model confusion.
+- Now-unused lucide imports: `Heart`, `Shield`, `Settings2`, `MessageSquare`.
+
+### Decisions (locked, don't revisit)
+- **Snapshot scope = page scope.** Each snapshot reflects exactly one destination page; never mix settings that live on two pages.
+- **Footer CTA goes to the page the snapshot summarizes.** "Edit X" pattern with the destination name.
+- **Plan-locked toggles render an `Advanced` pill** with no preview/caption — same pattern the Engagement page itself uses.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-13-overview-snapshot-split-design.md`
+- Plan: `docs/superpowers/plans/2026-05-13-overview-snapshot-split.md`
+
 ## 2026-05-13 — Subscription cancellation flow
 
 Real cancellation experience for the main subscription. Replaces the "coming soon" stub with a 4–5 step honest flow that reduces churn through real save offers without any dark patterns.
