@@ -85,11 +85,14 @@ export default function InstagramAuditCard() {
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 lg:p-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <CardChip color="blue" icon={FileText} />
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
+      {/* Tinted header band — same recipe as every other card on the
+          Overview. Hosts chip + title + status pill + CTA. Subtitle
+          drops to the body below so the band stays compact. */}
+      <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-border bg-bg/50 px-4 py-4 lg:-mx-6 lg:-mt-6 lg:px-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <CardChip color="blue" icon={FileText} />
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
               <h2 className="text-base font-semibold text-text-primary">
                 Instagram Audit
               </h2>
@@ -103,25 +106,26 @@ export default function InstagramAuditCard() {
                 {pillLabel}
               </span>
             </div>
-            <p className="mt-1 text-sm leading-relaxed text-text-secondary">
-              Generated weekly. Includes follower growth, top targets,
-              and engagement rate.
-            </p>
           </div>
-        </div>
 
-        <button
-          type="button"
-          onClick={handleClick}
-          disabled={ctaDisabled}
-          className={`inline-flex h-10 w-full shrink-0 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 md:w-auto md:min-w-[200px] ${ctaColor}`}
-        >
-          {showSpinner && (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-          )}
-          {ctaLabel}
-        </button>
+          <button
+            type="button"
+            onClick={handleClick}
+            disabled={ctaDisabled}
+            className={`inline-flex h-10 w-full shrink-0 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 md:w-auto md:min-w-[200px] ${ctaColor}`}
+          >
+            {showSpinner && (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            )}
+            {ctaLabel}
+          </button>
+        </div>
       </div>
+
+      <p className="text-sm leading-relaxed text-text-secondary">
+        Generated weekly. Includes follower growth, top targets, and
+        engagement rate.
+      </p>
     </section>
   )
 }
