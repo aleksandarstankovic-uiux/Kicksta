@@ -26,6 +26,9 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
   const pauseTarget = useTargetsStore((s) => s.pauseTarget)
   const resumeTarget = useTargetsStore((s) => s.resumeTarget)
   const restoreTarget = useTargetsStore((s) => s.restoreTarget)
+  const processingId = useTargetsStore((s) => s.processingId)
+  const isProcessing =
+    target?.status === 'active' && target?.id === processingId
 
   const [mounted, setMounted] = useState(false)
 
@@ -112,15 +115,23 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
                 {target.value}
               </span>
               <Tooltip
-                text={STATUS_TOOLTIP[target.status]}
+                text={
+                  isProcessing
+                    ? 'The engine just picked this target and is following a user right now.'
+                    : STATUS_TOOLTIP[target.status]
+                }
                 className="shrink-0"
               >
                 <span
                   className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
                     statusPillClass[target.status]
+                  } ${
+                    isProcessing
+                      ? 'ring-2 ring-green-base/50 ring-offset-1 ring-offset-surface animate-pulse'
+                      : ''
                   }`}
                 >
-                  {statusLabel[target.status]}
+                  {isProcessing ? 'Following…' : statusLabel[target.status]}
                 </span>
               </Tooltip>
             </div>
