@@ -346,7 +346,11 @@ export default function AddTargetSheet({ open, onClose }) {
                             </div>
                             <div className="truncate text-xs text-text-muted">{sub}</div>
                           </div>
-                          <HealthPill count={count} />
+                          <HealthPill
+                            count={count}
+                            verified={!isHashtag && m.verified}
+                            isPrivate={!isHashtag && m.private}
+                          />
                         </button>
                       )
                     })}
@@ -451,7 +455,11 @@ export default function AddTargetSheet({ open, onClose }) {
                           {subline}
                         </div>
                       </div>
-                      <HealthPill count={count} />
+                      <HealthPill
+                        count={count}
+                        verified={!isHashtag && s.verified}
+                        isPrivate={!isHashtag && s.private}
+                      />
                     </button>
                   )
                 })}

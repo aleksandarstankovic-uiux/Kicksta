@@ -1,21 +1,40 @@
-// Size-based match quality indicator for a target. Thresholds are
-// based on follower count for accounts and post count for hashtags.
-// Red is intentionally avoided (PRODUCT.md reserves it for connection
-// errors) — "needs attention" states use yellow instead.
+// Match-quality indicator for a target. Looks at multiple signals,
+// not just follower count:
 //
-// Labels are terse (v3.2) so the pill stays narrow next to target
-// names. Longer tooltips can explain the nuance later if needed.
+//   - Verified accounts → poor fit. They rarely follow back small/
+//     mid accounts that try to grow off their audience.
+//   - Private accounts → poor fit. Their follower lists are hidden,
+//     so the engine can't reach the audience reliably.
+//   - Count-based fallback (same thresholds as before):
+//       < 1K     → "Small"      warn
+//       < 100K   → "Good fit"   good
+//       < 1M     → "Large"      warn
+//       ≥ 1M     → "Very large" warn
+//
+// When multiple traits apply (e.g., verified AND very large), the
+// most-specific reason wins in this order:
+//   Verified > Private > count-based bucket.
+//
+// Red is intentionally avoided (PRODUCT.md reserves it for connection
+// errors). All "needs attention" states use yellow.
 
-export function evaluateHealth(count) {
+export function evaluateHealth({ count, verified, isPrivate } = {}) {
   if (count == null) return null
+  if (verified) return { label: 'Verified', tone: 'warn' }
+  if (isPrivate) return { label: 'Private', tone: 'warn' }
   if (count < 1_000) return { label: 'Small', tone: 'warn' }
   if (count < 100_000) return { label: 'Good fit', tone: 'good' }
   if (count < 1_000_000) return { label: 'Large', tone: 'warn' }
   return { label: 'Very large', tone: 'warn' }
 }
 
-export default function HealthPill({ count, className = '' }) {
-  const h = evaluateHealth(count)
+export default function HealthPill({
+  count,
+  verified,
+  isPrivate,
+  className = '',
+}) {
+  const h = evaluateHealth({ count, verified, isPrivate })
   if (!h) return null
   const tone =
     h.tone === 'good'
