@@ -3,6 +3,12 @@
 // context. Follow-back counts are tuned so the rate reads cleanly
 // across healthy / average / needs-attention bands.
 //
+// Status model: the engine processes ONE target at a time. Exactly
+// one target carries `status: 'active'` (the one currently running);
+// the rest of the in-rotation targets sit at `status: 'queued'` until
+// it's their turn. `paused`, `depleted`, and `archived` are the
+// out-of-rotation states.
+//
 // Account-type rows carry a deterministic Pravatar URL so the dashboard
 // renders real face thumbnails for mock data. Pravatar is third-party
 // and only used in V1 mocks — production swaps in real IG profile pics.
@@ -22,7 +28,7 @@ export const mockTargets = [
     id: 't_002',
     type: 'hashtag',
     value: '#homeworkouts',
-    status: 'active',
+    status: 'queued',
     posts: 14_200_000,
     followedCount: 614,
     followBackCount: 55, // 9%
@@ -54,7 +60,7 @@ export const mockTargets = [
     id: 't_005',
     type: 'hashtag',
     value: '#mealprep',
-    status: 'active',
+    status: 'queued',
     posts: 18_700_000,
     followedCount: 488,
     followBackCount: 49, // 10%
@@ -75,7 +81,7 @@ export const mockTargets = [
     id: 't_007',
     type: 'hashtag',
     value: '#glutenfree',
-    status: 'active',
+    status: 'queued',
     posts: 22_100_000,
     followedCount: 430,
     followBackCount: 34, // 8%
@@ -85,7 +91,7 @@ export const mockTargets = [
     id: 't_008',
     type: 'account',
     value: '@macro.melissa',
-    status: 'active',
+    status: 'queued',
     followers: 9_400,
     followedCount: 380,
     followBackCount: 53, // 14%
@@ -96,7 +102,7 @@ export const mockTargets = [
     id: 't_009',
     type: 'hashtag',
     value: '#weightloss',
-    status: 'active',
+    status: 'queued',
     posts: 88_900_000,
     followedCount: 710,
     followBackCount: 64, // 9%

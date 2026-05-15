@@ -1332,13 +1332,16 @@ function TargetsOverview({ plan }) {
 
 function TargetsOverviewBody({ targets, plan }) {
   const maxSlots = plan === 'advanced' ? 30 : 10
-  const activeTargets = targets.filter((t) => t.status === 'active')
+  // Engine processes one target at a time, but the "slots" count
+  // reflects the rotation pool (everything not archived). Users have
+  // a quota of total targets in the system, not parallel runners.
+  const inRotation = targets.filter((t) => t.status !== 'archived')
 
-  // Sort active rows to the top (they're the ones the user can actually
-  // influence), then queued, paused, depleted. Within each bucket we sort
-  // by follow-back count descending so the best performers stay near the
-  // top. Previously a single all-status sort put a depleted target at #1
-  // and the star landed on row #2 — visually read as a bug.
+  // Sort the running target to the top, then queued, paused, depleted.
+  // Within each bucket we sort by follow-back count descending so the
+  // best performers stay near the top. Previously a single all-status
+  // sort put a depleted target at #1 and the star landed on row #2 —
+  // visually read as a bug.
   const STATUS_PRIORITY = { active: 0, queued: 1, paused: 2, depleted: 3 }
   const displayTargets = targets
     .slice()
@@ -1350,9 +1353,11 @@ function TargetsOverviewBody({ targets, plan }) {
     })
     .slice(0, 7)
 
-  // Top performer — highest follow-backs among active targets. Surfaces as a
-  // star on that row so users can see their best-working source at a glance.
-  const topTarget = activeTargets
+  // Top performer — highest follow-backs across everything still in
+  // rotation. Surfaces as a star on that row so users can see their
+  // best-working source at a glance regardless of which target is
+  // running right now.
+  const topTarget = inRotation
     .slice()
     .sort((a, b) => b.followBackCount - a.followBackCount)[0]
 
@@ -1365,7 +1370,7 @@ function TargetsOverviewBody({ targets, plan }) {
     depleted: 'bg-yellow-tint text-yellow-text',
   }
   const statusLabel = {
-    active: 'Active',
+    active: 'Running',
     queued: 'Queued',
     paused: 'Paused',
     depleted: 'Depleted',
@@ -1384,7 +1389,7 @@ function TargetsOverviewBody({ targets, plan }) {
           <div className="flex min-w-0 items-center gap-2">
             <h2 className="text-base font-semibold text-text-primary">Top Targets</h2>
             <span className="shrink-0 rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
-              {activeTargets.length}/{maxSlots} slots
+              {inRotation.length}/{maxSlots} in rotation
             </span>
           </div>
           <Link

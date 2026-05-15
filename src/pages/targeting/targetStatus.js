@@ -4,19 +4,20 @@
 //   - TargetDetailDrawer
 //   - any future surface that surfaces a target's status
 //
-// The tooltip strings explain what each state means so users can
-// understand why a target is paused, queued, or depleted without
-// having to dig into the detail panel.
+// The engine processes ONE target at a time. Exactly one target is
+// "Active" (the runner); everything else in rotation is "Queued".
+// The tooltip strings make that explicit so users don't expect
+// parallel processing.
 
 export const STATUS_TOOLTIP = {
   active:
-    'The engine is currently following users from this target.',
+    'Currently running. The engine processes one target at a time — this is the one being worked on now.',
   queued:
-    'Waiting for an active slot. Will start once another target depletes or is paused.',
+    'In rotation. Will run when the active target depletes or is paused.',
   paused:
-    "Engine isn't running on this target. Resume it from the detail panel.",
+    "Engine isn't running on this target. Resume it from the detail panel to put it back in the queue.",
   depleted:
-    'All available followers have been processed. Add a new target to keep growing.',
+    'All available followers from this target have been processed. Add a new target to keep growing.',
   archived:
-    'Removed from active rotation. Restore from the Archive tab if you want to use it again.',
+    'Removed from rotation. Restore from the Archive tab if you want to use it again.',
 }

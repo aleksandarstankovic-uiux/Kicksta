@@ -21,7 +21,7 @@ const statusPillClass = {
 }
 
 const statusLabel = {
-  active: 'Active',
+  active: 'Running',
   queued: 'Queued',
   paused: 'Paused',
   depleted: 'Depleted',
