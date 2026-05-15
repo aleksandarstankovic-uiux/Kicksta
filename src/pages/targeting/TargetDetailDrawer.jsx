@@ -5,6 +5,8 @@ import { formatCount } from '@/utils/formatCount'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { mockTargetInteractions } from '@/mocks/targetInteractions'
 import HealthPill from './HealthPill'
+import Tooltip from '@/components/Tooltip'
+import { STATUS_TOOLTIP } from './targetStatus'
 
 const statusPillClass = {
   active: 'bg-green-tint text-green-text',
@@ -14,7 +16,7 @@ const statusPillClass = {
 }
 
 const statusLabel = {
-  active: 'Active',
+  active: 'Running',
   queued: 'Queued',
   paused: 'Paused',
   depleted: 'Depleted',
@@ -109,13 +111,18 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
               <span className="truncate text-base font-semibold text-text-primary">
                 {target.value}
               </span>
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
-                  statusPillClass[target.status]
-                }`}
+              <Tooltip
+                text={STATUS_TOOLTIP[target.status]}
+                className="shrink-0"
               >
-                {statusLabel[target.status]}
-              </span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
+                    statusPillClass[target.status]
+                  }`}
+                >
+                  {statusLabel[target.status]}
+                </span>
+              </Tooltip>
             </div>
             {subline && (
               <div className="mt-0.5 text-xs text-text-muted">{subline}</div>
