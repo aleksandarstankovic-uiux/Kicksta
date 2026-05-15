@@ -43,12 +43,9 @@ export default function Tooltip({
     <>
       <span
         ref={ref}
-        tabIndex={0}
         onMouseEnter={show}
         onMouseLeave={hide}
-        onFocus={show}
-        onBlur={hide}
-        className={`inline-flex cursor-help focus:outline-none ${className}`}
+        className={`inline-flex cursor-help ${className}`}
       >
         {children}
       </span>
