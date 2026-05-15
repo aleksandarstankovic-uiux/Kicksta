@@ -66,7 +66,7 @@ export default function Tooltip({
         ref={ref}
         onMouseEnter={show}
         onMouseLeave={hide}
-        className={`inline-flex cursor-help ${className}`}
+        className={`cursor-help ${className}`}
       >
         {children}
       </span>
