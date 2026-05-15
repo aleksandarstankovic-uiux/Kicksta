@@ -1,6 +1,8 @@
 import { ChevronRight, Hash, Star } from 'lucide-react'
 import { formatCount } from '@/utils/formatCount'
 import { useTargetsStore } from '@/stores/useTargetsStore'
+import Tooltip from '@/components/Tooltip'
+import { STATUS_TOOLTIP } from './targetStatus'
 
 const statusDotClass = {
   active: 'bg-green-base',
@@ -121,17 +123,26 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
           )}
 
           {/* Full pill on md:+ */}
-          <span
-            className={`hidden shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide md:inline ${
-              statusPillClass[target.status]
-            } ${
+          <Tooltip
+            text={
               isProcessing
-                ? 'ring-2 ring-green-base/50 ring-offset-1 ring-offset-surface animate-pulse'
-                : ''
-            }`}
+                ? 'The engine just picked this target and is following a user right now.'
+                : STATUS_TOOLTIP[target.status]
+            }
+            className="hidden shrink-0 md:inline-flex"
           >
-            {isProcessing ? 'Following…' : statusLabel[target.status]}
-          </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
+                statusPillClass[target.status]
+              } ${
+                isProcessing
+                  ? 'ring-2 ring-green-base/50 ring-offset-1 ring-offset-surface animate-pulse'
+                  : ''
+              }`}
+            >
+              {isProcessing ? 'Following…' : statusLabel[target.status]}
+            </span>
+          </Tooltip>
         </div>
         {subline && (
           <span className="truncate text-xs text-text-muted">{subline}</span>

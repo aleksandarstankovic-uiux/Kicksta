@@ -50,6 +50,8 @@ import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 import InstagramConnectionBanner from '@/components/InstagramConnectionBanner'
 import InstagramAuditCard from '@/components/InstagramAuditCard'
+import Tooltip from '@/components/Tooltip'
+import { STATUS_TOOLTIP } from '@/pages/targeting/targetStatus'
 import TargetingSettingsSnapshot from './TargetingSettingsSnapshot'
 import EngagementSnapshot from './EngagementSnapshot'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
@@ -1458,12 +1460,17 @@ function TargetsOverviewBody({ targets, plan }) {
                 )}
 
                 {/* Status pill — same recipe as the Targeting page row so
-                    the same target reads identically on both surfaces. */}
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${statusPillClass[target.status]}`}
-                >
-                  {statusLabel[target.status]}
-                </span>
+                    the same target reads identically on both surfaces.
+                    Wrapped in Tooltip with the shared STATUS_TOOLTIP copy
+                    so the explanation reads the same wherever the pill
+                    appears. */}
+                <Tooltip text={STATUS_TOOLTIP[target.status]} className="shrink-0">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${statusPillClass[target.status]}`}
+                  >
+                    {statusLabel[target.status]}
+                  </span>
+                </Tooltip>
               </div>
 
               {/* Right column: follow-back count */}
