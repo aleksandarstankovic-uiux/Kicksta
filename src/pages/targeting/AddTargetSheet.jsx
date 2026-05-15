@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, AtSign, Crosshair, Hash, X } from 'lucide-react'
+import {
+  AlertTriangle,
+  AtSign,
+  BadgeCheck,
+  Crosshair,
+  Hash,
+  Lock,
+  X,
+} from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useToasts } from '@/stores/useToasts'
 import { mockSuggestedTargets } from '@/mocks/suggestedTargets'
@@ -129,7 +137,18 @@ export default function AddTargetSheet({ open, onClose }) {
     setPickedMatch(s)
   }
 
-  const suggestions = type === 'account' ? mockSuggestedTargets : mockSuggestedHashtags
+  const allSuggestions =
+    type === 'account' ? mockSuggestedTargets : mockSuggestedHashtags
+  // Drop the picked match from the list so the user doesn't see
+  // a suggestion that's already selected. Reappears when the
+  // picked match is dismissed via the X button.
+  const suggestions = pickedMatch
+    ? allSuggestions.filter((s) =>
+        type === 'account'
+          ? s.username !== pickedMatch.username
+          : s.hashtag !== pickedMatch.hashtag,
+      )
+    : allSuggestions
 
   // Derived helper message. Duplicate > invalid > select-prompt > null.
   let helper = null
@@ -310,7 +329,21 @@ export default function AddTargetSheet({ open, onClose }) {
                             {isHashtag ? <Hash className="h-4 w-4" aria-hidden="true" /> : letter}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-medium text-text-primary">{label}</div>
+                            <div className="flex items-center gap-1.5 text-sm font-medium text-text-primary">
+                              <span className="truncate">{label}</span>
+                              {!isHashtag && m.verified && (
+                                <BadgeCheck
+                                  className="h-3.5 w-3.5 shrink-0 fill-blue-base text-white"
+                                  aria-label="Verified"
+                                />
+                              )}
+                              {!isHashtag && m.private && (
+                                <Lock
+                                  className="h-3 w-3 shrink-0 text-text-muted"
+                                  aria-label="Private"
+                                />
+                              )}
+                            </div>
                             <div className="truncate text-xs text-text-muted">{sub}</div>
                           </div>
                           <HealthPill count={count} />
@@ -399,8 +432,20 @@ export default function AddTargetSheet({ open, onClose }) {
                         )}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium text-text-primary">
-                          {label}
+                        <div className="flex items-center gap-1.5 text-sm font-medium text-text-primary">
+                          <span className="truncate">{label}</span>
+                          {!isHashtag && s.verified && (
+                            <BadgeCheck
+                              className="h-3.5 w-3.5 shrink-0 fill-blue-base text-white"
+                              aria-label="Verified"
+                            />
+                          )}
+                          {!isHashtag && s.private && (
+                            <Lock
+                              className="h-3 w-3 shrink-0 text-text-muted"
+                              aria-label="Private"
+                            />
+                          )}
                         </div>
                         <div className="truncate text-xs text-text-muted">
                           {subline}
