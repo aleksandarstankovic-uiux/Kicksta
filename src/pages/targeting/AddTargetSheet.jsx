@@ -502,10 +502,10 @@ function SelectedSourcePill({ match, type, onClear }) {
     .toUpperCase()
 
   return (
-    <div className="flex h-12 items-center gap-3 rounded-lg border border-border bg-bg px-3">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-xs font-semibold text-text-secondary ring-1 ring-border">
+    <div className="flex h-16 items-center gap-3 rounded-lg border border-border bg-bg px-3">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-sm font-semibold text-text-secondary ring-1 ring-border">
         {isHashtag ? (
-          <Hash className="h-4 w-4" aria-hidden="true" />
+          <Hash className="h-5 w-5" aria-hidden="true" />
         ) : match.profilePic ? (
           <img src={match.profilePic} alt="" className="h-full w-full object-cover" />
         ) : (
@@ -513,14 +513,28 @@ function SelectedSourcePill({ match, type, onClear }) {
         )}
       </span>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium text-text-primary">{label}</div>
+        <div className="flex items-center gap-1.5 text-sm font-medium text-text-primary">
+          <span className="truncate">{label}</span>
+          {!isHashtag && match.verified && (
+            <BadgeCheck
+              className="h-3.5 w-3.5 shrink-0 fill-blue-base text-white"
+              aria-label="Verified"
+            />
+          )}
+          {!isHashtag && match.private && (
+            <Lock
+              className="h-3 w-3 shrink-0 text-text-muted"
+              aria-label="Private"
+            />
+          )}
+        </div>
         <div className="truncate text-xs text-text-muted">{subline}</div>
       </div>
       <button
         type="button"
         aria-label="Clear selection"
         onClick={onClear}
-        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface hover:text-text-primary"
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface hover:text-text-primary"
       >
         <X className="h-4 w-4" aria-hidden="true" />
       </button>
