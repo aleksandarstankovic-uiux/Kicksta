@@ -1,3 +1,14 @@
+// Mobile-only colored dot color per status. Used by TargetRow's
+// mobile dot AND by TargetDetailDrawer's mobile-only dot (so the
+// drawer header doesn't crowd the target handle).
+export const STATUS_DOT_CLASS = {
+  active: 'bg-green-base',
+  queued: 'bg-blue-base',
+  paused: 'bg-text-muted',
+  depleted: 'bg-yellow-base',
+  archived: 'bg-text-muted',
+}
+
 // Shared copy for target status pills. Used by:
 //   - TargetRow (Targeting page)
 //   - TargetsOverviewBody (Overview Top Targets card)

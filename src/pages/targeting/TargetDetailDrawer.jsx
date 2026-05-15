@@ -6,7 +6,7 @@ import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { mockTargetInteractions } from '@/mocks/targetInteractions'
 import HealthPill from './HealthPill'
 import Tooltip from '@/components/Tooltip'
-import { STATUS_TOOLTIP } from './targetStatus'
+import { STATUS_DOT_CLASS, STATUS_TOOLTIP } from './targetStatus'
 
 const statusPillClass = {
   active: 'bg-green-tint text-green-text',
@@ -111,16 +111,51 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
+              {/* Mobile-only status dot — matches the TargetRow's
+                  mobile treatment. Pulses when the engine is actively
+                  picking from this target. Tap to surface the
+                  tooltip with the full status word. Hidden on md:+
+                  where the full pill takes over. */}
+              <Tooltip
+                text={
+                  isProcessing
+                    ? 'The engine is following a user from this target right now.'
+                    : STATUS_TOOLTIP[target.status]
+                }
+                className="shrink-0 md:hidden"
+              >
+                <span
+                  aria-label={
+                    isProcessing
+                      ? 'Following from this target'
+                      : statusLabel[target.status]
+                  }
+                  className="relative inline-flex h-2 w-2 items-center justify-center"
+                >
+                  {isProcessing && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-base opacity-60"
+                    />
+                  )}
+                  <span
+                    className={`relative inline-block h-2 w-2 rounded-full ${STATUS_DOT_CLASS[target.status]}`}
+                  />
+                </span>
+              </Tooltip>
+
               <span className="truncate text-base font-semibold text-text-primary">
                 {target.value}
               </span>
+
+              {/* Full pill on md:+ */}
               <Tooltip
                 text={
                   isProcessing
                     ? 'The engine just picked this target and is following a user right now.'
                     : STATUS_TOOLTIP[target.status]
                 }
-                className="shrink-0"
+                className="hidden shrink-0 md:inline-flex"
               >
                 <span
                   className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
