@@ -105,7 +105,19 @@ export default function AddTargetSheet({ open, onClose }) {
 
   const handleSubmit = () => {
     if (!canSubmit) return
-    addTarget({ type, value: displayValue })
+    // Carry the picked match's source-of-truth metadata into the
+    // new target so the row reads identically to what the user
+    // saw in the picker (avatar, follower / post count, verified
+    // / private badges).
+    addTarget({
+      type,
+      value: displayValue,
+      followers: pickedMatch?.followers,
+      posts: pickedMatch?.posts,
+      profilePic: pickedMatch?.profilePic,
+      verified: pickedMatch?.verified,
+      isPrivate: pickedMatch?.private,
+    })
     useToasts.getState().addToast({
       message: `${displayValue} added as a target.`,
       tone: 'success',

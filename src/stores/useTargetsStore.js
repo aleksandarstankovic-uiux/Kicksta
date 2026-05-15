@@ -28,7 +28,15 @@ export const useTargetsStore = create((set) => ({
   setFilter: (filter) => set({ filter }),
   setSort: (sort) => set({ sort }),
 
-  addTarget: ({ type, value }) =>
+  addTarget: ({
+    type,
+    value,
+    followers,
+    posts,
+    profilePic,
+    verified,
+    isPrivate,
+  }) =>
     set((state) => ({
       targets: [
         {
@@ -39,6 +47,19 @@ export const useTargetsStore = create((set) => ({
           followedCount: 0,
           followBackCount: 0,
           addedAt: new Date().toISOString(),
+          // Optional source-of-truth fields. When a target is picked
+          // via typeahead / suggestion, these come from the matched
+          // record so the new row reads identically to the picker
+          // (avatar, follower count, verified / private flags).
+          followers,
+          posts,
+          profilePic,
+          verified,
+          // store as `private` so the existing target shape is
+          // consistent with the matched-record shape (`private`
+          // is reserved in some contexts as a destructured name,
+          // not as a property name).
+          private: isPrivate,
         },
         ...state.targets,
       ],

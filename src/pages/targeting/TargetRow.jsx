@@ -1,4 +1,4 @@
-import { ChevronRight, Hash, Star } from 'lucide-react'
+import { BadgeCheck, ChevronRight, Hash, Lock, Star } from 'lucide-react'
 import { formatCount } from '@/utils/formatCount'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import Tooltip from '@/components/Tooltip'
@@ -114,6 +114,19 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
           >
             {target.value}
           </span>
+
+          {!isHashtag && target.verified && (
+            <BadgeCheck
+              className="h-3.5 w-3.5 shrink-0 fill-blue-base text-white"
+              aria-label="Verified"
+            />
+          )}
+          {!isHashtag && target.private && (
+            <Lock
+              className="h-3 w-3 shrink-0 text-text-muted"
+              aria-label="Private"
+            />
+          )}
 
           {isTop && (
             <Star
