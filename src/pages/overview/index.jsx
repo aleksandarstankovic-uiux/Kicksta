@@ -28,7 +28,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as ChartTooltip,
   ResponsiveContainer,
 } from 'recharts'
 import { useAccounts } from '@/stores/useAccounts'
@@ -1022,7 +1022,7 @@ function GrowthChart({ data, period, customRange, isOnTrial, connection, trialSt
                 trial bracket and felt disconnected from the actual bar
                 being hovered. The hovered bar's own outline (via
                 `activeBar` on <Bar>) is the hover affordance now. */}
-            <Tooltip
+            <ChartTooltip
               content={(props) => <GrowthBarTooltip {...props} connection={connection} />}
               cursor={false}
             />
