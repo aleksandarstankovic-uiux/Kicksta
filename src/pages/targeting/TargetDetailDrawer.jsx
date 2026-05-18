@@ -196,10 +196,27 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
         </div>
 
 
-        <div className="mt-4 flex gap-2 overflow-x-auto px-5">
-          <StatChip label="Followed" value={target.followedCount} />
-          <StatChip label="Follow-backs" value={target.followBackCount} />
-          <StatChip label="Rate" value={rate == null ? '—' : `${rate}%`} />
+        {/* State banner — full-width tinted strip with the status
+            word + 1-line explanation. Always visible, communicates
+            state more clearly than the inline pill / mobile dot
+            alone. Color per status mirrors the pill recipe. */}
+        <StateBanner
+          status={target.status}
+          isProcessing={isProcessing}
+          className="mt-4"
+        />
+
+        {/* Horizontal stats strip — 3 equal columns with hairline
+            dividers. Followed / Follow-backs / Rate. Replaces the
+            chip pills with a real summary row that reads as a
+            coherent block. */}
+        <div className="mt-4 mx-5 grid grid-cols-3 divide-x divide-border overflow-hidden rounded-lg border border-border">
+          <StatColumn label="Followed" value={target.followedCount} />
+          <StatColumn label="Follow-backs" value={target.followBackCount} />
+          <StatColumn
+            label="Rate"
+            value={rate == null ? '—' : `${rate}%`}
+          />
         </div>
 
         {/* Recent activity — the last few interactions the engine has
@@ -291,13 +308,96 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
   )
 }
 
-function StatChip({ label, value }) {
+function StatColumn({ label, value }) {
   return (
-    <div className="shrink-0 rounded-full bg-bg px-3 py-1.5 text-xs">
-      <span className="text-text-muted">{label} </span>
-      <span className="font-semibold tabular-nums text-text-primary">
+    <div className="flex flex-col items-center justify-center gap-1 bg-surface px-2 py-3">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-text-muted">
+        {label}
+      </p>
+      <p className="text-base font-semibold tabular-nums text-text-primary">
         {value}
-      </span>
+      </p>
     </div>
+  )
+}
+
+// Tinted state banner shown below the drawer header. Status word
+// on the left (with the matching colored dot), short explanation
+// from STATUS_TOOLTIP on the right. Always visible so the user
+// gets a strong, viewport-agnostic state cue.
+function StateBanner({ status, isProcessing, className = '' }) {
+  const STATE_STYLES = {
+    active: {
+      wrap: 'border-green-base/30 bg-green-tint',
+      dot: 'bg-green-base',
+      label: 'text-green-text',
+    },
+    queued: {
+      wrap: 'border-blue-base/30 bg-blue-tint',
+      dot: 'bg-blue-base',
+      label: 'text-blue-text',
+    },
+    paused: {
+      wrap: 'border-border bg-bg',
+      dot: 'bg-text-muted',
+      label: 'text-text-secondary',
+    },
+    depleted: {
+      wrap: 'border-yellow-base/30 bg-yellow-tint',
+      dot: 'bg-yellow-base',
+      label: 'text-yellow-text',
+    },
+    archived: {
+      wrap: 'border-border bg-bg',
+      dot: 'bg-text-muted',
+      label: 'text-text-secondary',
+    },
+  }
+  const STATE_LABEL = {
+    active: 'Running',
+    queued: 'Queued',
+    paused: 'Paused',
+    depleted: 'Depleted',
+    archived: 'Archived',
+  }
+  const STATE_EXPLAIN = {
+    active:
+      'The engine processes one target at a time — this is the one being worked on now.',
+    queued:
+      'In rotation. Will run when the active target depletes or is paused.',
+    paused:
+      "Engine isn't running on this target. Resume it from below to put it back in the queue.",
+    depleted:
+      'All available followers from this target have been processed. Add a new target to keep growing.',
+    archived:
+      'Removed from rotation. Restore from the Archive tab to use it again.',
+  }
+  const s = STATE_STYLES[status] ?? STATE_STYLES.paused
+  const label = isProcessing ? 'Following…' : STATE_LABEL[status]
+  const explain = isProcessing
+    ? 'The engine just picked this target and is following a user right now.'
+    : STATE_EXPLAIN[status]
+
+  return (
+    <section
+      role="status"
+      className={`mx-5 flex items-start gap-3 rounded-lg border p-3 ${s.wrap} ${className}`}
+    >
+      <span
+        aria-hidden="true"
+        className="relative mt-1.5 inline-flex h-2 w-2 shrink-0 items-center justify-center"
+      >
+        {isProcessing && (
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-base opacity-60" />
+        )}
+        <span className={`relative inline-block h-2 w-2 rounded-full ${s.dot}`} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className={`text-sm font-semibold ${s.label}`}>{label}</p>
+        <p className="mt-0.5 text-xs leading-relaxed text-text-secondary">
+          {explain}
+        </p>
+      </div>
+    </section>
   )
 }

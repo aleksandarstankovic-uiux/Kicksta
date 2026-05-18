@@ -75,6 +75,13 @@ export const mockGrowthPlusInsights = {
     postReachLift: 0.12,
     engagementRate: 0.032,
     boostedPosts: 4,
+    // Cumulative-since-subscribed counterparts for the metric strip.
+    // Same units as the monthly headline so the user sees "this is
+    // what your plan delivers every month" alongside "this is what
+    // your subscription has produced so far".
+    totalReachAdded: 8_500,
+    totalInteractions: 280,
+    totalBoostedPosts: 8,
   },
   pro: {
     algorithmicBoost: 143,
@@ -82,6 +89,9 @@ export const mockGrowthPlusInsights = {
     postReachLift: 0.34,
     engagementRate: 0.048,
     boostedPosts: 12,
+    totalReachAdded: 28_400,
+    totalInteractions: 1_840,
+    totalBoostedPosts: 47,
   },
   elite: {
     algorithmicBoost: 300,
@@ -89,6 +99,9 @@ export const mockGrowthPlusInsights = {
     postReachLift: 0.68,
     engagementRate: 0.071,
     boostedPosts: 30,
+    totalReachAdded: 94_200,
+    totalInteractions: 7_220,
+    totalBoostedPosts: 145,
   },
 }
 
