@@ -1,4 +1,4 @@
-import { BadgeCheck, ChevronRight, Hash, Lock, Star } from 'lucide-react'
+import { BadgeCheck, Check, ChevronRight, Hash, Lock, Star } from 'lucide-react'
 import { formatCount } from '@/utils/formatCount'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import Tooltip from '@/components/Tooltip'
@@ -38,6 +38,10 @@ function rateToneClass(rate, depleted) {
 export default function TargetRow({ target, isTop, isFirst, onOpen }) {
   const depleted = target.status === 'depleted'
   const processingId = useTargetsStore((s) => s.processingId)
+  const selectionMode = useTargetsStore((s) => s.selectionMode)
+  const selection = useTargetsStore((s) => s.selection)
+  const toggleSelect = useTargetsStore((s) => s.toggleSelect)
+  const isSelected = selection.has(target.id)
   const isProcessing = target.status === 'active' && target.id === processingId
   const isHashtag = target.type === 'hashtag'
   const handleStart = target.value.replace(/^[@#]/, '')
@@ -56,20 +60,31 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
       ? Math.round((target.followBackCount / target.followedCount) * 100)
       : null
 
+  // In selection mode the row IS the checkbox. Click toggles selection
+  // instead of opening the drawer; role flips so screen readers announce
+  // the checked state. Out of selection mode we keep the prior behavior.
+  const handleClick = () => {
+    if (selectionMode) toggleSelect(target.id)
+    else onOpen(target)
+  }
+
   return (
     <div
-      role="button"
+      role={selectionMode ? 'checkbox' : 'button'}
+      aria-checked={selectionMode ? isSelected : undefined}
       tabIndex={0}
-      onClick={() => onOpen(target)}
+      onClick={handleClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          onOpen(target)
+          handleClick()
         }
       }}
       className={`group relative flex min-h-[64px] cursor-pointer items-center gap-3 py-3 pl-4 pr-3 transition-colors hover:bg-bg focus:bg-bg focus:outline-none ${
         isFirst ? '' : 'border-t border-border'
-      } ${depleted ? 'bg-bg/60' : ''}`}
+      } ${depleted ? 'bg-bg/60' : ''} ${
+        selectionMode && isSelected ? 'bg-blue-tint/30' : ''
+      }`}
     >
       {/* Avatar / hashtag icon */}
       <div
@@ -177,13 +192,26 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
         </span>
       </div>
 
-      {/* Affordance: smaller chevron wrapper so the right side isn't too airy. */}
-      <div className="inline-flex h-7 w-7 shrink-0 items-center justify-center">
-        <ChevronRight
-          className="h-4 w-4 text-text-muted transition-colors group-hover:text-text-primary"
+      {/* Right-edge affordance: chevron normally; checkbox in selection mode. */}
+      {selectionMode ? (
+        <span
           aria-hidden="true"
-        />
-      </div>
+          className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+            isSelected
+              ? 'border-blue-base bg-blue-base text-white'
+              : 'border-border bg-surface'
+          }`}
+        >
+          {isSelected && <Check className="h-3.5 w-3.5" />}
+        </span>
+      ) : (
+        <div className="inline-flex h-7 w-7 shrink-0 items-center justify-center">
+          <ChevronRight
+            className="h-4 w-4 text-text-muted transition-colors group-hover:text-text-primary"
+            aria-hidden="true"
+          />
+        </div>
+      )}
     </div>
   )
 }
