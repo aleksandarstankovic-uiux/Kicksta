@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
-import { mockUser } from '@/mocks/user'
+import { slotLimit } from '@/utils/targetSlots'
 
 // Hero toolbar at the top of the Targets tab. Title + slot count
 // share a row; subtitle explains what "sources" are; CTA pinned
@@ -14,7 +14,7 @@ import { mockUser } from '@/mocks/user'
 // Desktop: title/count + subtitle on the left, CTA pinned right.
 export default function TargetsHeroCard({ onAddTarget }) {
   const targets = useTargetsStore((s) => s.targets)
-  const maxSlots = mockUser.plan === 'advanced' ? 30 : 10
+  const maxSlots = slotLimit()
   const totalCount = targets.length
 
   return (
