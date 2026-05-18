@@ -5,6 +5,19 @@
 
 ---
 
+## Cross-Session Sync Rule
+
+**Work flows across phone, PC, and cloud sessions.** Before answering "where did I leave off?" or any status/orientation question at the start of a session, ALWAYS:
+
+1. `git fetch origin` — pick up commits made elsewhere.
+2. Inspect `origin/main` history, not just the current branch. The current branch may be stale by many commits.
+3. List all branches sorted by `committerdate` so the most recently touched branch is obvious.
+4. Only after the fetch + check, summarize the actual state.
+
+Skipping the fetch caused a 89-commit blind spot once. Don't do it again.
+
+---
+
 ## Screenshot Rule
 
 **NEVER share screenshots with the user.** Take screenshots internally for verification only — never include them in messages. The user does not want to see screenshots. Only mention issues if something is broken.
