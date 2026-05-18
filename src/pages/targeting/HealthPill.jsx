@@ -86,9 +86,9 @@ export default function HealthPill({
       ? 'bg-green-tint text-green-text'
       : 'bg-yellow-tint text-yellow-text'
   return (
-    <Tooltip text={h.explain}>
+    <Tooltip text={h.explain} className="inline-flex items-center">
       <span
-        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${tone} ${className}`}
+        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide ${tone} ${className}`}
       >
         {h.label}
       </span>

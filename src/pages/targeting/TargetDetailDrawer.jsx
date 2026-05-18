@@ -100,7 +100,7 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
               </span>
             </div>
             {(subline || sizeCount != null) && (
-              <div className="mt-1 flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 leading-none">
                 {subline && (
                   <span className="text-xs text-text-muted">{subline}</span>
                 )}
