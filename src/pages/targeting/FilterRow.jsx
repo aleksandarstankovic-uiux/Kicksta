@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowUpDown, Check, ChevronDown } from 'lucide-react'
+import { ArrowUpDown, Check, ChevronDown, ListChecks } from 'lucide-react'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 
 // Two buckets total: Active (anything still in rotation —
@@ -19,7 +19,15 @@ const SORTS = [
 ]
 
 export default function FilterRow() {
-  const { filter, sort, setFilter, setSort, targets } = useTargetsStore()
+  const {
+    filter,
+    sort,
+    setFilter,
+    setSort,
+    targets,
+    selectionMode,
+    enterSelection,
+  } = useTargetsStore()
 
   // Counts mirror the bucket semantics in `filterTargets`: active =
   // everything except archived; archived = status === 'archived'.
@@ -32,6 +40,15 @@ export default function FilterRow() {
     }
     return { active, archived }
   }, [targets])
+
+  // Selection mode owns the row entirely — BulkActionBar renders
+  // in this slot. Returning null avoids any flicker from a half-
+  // rendered FilterRow during the swap.
+  if (selectionMode) return null
+
+  // Hide the Select trigger when the current bucket is empty —
+  // nothing to select.
+  const canSelect = counts[filter] > 0
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2 lg:flex-nowrap lg:gap-3">
@@ -59,7 +76,18 @@ export default function FilterRow() {
       {/* Sort sits inline with the filter pills. On mobile it wraps
           naturally as the last item in the flex-wrap container. On
           desktop it gets pushed to the right via ml-auto. */}
-      <div className="lg:ml-auto">
+      <div className="flex items-center gap-2 lg:ml-auto">
+        {canSelect && (
+          <button
+            type="button"
+            onClick={enterSelection}
+            aria-label="Select targets"
+            className="inline-flex h-8 items-center gap-1.5 rounded-full bg-bg px-3 text-xs font-medium text-text-secondary hover:text-text-primary"
+          >
+            <ListChecks className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>Select</span>
+          </button>
+        )}
         <SortDropdown value={sort} onChange={setSort} />
       </div>
     </div>
