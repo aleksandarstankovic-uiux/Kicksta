@@ -135,8 +135,16 @@ function RecentDmsSubsection() {
               key={event.id}
               className="flex items-center gap-2 py-2 text-sm"
             >
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg text-[11px] font-semibold text-text-secondary">
-                {event.username.replace(/^@/, '').charAt(0).toUpperCase()}
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-[11px] font-semibold text-text-secondary">
+                {event.profilePic ? (
+                  <img
+                    src={event.profilePic}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  event.username.replace(/^@/, '').charAt(0).toUpperCase()
+                )}
               </span>
               <span className="min-w-0 truncate font-medium text-text-primary">
                 {event.username}

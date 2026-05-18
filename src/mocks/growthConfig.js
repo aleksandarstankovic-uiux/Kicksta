@@ -2,11 +2,11 @@ export const mockGrowthConfig = {
   mode: 'auto',
   likeAfterFollow: true,
   welcomeDm: {
-    enabled: false,
+    enabled: true,
     message: 'Hey! Thanks for the follow \ud83d\ude4c Check out our latest drop \u2192 link in bio',
   },
   closeFriendsAdder: {
-    enabled: false,
+    enabled: true,
     mode: 'add',
   },
   growthPlusControls: {

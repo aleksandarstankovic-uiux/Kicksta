@@ -1,12 +1,11 @@
-// Aggregate engagement metrics for the stats hero on /engagement.
-// Static — no derivation from other mock files. When the engine wires
-// up, this becomes a server-driven response.
+// All-time engagement totals for the stats hero on /engagement.
+// Cumulative numbers since the account subscribed — accumulate over
+// time so the trend is always positive (we display weekly growth).
 //
-// `current` is the value to display; `delta` is the change vs the
-// previous comparable period (this-week vs last-week). Positive
-// numbers render with ↑ in green; negative with ↓ in red.
+// `current` = the cumulative value. `delta` = the change added in
+// the last 7 days (always positive for cumulative metrics).
 export const mockEngagementStats = {
-  dmsSent: { current: 47, delta: 15 },
+  dmsSent: { current: 1_284, delta: 47 },
   dmOpenRate: { current: 68, delta: 4 },
-  closeFriends: { current: 23, delta: 5 },
+  closeFriends: { current: 412, delta: 23 },
 }
