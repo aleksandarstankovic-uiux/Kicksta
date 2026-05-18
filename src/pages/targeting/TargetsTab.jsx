@@ -17,7 +17,11 @@ export default function TargetsTab() {
     <>
       <TargetsHeroCard onAddTarget={() => setSheetOpen(true)} />
       <FilterRow />
-      <TargetList onOpen={(t) => setDetailTarget(t)} />
+      <TargetList
+        onOpen={(t) => setDetailTarget(t)}
+        onBulkRemove={() => {}}
+        onBulkRestore={() => {}}
+      />
 
       <AddTargetSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
 

@@ -1,15 +1,23 @@
 import { useMemo } from 'react'
+import { Check, Minus } from 'lucide-react'
 import TargetRow from './TargetRow'
+import BulkActionBar from './BulkActionBar'
 import {
   useTargetsStore,
   filterTargets,
   sortTargets,
 } from '@/stores/useTargetsStore'
 
-export default function TargetList({ onOpen }) {
+export default function TargetList({ onOpen, onBulkRemove, onBulkRestore }) {
   const targets = useTargetsStore((s) => s.targets)
   const filter = useTargetsStore((s) => s.filter)
   const sort = useTargetsStore((s) => s.sort)
+  const selectionMode = useTargetsStore((s) => s.selectionMode)
+  const selection = useTargetsStore((s) => s.selection)
+  const exitSelection = useTargetsStore((s) => s.exitSelection)
+  const selectAllVisible = useTargetsStore((s) => s.selectAllVisible)
+  const clearSelection = useTargetsStore((s) => s.clearSelection)
+  const pauseTarget = useTargetsStore((s) => s.pauseTarget)
 
   const visible = useMemo(() => {
     return sortTargets(filterTargets(targets, filter), sort)
@@ -25,10 +33,82 @@ export default function TargetList({ onOpen }) {
 
   const hasAnyTarget = targets.length > 0
 
+  // --- Selection helpers ---
+  const visibleIds = useMemo(() => visible.map((t) => t.id), [visible])
+  const selectedCount = selection.size
+  const allVisibleSelected =
+    visibleIds.length > 0 && visibleIds.every((id) => selection.has(id))
+  const someVisibleSelected =
+    !allVisibleSelected && visibleIds.some((id) => selection.has(id))
+
+  const onToggleAll = () => {
+    if (allVisibleSelected) clearSelection()
+    else selectAllVisible(visibleIds)
+  }
+
+  // Pause is enabled when at least one selected row is pausable
+  // (status active or queued). Already-paused, depleted, archived
+  // rows wouldn't change.
+  const selectedTargets = useMemo(
+    () => visible.filter((t) => selection.has(t.id)),
+    [visible, selection],
+  )
+  const pauseDisabled = !selectedTargets.some(
+    (t) => t.status === 'active' || t.status === 'queued',
+  )
+
+  const handlePause = () => {
+    selectedTargets.forEach((t) => {
+      if (t.status === 'active' || t.status === 'queued') pauseTarget(t.id)
+    })
+    // Toast + exit handled here so the bar's onPause is a thin wrapper.
+    import('@/stores/useToasts').then(({ useToasts }) => {
+      const count = selectedTargets.filter(
+        (t) => t.status === 'active' || t.status === 'queued',
+      ).length
+      const message = count === 1
+        ? `${selectedTargets.find((t) => t.status === 'active' || t.status === 'queued').value} paused`
+        : `${count} targets paused`
+      useToasts.getState().addToast({ message, tone: 'success' })
+    })
+    exitSelection()
+  }
+
   return (
     <section className="mt-4 overflow-hidden rounded-xl border border-border bg-surface">
+      {selectionMode && (
+        <BulkActionBar
+          count={selectedCount}
+          bucket={filter}
+          onExit={exitSelection}
+          onPause={handlePause}
+          onRemove={() => onBulkRemove(selectedTargets)}
+          onRestore={() => onBulkRestore(selectedTargets)}
+          pauseDisabled={pauseDisabled}
+        />
+      )}
+
       <div className="flex items-center justify-between px-4 pt-4 pb-2 text-[11px] font-medium uppercase tracking-wide text-text-muted">
-        <span>Name</span>
+        <div className="flex items-center gap-3">
+          {selectionMode && (
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={allVisibleSelected ? true : someVisibleSelected ? 'mixed' : false}
+              aria-label={allVisibleSelected ? 'Clear selection' : 'Select all visible'}
+              onClick={onToggleAll}
+              className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+                allVisibleSelected || someVisibleSelected
+                  ? 'border-blue-base bg-blue-base text-white'
+                  : 'border-border bg-surface'
+              }`}
+            >
+              {allVisibleSelected && <Check className="h-3.5 w-3.5" />}
+              {someVisibleSelected && <Minus className="h-3.5 w-3.5" />}
+            </button>
+          )}
+          <span>Name</span>
+        </div>
         <span className="pr-9">Follow-backs</span>
       </div>
 
