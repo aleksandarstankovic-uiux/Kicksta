@@ -5,22 +5,6 @@ import { formatCount } from '@/utils/formatCount'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 import { mockTargetInteractions } from '@/mocks/targetInteractions'
 import HealthPill from './HealthPill'
-import Tooltip from '@/components/Tooltip'
-import { STATUS_DOT_CLASS, STATUS_TOOLTIP } from './targetStatus'
-
-const statusPillClass = {
-  active: 'bg-green-tint text-green-text',
-  queued: 'bg-blue-tint text-blue-text',
-  paused: 'bg-bg text-text-secondary',
-  depleted: 'bg-yellow-tint text-yellow-text',
-}
-
-const statusLabel = {
-  active: 'Running',
-  queued: 'Queued',
-  paused: 'Paused',
-  depleted: 'Depleted',
-}
 
 export default function TargetDetailDrawer({ target, onClose, onRequestRemove }) {
   const pauseTarget = useTargetsStore((s) => s.pauseTarget)
@@ -111,64 +95,9 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              {/* Mobile-only status dot — matches the TargetRow's
-                  mobile treatment. Pulses when the engine is actively
-                  picking from this target. Tap to surface the
-                  tooltip with the full status word. Hidden on md:+
-                  where the full pill takes over. */}
-              <Tooltip
-                text={
-                  isProcessing
-                    ? 'The engine is following a user from this target right now.'
-                    : STATUS_TOOLTIP[target.status]
-                }
-                className="shrink-0 md:hidden"
-              >
-                <span
-                  aria-label={
-                    isProcessing
-                      ? 'Following from this target'
-                      : statusLabel[target.status]
-                  }
-                  className="relative inline-flex h-2 w-2 items-center justify-center"
-                >
-                  {isProcessing && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-base opacity-60"
-                    />
-                  )}
-                  <span
-                    className={`relative inline-block h-2 w-2 rounded-full ${STATUS_DOT_CLASS[target.status]}`}
-                  />
-                </span>
-              </Tooltip>
-
               <span className="truncate text-base font-semibold text-text-primary">
                 {target.value}
               </span>
-
-              {/* Full pill on md:+ */}
-              <Tooltip
-                text={
-                  isProcessing
-                    ? 'The engine just picked this target and is following a user right now.'
-                    : STATUS_TOOLTIP[target.status]
-                }
-                className="hidden shrink-0 md:inline-flex"
-              >
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
-                    statusPillClass[target.status]
-                  } ${
-                    isProcessing
-                      ? 'ring-2 ring-green-base/50 ring-offset-1 ring-offset-surface animate-pulse'
-                      : ''
-                  }`}
-                >
-                  {isProcessing ? 'Following…' : statusLabel[target.status]}
-                </span>
-              </Tooltip>
             </div>
             {(subline || sizeCount != null) && (
               <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -381,23 +310,22 @@ function StateBanner({ status, isProcessing, className = '' }) {
   return (
     <section
       role="status"
-      className={`mx-5 flex items-start gap-3 rounded-lg border p-3 ${s.wrap} ${className}`}
+      className={`mx-5 flex items-center gap-2 rounded-lg border px-3 py-2 ${s.wrap} ${className}`}
     >
       <span
         aria-hidden="true"
-        className="relative mt-1.5 inline-flex h-2 w-2 shrink-0 items-center justify-center"
+        className="relative inline-flex h-2 w-2 shrink-0 items-center justify-center"
       >
         {isProcessing && (
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-base opacity-60" />
         )}
         <span className={`relative inline-block h-2 w-2 rounded-full ${s.dot}`} />
       </span>
-      <div className="min-w-0 flex-1">
-        <p className={`text-sm font-semibold ${s.label}`}>{label}</p>
-        <p className="mt-0.5 text-xs leading-relaxed text-text-secondary">
-          {explain}
-        </p>
-      </div>
+      <p className="min-w-0 flex-1 truncate text-xs leading-snug">
+        <span className={`font-semibold ${s.label}`}>{label}</span>
+        <span className="mx-1.5 text-text-muted">·</span>
+        <span className="text-text-secondary">{explain}</span>
+      </p>
     </section>
   )
 }
