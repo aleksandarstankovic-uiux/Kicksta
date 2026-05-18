@@ -14,47 +14,80 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 
 ---
 
-## Resume context (2026-05-12, end of session)
+## Resume context (2026-05-18, end of session)
 
-**State of the working tree:** clean except for the usual `.claude/settings.local.json` drift. All project work committed and pushed. No worktrees. Working directly on `main`. **Deployed to `https://kicksta.vercel.app/`** via the GitHub remote (`origin = git@github.com:aleksandarstankovic-uiux/Kicksta.git`). Auto-deploys on every push to `main`.
+**State of the working tree:** clean. All work committed and pushed to `origin/main`. No worktrees. **Deployed to `https://kicksta.vercel.app/`** via the GitHub remote (`origin = git@github.com:aleksandarstankovic-uiux/Kicksta.git`); auto-deploys on every push to `main`. Mac and any mobile session both pull `main` before starting work.
 
-**Cross-device workflow note:** today included a mobile-session that landed via fast-forward merge from `claude/kicksta-dashboard-LwK3F` (branch deleted post-merge). All work converged on `main`. If a new mobile session opens, it should pull `main` before starting and the Mac should pull before its next session.
-
-**Restore tags currently in place:**
-- `pre-settings-page-2026-04-29`
-- `pre-settings-fixes-2026-04-29`
-- `pre-targeting-engagement-split-2026-04-30`
-- `pre-next-round-2026-05-07`
-- `pre-next-session-2026-05-07`
-- `pre-next-session-2026-05-08`
+**Restore tags currently in place** (latest first):
+- `pre-next-session-2026-05-18` — at HEAD, end of multi-day push covering Growth+ Manage, full subscription cancel flow, Overview snapshot split, Instagram Audit, Targeting overhauls, Engagement defaults, Settings billing layout
+- `pre-next-session-2026-05-12`
 - `pre-next-session-2026-05-11`
-- `pre-next-session-2026-05-12` — at HEAD, end of layout-pass session
+- `pre-next-session-2026-05-08`
+- `pre-next-session-2026-05-07`
+- `pre-next-round-2026-05-07`
+- `pre-targeting-engagement-split-2026-04-30`
+- `pre-settings-fixes-2026-04-29`
+- `pre-settings-page-2026-04-29`
 
-If anything's regressed, hard-reset to the relevant tag.
+If anything's regressed, `git reset --hard <tag>`.
 
-**Last shipped (most recent first, summarized — see CHANGELOG for details):**
+**Last shipped (this session — multi-day push, ordered roughly by arc; see git log for individual commits):**
 
-- **Growth+ layout pass** (2026-05-12, evening) — Six items addressing density issues after the QA pass on the merged mobile-session work. Upsell hero merged + shrunk (3 standalone benefit cards folded into a 3-icon row inside the hero). Active page hero is a 2-col grid on `lg:+` with the delta strip (`+12 today / +84 week / +143 month`) moved to the right column. Hero number `text-5xl/md:text-6xl` → `text-3xl/md:text-4xl`. Mobile delta strip is a 3-col grid with shortened labels (today/week/month). `GrowthPlusTierStrip` removed (file deleted) — tier already lives in the hero pill + Billing card upgrade ribbon. Activity + Controls go 2-col on `lg:+`. Boost-active toggle row `items-start` → `items-center`. Quality segment `Top accounts` → `Engaged` (label only, value key `'top'` stays) with cross-reference cleanup in Billing card + Upsell.
-- **Growth+ tiered pricing** (2026-05-12, mobile session) — 3-tier model: Starter $29 / Pro $49 / Elite $99. `mockGrowthPlusTiers` is the single source of truth for tier metadata; `mockGrowthPlusInsights` + `mockGrowthPlusDeltas` are per-tier. `mockUserGrowthPlus.growthPlusTier` defaults to `'pro'` (preserves prior visuals). `setGrowthPlusTier(tierId)` on `useGrowthConfig` snaps speed/quality back to the highest still-allowed value when downgrading. Replaced the blurred-locked-preview pattern with `GrowthPlusUpsell.jsx` (real marketing page: tier pricing grid + benefit grid + FAQ; clicking any tier opens the existing `GrowthPlusSubscribeModal` with the tier pre-selected). Locked segments stay visible with `Lock` badge + "Available on Pro/Elite" tooltip (decision: discovery > clean UI). `GrowthPlusLockedPreview` + `GrowthPlusSubscribeOverlay` deleted.
-- **Growth+ premium polish round 2** (2026-05-12, mobile session) — Hero sparkline dropped (cumulative count can only trend up; carried no info), replaced with delta strip. Metric cards match Overview MetricCard sizing (`text-xl lg:text-2xl`, label + value only, sub-line dropped). Activity icons bare (no chip background), color carries event type (purple for post-boosted, green for follower gains). Controls card leads with a one-line how-it-works intro (the bottom ShieldCheck strip was dropped). Per-segment notes moved ABOVE each segmented control. Billing extracted into its own `GrowthPlusBillingCard` (was inline at the bottom of Controls).
-- **Growth+ page polish pass** (2026-05-12, morning Mac session) — Seven QA fixes: hero state-aware pill (Active/Paused), hide pill in `previewMode`, headline swap when paused, page H1 + subtitle, dynamic billing date from `mockGrowthPlusNextBillingAt`, Top accounts → Engaged (first round, before round 2), Megaphone for Boosted posts.
-- **Growth+ page** (2026-05-11) — initial build; see CHANGELOG.
+- **Growth+ Manage subscription** (2026-05-12) — `GrowthPlusManageModal` (entry popup from BillingCard "Manage" + Banner deep-link via `/growth-plus?manage=1`), full **tier-change page** at `/account/growth-plus` with `SwitchTierConfirmModal` (proration math via new `src/utils/proration.js`), 3-step **Growth+ cancel flow** (`CancelGrowthPlusModal`: reason → lose → confirm → success ack, inline "Too expensive" downgrade deflection to next-cheaper tier). New `cancelled_pending` Growth+ status; subscriber dashboard layers banner + pill change + Billing-card adjustments. Spec/plan: `docs/superpowers/{specs,plans}/2026-05-12-growth-plus-manage*`.
 
-Earlier shipped (still relevant):
-- **2026-05-08 batch of 5 specs** (Nav server-change, Billing structure, Engagement collapse, Add Target popup redesign, Polish pass) — see CHANGELOG.
-- **Vercel deploy** (2026-05-08) — repo on `github.com/aleksandarstankovic-uiux/Kicksta`; `vercel.json` rewrites every path to `/index.html`.
-- **Navigation overhaul** (2026-05-07) — see CHANGELOG.
-- **Targeting page restructure rounds 1–3** (2026-05-05 → 07) — see CHANGELOG.
+- **Main subscription cancellation flow** (2026-05-13) — 5-step modal (Reason → Save → Lose → Confirm → Success), reason-tailored real saves: downgrade plan (Advanced → Growth, via `DowngradePlanConfirmModal`), switch server, pause N days (`PauseConfirmModal` with new `useSubscriptions.pause()`). `useSubscriptions` gained `cancel`/`resume`/`pause`/`setPlan`/`payOverdue`. `cancelled_pending` + `paused` statuses on subscriptions. `SubscriptionStateBanner` (yellow for paused/cancelled-pending, red for past-due). Past-due users see "Pay outstanding invoice" CTA. Cancel CTA renamed "End this subscription" (no verb collision). Spec/plan: `docs/superpowers/{specs,plans}/2026-05-12-subscription-cancel*` + `2026-05-13-subscription-cancel.md`.
+
+- **Cancel flow polish + dark-pattern fixes** (2026-05-13) — equal-weight Keep vs Cancel on final confirm (both solid `bg-{color}-base text-white`). Removed "Cancel anyway" shortcut entirely (the flow IS the flow). Step-driven modal title (e.g., `Why are you cancelling?` / `Here's what you'll lose` / `Confirm cancellation` instead of static "Cancel subscription for @x"). Both cancel modals share the Targeting modal header pattern (chip + title + subtitle + bottom border). "Too expensive" reason on Advanced shows inline downgrade deflection card (Growth+ tier pattern). "Other" reason reveals an optional textarea. Fabricated "40% better results" copy killed.
+
+- **Overview snapshot split** (2026-05-13) — replaced `GrowthSettingsSnapshot` (which bundled Targeting + Engagement config + broken `/growth` link) with **`TargetingSettingsSnapshot`** (Mode + Like-after-follow + Filters → `/targeting?tab=settings`) and **`EngagementSnapshot`** (Welcome DM toggle + 1-line message preview + CFA toggle + mode caption → `/engagement`). Both new components in `src/pages/overview/`. Layout: 2-col on `lg:+`, left = `TargetsOverview`, right = `TargetingSettings + EngagementSnapshot` stacked. Spec/plan: `docs/superpowers/{specs,plans}/2026-05-13-overview-snapshot-split*`.
+
+- **Instagram Audit card** (2026-05-13) — new full-width card on Overview between chart row and bottom block. CTA encodes state: `Get Instagram Audit` (idle) → `Generating audit…` spinner (1500ms processing) → `View audit` (cooldown, opens existing) → `Get Instagram Audit` again post-cooldown. Status pill next to title shows availability. New `useInstagramAudit` store (`lastDownloadedAt`, `download`, `_reset`), `src/utils/auditCooldown.js` helpers, 24h cooldown constant. Body trimmed to two-line explainer per user feedback. Spec/plan: `docs/superpowers/{specs,plans}/2026-05-13-instagram-audit*`.
+
+- **Overview tinted header band** (2026-05-13) — all six Overview cards (Chart, Activity, Top Targets, Targeting settings, Engagement settings, Instagram Audit) now share the same `bg-bg/50` header band recipe (negative-margins extending to card edges + `rounded-t-xl` + `border-b` seam). Header zone reads as a tinted title bar; body sits below. `py-4` band padding, `mb-4` gap to body. Title-row CTA pattern: "Edit →" / "View all →" links live in the right of the band, not at the bottom of the card. `mt-auto` footer slot eliminated.
+
+- **Targeting overhauls** (2026-05-13 → 14):
+  - **Single-target processing model.** Engine processes ONE target at a time. Exactly one `mockTargets` entry has `status: 'active'`; the rest of the rotation pool sits at `'queued'`. Status pill label `Active` → `Running` (the runner). Top Targets pill `slots` → `in rotation`. Top performer star picks from anyone in rotation, not just status=active.
+  - **`HealthPill` priority**: Verified > Private > count buckets (Small / Good fit / Large / Very large). Each state carries an `explain` string surfaced via Tooltip.
+  - **Status `Tooltip` everywhere.** New `src/components/Tooltip.jsx` portal-renders bubble to `document.body` with fixed positioning + viewport clamping (couldn't be clipped by overflow-hidden ancestors). Mouse-only (no `tabIndex`, no focus handlers — safe to nest inside `<button>` rows). Shared `STATUS_TOOLTIP` + `STATUS_DOT_CLASS` maps in `src/pages/targeting/targetStatus.js`.
+  - **Verified + Private icons** (lucide `BadgeCheck` filled blue + `Lock`) appear inline beside the handle in: Add Target typeahead rows, suggestions list, selected pill, TargetRow on /targeting, Overview Top Targets row. Added Target carries the picker's `verified`/`private`/`profilePic`/follower-count through `addTarget` so the new row reads identical to the picker.
+  - **Add Target suggestions** are now a vertical list (same row recipe as the typeahead dropdown). The horizontal-scroller chip carousel is gone.
+  - **Selected target pill** in Add Target is taller (`h-12 → h-16`) with bigger avatar + verified/private icons.
+  - **Target Detail Drawer** rebuilt: removed redundant mobile dot + desktop pill next to handle. Added a single-line **`StateBanner`** with colored dot + status word + 1-line explanation (vertical-line separator, no ellipsis on "Following"). 3-column horizontal **stats strip** (Followed / Follow-backs / Rate) replaces the floating `StatChip` pills. Size pill (HealthPill) moved inline with the followers count.
+
+- **Engagement page** (2026-05-13) — Welcome DM + CFA now both **default-on** in `mockGrowthConfig`. Stats card flipped from "This week" with weekly deltas to **"All time"** with cumulative totals + small "↑ X this week" positive deltas (cumulative metrics only grow). Welcome DM Recents render real profile pics (Pravatar URLs on each entry). Welcome DM bubble bigger (`px-4 py-3`, `text-[15px]`). Activity card list scrolls with `ResizeObserver`-matched height to Controls (later relaxed — both cards now hug their natural content with `lg:items-start`). CFA copy: `Add Followers` / `Remove Followers`. Recents default-expanded.
+
+- **Whitelist / Blacklist real avatars** (2026-05-14) — `mockWhitelist` + `mockBlacklist` entries now carry `profilePic` Pravatar URLs. `WhitelistCard` + `BlacklistCard` render the image (h-7 with `overflow-hidden`) with the letter fallback.
+
+- **Server city/country dropdowns** (2026-05-13) — `mockServers` migrated from country-only to flat city records with `countryId` / `country` / `city` per entry. New `mockServerCountries` derived hierarchy + `findCountry(countryId)`. `ChangeServerModal` rewritten with two cascading dropdowns (country first, city). Subscription IDs migrated: `us-east → us-nyc`, `eu-west → uk-lon`, `us-west → us-lax`. Dedicated `ServerCard` component on `SubscriptionDetail` replaces the orphan inline "Server: …" line. `AccountSwitcher` server picker now nested inside the active-account block as a compact strip (smaller icon, smaller text) — clearly belongs to the active account.
+
+- **Settings billing layout** (2026-05-14) — Option 2 chosen: each Billing section wrapped in a card with chip + title + Add button INSIDE (ProfilePanel pattern). Sibling Settings tabs now share the recipe. `SubscriptionCard` collapsed from per-row mini-card to row-style item (rounded-lg border, hover bg-bg, no shadow). Plan + Growth+ + next-billing line wraps to 2 lines on mobile (no truncation cut-off). `InvoicesTable` inner chrome lightened (rounded-xl → rounded-lg, dropped shadow + bg-surface — parent card provides them).
+
+- **Settings mobile overflow fix** (2026-05-14) — Settings outlet `<section>` now has `min-w-0` and grid template uses `[200px_minmax(0,1fr)]` instead of `[200px_1fr]`. Was overflowing the viewport because the `1fr` track defaulted to `min-width: auto` (content-based) and long invoice descriptions / email combos forced the track wider than the viewport (clipped by `<main>`'s `overflow-hidden`).
+
+- **Global polish** (2026-05-14):
+  - **Scroll reset on route change** — new `ScrollToTop` in `App.jsx` watches pathname, calls `window.scrollTo(0,0)` on every navigation.
+  - **Account switch → /** — picking a different account in `AccountSwitcher` navigates to Overview (`useNavigate`).
+  - **Targeting input** font-size `text-base` on mobile, `md:text-sm` on desktop — prevents iOS Safari's automatic zoom-on-focus for inputs under 16px.
+  - **Dropdown chevrons** unified — every `<select>` uses `appearance-none pr-10` with an absolutely-positioned `ChevronDown` icon at `right-3 top-1/2 -translate-y-1/2 text-text-muted`. Native browser chevrons no longer "glued" to the right edge.
+  - **Popup header pattern** — all confirm/cancel modals (`CancelSubscriptionModal`, `CancelGrowthPlusModal`, `ChangeServerModal`, `PauseConfirmModal`, `DowngradePlanConfirmModal`, `GrowthPlusManageModal`) now share the Targeting modal header recipe: `border-b border-border px-5 py-3.5` with chip + title + subtitle on the left, X on the right. Step-driven titles on the cancel modals (e.g., "Why are you cancelling?" / "Confirm cancellation").
+  - **Top Targets row** — gap-2.5 → gap-2 (less space right of avatar). Column header `text-text-muted font-medium` → `text-text-secondary font-semibold` (NAME / FOLLOW-BACKS labels readable, not washed out).
+  - **Mobile vertical padding** on Overview cards: `p-4 lg:p-6` → `p-4 pb-3 lg:p-6` to tighten bottom on mobile.
 
 **Pending specs queue (in priority order):**
 
-1. **`/account/growth-plus` real subscription-management page** — still a stub. Growth+ controls Manage link + Billing card Manage button both route there. Needs: pause/resume billing, plan switch (downgrade/upgrade between Starter/Pro/Elite), cancel. Pricing + tier metadata reads from `mockGrowthPlusTiers`.
-2. **GrowthPlusBanner placement** — currently parked at the bottom of `/engagement`. Dedicated Growth+ page now exists; the banner may want to move to Overview or be dropped. **Don't decide unilaterally.**
-3. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove).
-4. **Targeting empty state polish** — layout settled, unblocked.
-5. **Cancel subscription 6-step modal flow** — currently a stub modal.
-6. **Upgrade plan UX** — currently a stub modal; surfaces from CFA / Welcome DM "Advanced" gates.
-7. **Avatar identity ambiguity** — IG-account avatars and Kicksta-user avatars look similar. If a Kicksta-user avatar reappears in chrome, give it a distinct shape (e.g. `rounded-md` instead of `rounded-full`).
+1. **Bulk-select on Targets list** — flagged v2 by user. Multi-select rows + sticky action bar (pause / resume / remove).
+2. **Targeting empty state polish** — layout settled, unblocked.
+3. **Upgrade plan UX** — currently a stub modal in `PlanCard.jsx` (UpgradeStubModal). Surfaces from CFA / Welcome DM "Advanced" gates. Should mirror the existing `SwitchTierConfirmModal` proration pattern.
+4. **Avatar identity ambiguity** — IG-account avatars and Kicksta-user avatars look similar. If a Kicksta-user avatar reappears in chrome, give it a distinct shape (e.g. `rounded-md` instead of `rounded-full`).
+5. **GrowthPlusBanner placement** — removed from `/engagement` in this session as orphaned. The component `src/components/GrowthPlusBanner.jsx` still exists but no page currently renders it. Decision deferred — either delete the component or find a home (Overview?).
+6. **Onboarding / first-run thread** — flagged in the dashboard review pass. Three-screen modal explaining Targets → Engine → Engagement → Growth+ to bridge the mental model. Targeting empty state should call out "Targets are where your follows come from."
+7. **Live "today" line on Engagement** — Engagement stats are now all-time cumulative + weekly delta. A "today" pulse line below the tiles would add active-now signal. Optional.
+
+**Recently completed (don't re-spec, already shipped):**
+- `/account/growth-plus` real subscription-management page (tier-change page + Manage popup)
+- Cancel subscription 6-step flow (shipped as 5 steps; the 6th got dropped during brainstorming as needless)
+- Growth+ cancel flow (3-step + success ack)
+- Past-due payment path (`payOverdue` action, red banner)
 
 **Open architectural decisions (locked, don't revisit):**
 
@@ -80,7 +113,25 @@ Earlier shipped (still relevant):
   - Server row sits inside `PanelContent`'s active block (between active-account row and the divider to "others"). Server is per-subscription, edited from here only — single edit path.
 - **Mock avatars** — Pravatar (`https://i.pravatar.cc/80?u=<seed>`) is the deterministic mock-avatar source for V1. Seed = the IG handle (without `@`). Production swaps in real IG profile pics — same `profilePic` field, different source.
 - **Polish-pass icon-role rules**: passive row actions (download, more-options) = `text-text-secondary` hover→`text-text-primary` (no blue download); destructive row actions (X-on-row) = `text-text-secondary` hover→`text-red-text`; constructive primary actions (Plus on standalone "Add" rows) = `text-blue-text` on `bg-blue-tint`.
-- **Billing section shape** — three parallel sections (Payment method, Subscriptions, Billing history) all share the pattern `[chip] Title [count?] (i) ... [Add button?]` above, card-style children below, no enclosing card. `gap-2 md:gap-3` between header and content.
+- **Billing section shape** (2026-05-14 update) — each Billing section (Payment methods, Subscriptions, Billing history) is wrapped in a card with chip + title + Add button INSIDE the card header (ProfilePanel pattern). Replaces the earlier "floating header above loose content" pattern. Settings tabs share the recipe.
+- **`SubscriptionCard` is a row, not a card** (since 2026-05-14). Inside the Subscriptions parent card, each subscription renders as `rounded-lg border` with `hover:bg-bg`. Clicking still navigates to the per-subscription detail page where the full card treatment lives.
+- **Tinted header band on Overview** — six cards (Chart, Activity, Top Targets, Targeting settings, Engagement settings, Instagram Audit) share the `bg-bg/50` band recipe with `-mt-4 -mx-4 mb-4` negative margins, `py-4 px-4`, `rounded-t-xl border-b border-border`. Title-row CTA pattern: "Edit →" / "View all →" lives in the right of the band, not at the bottom. `mt-auto` footer slot replaced.
+- **Two snapshot cards on Overview, not one.** `TargetingSettingsSnapshot` → `/targeting?tab=settings`, `EngagementSnapshot` → `/engagement`. Never bundle Targeting + Engagement settings under a single snapshot. CTA always names the destination page.
+- **Engine processes ONE target at a time.** Exactly one target carries `status: 'active'`; others sit at `'queued'`. Status pill label `Active` → `Running` everywhere. Top performer star picks from anyone in rotation, not just status=active. `processingId` (single id) on `useTargetsStore` flags which active target the engine is mid-action on.
+- **`HealthPill` priority**: Verified > Private > count buckets (Small / Good fit / Large / Very large). All warn states are yellow-tint; only Good fit is green-tint. Each state carries an `explain` string for the Tooltip.
+- **`Tooltip` is portal-rendered with viewport clamping.** New `src/components/Tooltip.jsx`. Mouse-hover only (no `tabIndex`, no focus handlers — safe to nest inside `<button>` rows). Position computes from trigger's `getBoundingClientRect()` and clamps horizontally so the bubble can't overflow the viewport edge. Use it anywhere a pill/badge needs an explainer.
+- **Status tooltip vocabulary** in `src/pages/targeting/targetStatus.js` — `STATUS_TOOLTIP` and `STATUS_DOT_CLASS` are the shared source. Consumers: `TargetRow`, `TargetsOverviewBody`, `TargetDetailDrawer`.
+- **Subscription cancellation flow is 5-step.** Reason → Save (conditional) → What you'll lose → Confirm → Success ack. Reason-tailored real saves only — no decoys, no fake urgency. "Too expensive" deflects to one tier down inline (Growth+ pattern); "Not enough results" offers server switch; "Taking a break" offers 30/60/90-day pause. "Other" skips the save step.
+- **No "Cancel anyway" shortcut.** The flow is the flow. Close X always works on every step; final confirm has equal-weight Keep vs Cancel solid buttons.
+- **Cancel modal titles are step-driven.** "Why are you cancelling?" / "Pause instead?" / "Here's what you'll lose" / "Confirm cancellation" / "Subscription cancelled". Same pattern for `CancelGrowthPlusModal` (3 user-facing steps + success ack).
+- **Subscription state model**: `active` | `trialing` | `past_due` | `paused` | `cancelled_pending`. Stored on each `mockSubscriptions` entry. Banner + PlanCard + cancel-section visibility all adapt. Resume returns to `active`. Past-due users see red `SubscriptionStateBanner` with "Pay outstanding invoice" CTA (calls `payOverdue` action).
+- **Server data is city/country, not just country.** `mockServers` is a flat array with `id`, `countryId`, `country`, `city` per entry. `mockServerCountries` derived hierarchy + `findCountry(countryId)`. `ChangeServerModal` is two cascading dropdowns (country → city).
+- **All dropdowns share the same chevron recipe**: `appearance-none pr-10` on the `<select>`, `<ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted">` next to it. Never rely on the native browser chevron.
+- **Modal header recipe** (Targeting modal pattern): `border-b border-border px-5 py-3.5` row with `CardChip` (or icon chip) + title + subtitle on the left, X button (`h-9 w-9`) on the right. Body has `px-5 pb-5 pt-4`. Applied to every confirm/cancel modal across the dashboard.
+- **Mobile inputs are 16px** (`text-base`). Targeting input uses `text-base md:text-sm` so iOS Safari doesn't zoom on focus.
+- **Scroll resets on route change.** `ScrollToTop` in `App.jsx` watches pathname.
+- **Account switch navigates to `/`.** `AccountSwitcher.handlePick` calls `useNavigate('/')` so the user lands on the new account's Overview, not the previous account's deep-nested detail view.
+- **CSS-grid mobile-overflow guard**: when a grid track contains long unbreakable content, use `[200px_minmax(0,1fr)]` (or whatever fr template) so the track honors `0` as its min-width instead of the default `auto`. Without this, long invoice descriptions or email combos push the track wider than the viewport.
 - **Add Target popup state** — pill xor input row, never both. Picking a match (suggestion or typeahead) replaces the entire `[toggle][input]` row with a locked `SelectedSourcePill`; clear-X restores the input. Two-warning slot order: red duplicate (top) → yellow limited-targeting (below) → suggestions scroller.
 - **Engagement `CollapsibleRecents` helper** — duplicated inline per card. Not lifted to a shared component. If a tweak is ever needed (typo, class fix), apply it in BOTH files in a single follow-up.
 - **TargetsHeroCard layout** — left-accent + title + slot pill + 14px subtitle + Add CTA right.

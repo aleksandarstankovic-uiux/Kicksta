@@ -5,7 +5,41 @@
 
 ---
 
-> **2026-05-12 session note:** six 2026-05-12 entries total — `Manage subscription` (this entry), `Hero & pills round`, `Layout pass`, `Tiered pricing`, `Premium polish (round 2)`, and `Polish pass`. The first three came from a Mac evening session that started after merging the mobile-session work; the polish pass was the morning Mac session. All fast-forwarded into `main`. Branches: mobile branch `claude/kicksta-dashboard-LwK3F` (merged + deleted) carried the tiered pricing + premium polish; the layout pass shipped directly on `main`.
+> **2026-05-18 session note:** end-of-session checkpoint after a multi-day push (commits span 2026-05-12 through 2026-05-14 date headers but the working session ran through 2026-05-18). Major arcs landed: subscription cancellation flow (main + Growth+), Overview snapshot split, Instagram Audit card, tinted header band across Overview, single-target processing model + tooltips, Engagement defaults-on + all-time stats, Settings billing card-with-chip-header layout, mobile-overflow fix on Settings grid track. Granular commits available in `git log`. See CONTEXT.md "Resume context (2026-05-18)" for the full state map.
+
+## 2026-05-18 — Multi-arc session summary
+
+This session was big. Rather than expand every commit into its own changelog block, the prose summary lives in `CONTEXT.md`'s **Resume context (2026-05-18)** section. The architectural decisions all moved into the locked-decisions list. Granular per-commit history is in `git log`.
+
+### Highlights
+- **Subscription cancellation** — full 5-step modal flow for the main subscription with reason-tailored real saves (downgrade plan, switch server, pause 30/60/90 days). New `paused` + `cancelled_pending` statuses with `SubscriptionStateBanner` (yellow tinted) and a red variant for `past_due` with "Pay outstanding invoice" CTA. Step-driven modal titles. Equal-weight Keep vs Cancel buttons. Inline downgrade deflection on "Too expensive."
+- **Growth+ Manage** — entry popup from BillingCard's "Manage", routes to a full tier-change page at `/account/growth-plus` with proration confirm modal. 3-step Growth+ cancel flow with `cancelled_pending` state on the subscriber dashboard.
+- **Overview snapshot split** — replaced `GrowthSettingsSnapshot` (bundled Targeting + Engagement, broken `/growth` link) with `TargetingSettingsSnapshot` + `EngagementSnapshot`. Each routes to its own destination.
+- **Instagram Audit card** — new Overview component, 24h cooldown, "Get Instagram Audit" → "Generating…" → "View audit". Full spec → plan → impl cycle.
+- **Tinted header band on Overview** — all six Overview cards now share `bg-bg/50` band header with `Edit →` / `View all →` CTA in the title row. `mt-auto` footer pattern retired.
+- **Single-target processing model** — only one target has `status: 'active'` ("Running"); others sit at `'queued'`. Status pill labels updated. `STATUS_TOOLTIP` + `STATUS_DOT_CLASS` in `src/pages/targeting/targetStatus.js`.
+- **Target Detail Drawer** — `StateBanner` (1-line tinted strip with status word + explanation), horizontal `StatColumn` stats strip, removed redundant mobile dot + desktop pill on header.
+- **Verified / Private icons** in Add Target popup, TargetRow, Overview Top Targets row. `addTarget` carries picker metadata through.
+- **`HealthPill`** expanded: Verified > Private > count buckets, each with `explain` Tooltip.
+- **`Tooltip`** component portal-rendered with viewport clamping (`src/components/Tooltip.jsx`).
+- **Engagement** — default-on toggles (Welcome DM + CFA), all-time stats card with weekly delta, real DM avatars, CFA copy "Add/Remove Followers."
+- **Whitelist / Blacklist** real Pravatar avatars in mocks + render.
+- **Server data** city/country in `mockServers` flat array with `mockServerCountries` derived hierarchy. `ChangeServerModal` two cascading dropdowns. New `ServerCard` on subscription detail page. `AccountSwitcher` server picker nested inside active account.
+- **Settings billing layout** — each section wrapped in a card with chip + title + Add button inside (ProfilePanel pattern). `SubscriptionCard` collapsed to row-style.
+- **Settings mobile overflow fix** — `min-w-0` on outlet section + `[200px_minmax(0,1fr)]` grid template.
+- **Global polish** — scroll reset on route change, account switch → `/`, 16px input on Targeting (iOS zoom guard), unified dropdown chevrons, shared modal header pattern across all confirm/cancel modals.
+
+### Spec / plan files added this session
+- `docs/superpowers/specs/2026-05-12-growth-plus-manage-design.md`
+- `docs/superpowers/plans/2026-05-12-growth-plus-manage.md`
+- `docs/superpowers/specs/2026-05-12-subscription-cancel-design.md`
+- `docs/superpowers/plans/2026-05-13-subscription-cancel.md`
+- `docs/superpowers/specs/2026-05-13-overview-snapshot-split-design.md`
+- `docs/superpowers/plans/2026-05-13-overview-snapshot-split.md`
+- `docs/superpowers/specs/2026-05-13-instagram-audit-design.md`
+- `docs/superpowers/plans/2026-05-13-instagram-audit.md`
+
+
 
 ## 2026-05-13 — Instagram Audit card
 
