@@ -170,8 +170,19 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
                 </span>
               </Tooltip>
             </div>
-            {subline && (
-              <div className="mt-0.5 text-xs text-text-muted">{subline}</div>
+            {(subline || sizeCount != null) && (
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                {subline && (
+                  <span className="text-xs text-text-muted">{subline}</span>
+                )}
+                {sizeCount != null && (
+                  <HealthPill
+                    count={sizeCount}
+                    verified={!isHashtag && target.verified}
+                    isPrivate={!isHashtag && target.private}
+                  />
+                )}
+              </div>
             )}
           </div>
           <button
@@ -184,11 +195,6 @@ export default function TargetDetailDrawer({ target, onClose, onRequestRemove })
           </button>
         </div>
 
-        {sizeCount != null && (
-          <div className="mt-3 px-5">
-            <HealthPill count={sizeCount} />
-          </div>
-        )}
 
         <div className="mt-4 flex gap-2 overflow-x-auto px-5">
           <StatChip label="Followed" value={target.followedCount} />

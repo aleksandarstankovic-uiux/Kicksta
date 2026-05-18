@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AlertTriangle, Check, ChevronRight, ChevronsUpDown, Globe, Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAccounts } from '@/stores/useAccounts'
@@ -32,6 +32,7 @@ export default function AccountSwitcher({
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
   const setActiveId = useAccounts((s) => s.setActiveId)
+  const navigate = useNavigate()
   const subscriptions = useSubscriptions((s) => s.subscriptions)
   const ref = useRef(null)
 
@@ -81,6 +82,11 @@ export default function AccountSwitcher({
     setActiveId(account.id)
     setOpen(false)
     onAccountSwitched?.(account)
+    // Switching account = switching the entire context of the dashboard
+    // (data, stats, settings). Drop the user back on Overview so they
+    // see the new account's hub rather than the previous account's
+    // deeply-nested view (subscription detail, target detail, etc.).
+    navigate('/')
   }
 
   return (

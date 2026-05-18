@@ -84,7 +84,7 @@ export default function InstagramAuditCard() {
     inCooldown && cooldownLabel ? `Available in ${cooldownLabel}` : 'Available'
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 lg:p-6">
+    <section className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       {/* Tinted header band — same recipe as every other card on the
           Overview. Hosts chip + title + status pill + CTA. Subtitle
           drops to the body below so the band stays compact. */}

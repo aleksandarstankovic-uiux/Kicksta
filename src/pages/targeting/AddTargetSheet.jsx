@@ -295,7 +295,7 @@ export default function AddTargetSheet({ open, onClose }) {
                       type="text"
                       value={input.replace(/^[@#]/, '')}
                       onChange={(e) => setInput(e.target.value)}
-                      className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-muted"
+                      className="flex-1 bg-transparent text-base text-text-primary outline-none placeholder:text-text-muted md:text-sm"
                       placeholder={type === 'account' ? 'username' : 'hashtag'}
                       aria-label={type === 'account' ? 'Username' : 'Hashtag'}
                       autoComplete="off"

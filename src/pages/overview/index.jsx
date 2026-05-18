@@ -387,7 +387,7 @@ function MetricCard({
   gradientId,
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 lg:p-6">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       {/* Top row — primary label on the left, optional period hint on the
           right. Pulling the period to the corner keeps the primary label
           uncluttered and lets the eye pick up the time-window at a glance. */}
@@ -568,7 +568,7 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
   const planLabel = user.plan === 'advanced' ? 'Advanced' : 'Growth'
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-4 lg:p-6">
+    <div className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       <div className="flex items-start gap-3 sm:justify-between">
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <div className="relative shrink-0">
@@ -905,7 +905,7 @@ function GrowthChart({ data, period, customRange, isOnTrial, connection, trialSt
   }, [data, period, customRange, isOnTrial, connection, trialStart, trialEnd])
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-4 lg:p-6">
+    <div className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       {/* Tinted header band — matches the recipe used by the bottom
           row cards (Top Targets / Targeting / Engagement) so the
           Overview reads as a coherent stack of cards with consistent
@@ -1381,7 +1381,7 @@ function TargetsOverviewBody({ targets, plan }) {
   return (
     // h-full + flex-col so when the right column is taller, this
     // card's container stretches to match.
-    <div className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 lg:p-6">
+    <div className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       {/* Tinted header band — extends to the card's outer edges via
           negative margins so it reads as a "title bar" sitting above
           the body. Border on the bottom marks the seam. Same recipe
@@ -1406,7 +1406,7 @@ function TargetsOverviewBody({ targets, plan }) {
 
       {/* Column header — establishes the Name | Follow-backs layout.
           px-3 matches the row padding so labels align with their columns. */}
-      <div className="flex items-center justify-between px-3 pb-2 text-[11px] font-medium uppercase tracking-wide text-text-muted">
+      <div className="flex items-center justify-between px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-text-secondary">
         <span>Name</span>
         <span>Follow-backs</span>
       </div>
@@ -1430,7 +1430,7 @@ function TargetsOverviewBody({ targets, plan }) {
               } ${isDepleted ? 'bg-bg' : ''}`}
             >
               {/* Left column: avatar + dot + name + (star | depleted pill) */}
-              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+              <div className="flex min-w-0 flex-1 items-center gap-2">
                 {/* Avatar — Hash icon for hashtags, image when available,
                     or a letter chip. Matches the Targeting page row. */}
                 <div

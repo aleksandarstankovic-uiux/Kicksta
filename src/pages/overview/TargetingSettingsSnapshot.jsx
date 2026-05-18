@@ -61,7 +61,7 @@ export default function TargetingSettingsSnapshot() {
   ]
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-4 lg:p-6">
+    <div className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       {/* Tinted header band — extends to the card's outer edges via
           negative margins so it reads as a "title bar" sitting above
           the body. Border on the bottom marks the seam. */}

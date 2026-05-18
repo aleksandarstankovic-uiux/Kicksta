@@ -1,5 +1,19 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import DashboardLayout from '@/components/DashboardLayout'
+
+// Reset window scroll to the top on every route change. React Router
+// preserves scroll by default, which feels broken when navigating
+// from a long page (e.g. /targeting list scrolled halfway) to a
+// short one (e.g. /account/profile) — the new page mounts already
+// scrolled.
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
 import SignupLayout from '@/components/SignupLayout'
 import OverviewPage from '@/pages/overview'
 import TargetingPage from '@/pages/targeting'
@@ -22,6 +36,8 @@ import Placeholder from '@/pages/signup/steps/Placeholder'
 
 export default function App() {
   return (
+    <>
+      <ScrollToTop />
     <Routes>
       {/* Dashboard shell */}
       <Route element={<DashboardLayout />}>
@@ -56,5 +72,6 @@ export default function App() {
         <Route path="dashboard-entry" element={<Placeholder />} />
       </Route>
     </Routes>
+    </>
   )
 }
