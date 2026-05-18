@@ -96,6 +96,35 @@ export const useTargetsStore = create((set) => ({
         t.id === id ? { ...t, status: 'queued' } : t,
       ),
     })),
+
+  // --- Bulk selection ---
+  // `selectionMode` toggles the entire Targets list into multi-select.
+  // While true, FilterRow hides and BulkActionBar renders in its slot.
+  // `selection` is the set of target ids the user has ticked. Both
+  // reset together on `enterSelection` and `exitSelection` so we
+  // never have a stale selection from a previous mode.
+  selectionMode: false,
+  selection: new Set(),
+
+  enterSelection: () =>
+    set({ selectionMode: true, selection: new Set() }),
+
+  exitSelection: () =>
+    set({ selectionMode: false, selection: new Set() }),
+
+  toggleSelect: (id) =>
+    set((state) => {
+      const next = new Set(state.selection)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return { selection: next }
+    }),
+
+  selectAllVisible: (ids) =>
+    set({ selection: new Set(ids) }),
+
+  clearSelection: () =>
+    set({ selection: new Set() }),
 }))
 
 // Priority order used by the default sort — keeps actionable rows (active,
