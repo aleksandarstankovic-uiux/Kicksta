@@ -14,6 +14,30 @@ React 19 + Vite 8 + Tailwind 4 + Recharts 3 + Zustand 5 SaaS dashboard for Insta
 
 ---
 
+## Resume context (2026-05-18, end of session — bulk-select arc)
+
+**State of the working tree:** clean. Targets bulk-select arc landed; CHANGELOG/CONTEXT updated. Merged to `main` and pushed; deployed to `https://kicksta.vercel.app/`.
+
+**Just shipped (in addition to the prior 2026-05-18 entries below):**
+- **Targets bulk-select** — multi-row selection mode on `/targeting`. Explicit "Select" toggle from FilterRow → sticky `BulkActionBar` replaces FilterRow → Pause/Remove (Active) or Restore (Archived) buttons → bulk-aware `BulkRemoveModal` confirm / `RestoreLimitModal` block on slot-limit overflow. Master tri-state checkbox in column header. Row click swaps to toggle-selection + `role="checkbox"` while in mode. Page-level Escape exits, gated to NOT fire when a modal is open (so Esc on the modal preserves selection). Selection state is store-level (`selectionMode`, `selection: Set<id>`, 5 actions on `useTargetsStore`). New `src/utils/targetSlots.js` extracts `slotLimit()` + `inRotationCount()` for reuse. `<main>` swapped `overflow-hidden` → `overflow-x-clip` so `position: sticky` descendants actually stick (the horizontal clip that the Settings overflow guard needs is preserved). Spec/plan: `docs/superpowers/{specs,plans}/2026-05-18-targets-bulk-select*`.
+
+**Updated pending-specs queue (in priority order):**
+
+1. **Targeting empty state polish** — now #1 (bulk-select was previously #1).
+2. **Upgrade plan UX** — currently a stub modal in `PlanCard.jsx` (`UpgradeStubModal`). Surfaces from CFA / Welcome DM "Advanced" gates AND now from `RestoreLimitModal`'s "Upgrade plan" CTA on `/account/billing`. Should mirror the existing `SwitchTierConfirmModal` proration pattern.
+3. **Avatar identity ambiguity** — IG-account avatars vs Kicksta-user avatars look similar. If a Kicksta-user avatar reappears in chrome, give it a distinct shape (e.g. `rounded-md` instead of `rounded-full`).
+4. **GrowthPlusBanner placement** — `src/components/GrowthPlusBanner.jsx` still exists but no page currently renders it. Decision deferred — either delete or find a home.
+5. **Onboarding / first-run thread** — three-screen modal explaining Targets → Engine → Engagement → Growth+. Targeting empty state should call out "Targets are where your follows come from."
+6. **Live "today" line on Engagement** — optional active-now signal below the all-time tiles.
+
+**Bulk-select polish items (deferred, low priority):**
+- Disabled Pause button is missing the `Tooltip` per spec ("Selected targets are already paused or depleted").
+- Action button `aria-label`s read "Pause 0 targets" when selection is empty; should singular/plural-ize.
+- Both new modals use `aria-label` on the dialog root rather than `aria-labelledby` pointing to the visible `<h2>` (consistent with existing `RemoveTargetModal` but `aria-labelledby` is stronger).
+- `TargetsHeroCard.totalCount` still uses `targets.length` (counts archived) for the slot display; could switch to `inRotationCount(targets)`.
+
+---
+
 ## Resume context (2026-05-18, end of session)
 
 **State of the working tree:** clean. All work committed and pushed to `origin/main`. No worktrees. **Deployed to `https://kicksta.vercel.app/`** via the GitHub remote (`origin = git@github.com:aleksandarstankovic-uiux/Kicksta.git`); auto-deploys on every push to `main`. Mac and any mobile session both pull `main` before starting work.

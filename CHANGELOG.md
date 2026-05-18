@@ -5,6 +5,51 @@
 
 ---
 
+## 2026-05-18 — Targets bulk-select
+
+Multi-row selection mode on the Targets list at `/targeting`. Pending-queue item #1 from the prior session, shipped end-to-end through the brainstorming → spec → plan → subagent-driven-development cycle.
+
+### Added
+- **Selection state on `useTargetsStore`** — `selectionMode: boolean`, `selection: Set<id>`, and five actions: `enterSelection`, `exitSelection`, `toggleSelect(id)`, `selectAllVisible(ids)`, `clearSelection`. Selection state is store-level so future surfaces (deep-links, cross-page bulk) wire in cleanly.
+- **`BulkActionBar`** (`src/pages/targeting/BulkActionBar.jsx`) — sticky toolbar with X (exit) + `aria-live` count + bucket-specific action buttons. Pure presentation; parent owns state.
+- **`BulkRemoveModal`** (`src/pages/targeting/BulkRemoveModal.jsx`) — "Archive N targets?" confirm. Body summarizes up to 3 handles inline; appends "and N more" past that. Primary CTA "Move N to Archive" (red), secondary "Keep them". Mirrors `RemoveTargetModal`'s mobile-bottom-sheet / desktop-centered pattern.
+- **`RestoreLimitModal`** (`src/pages/targeting/RestoreLimitModal.jsx`) — blocks bulk Restore when it would exceed the plan slot limit. Single dismiss ("Got it") returns to selection mode with selection intact; secondary CTA "Upgrade plan" navigates to `/account/billing`.
+- **`src/utils/targetSlots.js`** — `slotLimit()` + `inRotationCount(targets)` helpers, extracted from inline math in `TargetsHeroCard`. Single source of truth for plan-derived rotation capacity.
+- **Master tri-state checkbox** in the column header (only visible in selection mode). `aria-checked="true" | "mixed" | false` with the `Minus` icon for the partial state.
+- **Page-level Escape handler** in `TargetsTab` exits selection mode — gated to skip when a confirm modal is open (the modal owns Escape).
+
+### Changed
+- **`FilterRow`** gained a `Select` button (right side, hidden when the current bucket is empty). When `selectionMode === true`, the entire FilterRow returns `null` — `BulkActionBar` takes its vertical slot. Returning `null` (vs. disabling) eliminates lost-selection edge cases by construction.
+- **`TargetRow`** flips between `role="button"` (open drawer) and `role="checkbox"` (toggle selection) based on `selectionMode`. Right-edge chevron swaps for a checkbox affordance in selection mode; the whole row is the tap target. Selected row gets a `bg-blue-tint/30` tint.
+- **`TargetList`** owns the selection helpers (visible-ids, all/some-selected, master toggle) and `handlePause` (pauses each `active`/`queued` selected row, fires count-aware toast, exits). Bar renders as a sibling above the list `<section>` rather than inside it, so its `sticky top-0` actually sticks.
+- **`TargetsTab`** owns bulk Remove + Restore handlers, slot-limit pre-check, page-level Escape, and renders the two new modals alongside the existing drawers.
+- **`DashboardLayout`** — `<main>` swapped from `overflow-hidden` to `overflow-x-clip`. `overflow-hidden` was added previously to guard the Settings grid against horizontal mobile overflow; `overflow-x-clip` preserves that clip while allowing `position: sticky` descendants to function. Verified the Settings billing mobile overflow guard still holds.
+- **`TargetsHeroCard`** now imports `slotLimit()` from the new util instead of computing inline.
+
+### Decisions (locked, don't revisit)
+- **Bulk-select entry is an explicit "Select" toggle.** Not long-press (gesture conflicts with iOS) and not always-on checkboxes (visual noise + ambiguous tap target).
+- **Bar exposes Pause + Remove (Active) / Restore (Archived). No bulk Resume.** Paused→queued bulk transition wasn't worth the edge cases for V1; Resume stays per-row in the drawer.
+- **Bulk Remove always confirms via `BulkRemoveModal`.** Pause is no-confirm (reversible); Restore confirms only on slot-limit block (non-destructive otherwise).
+- **No hard-delete from Archive in V1.** Archive IS the undo path.
+- **No undo toast after Remove.** No project-wide undo pattern yet; restoring from the Archived bucket is the explicit path.
+- **No shift-click range select** (mobile-first; low utility).
+- **FilterRow hides entirely during selection mode** — not disabled. Filter/sort changes mid-selection introduce lost-selection edge cases; hiding eliminates them by construction.
+- **Selection state lives on the store, not on `TargetList`** — future surfaces (deep-link to "select these," cross-page bulk) wire trivially.
+- **Page-level Escape handler must be gated against open modals.** Without the gate, Esc on a confirm modal closes the modal AND silently exits selection — discarding the user's preserved selection.
+- **`overflow-x-clip` over `overflow-hidden` on `<main>`.** `overflow-hidden` creates a formatting context that breaks `position: sticky` descendants. `overflow-x-clip` keeps the horizontal mobile-overflow guard without that side effect.
+
+### Deferred (polish, low priority, flagged by final review)
+- Disabled Pause button is missing the `Tooltip` ("Selected targets are already paused or depleted").
+- Action button `aria-label`s read "Pause 0 targets" when selection is empty; should singular/plural-ize matching the toast vocabulary.
+- Both new modals use `aria-label` on the dialog root rather than `aria-labelledby` pointing to the visible `<h2>` (consistent with existing `RemoveTargetModal`, but `aria-labelledby` is stronger).
+- `TargetsHeroCard` still uses `targets.length` (counts archived) for the slot count display; could switch to `inRotationCount(targets)` now that the util exists.
+
+### Spec & plan
+- Spec: `docs/superpowers/specs/2026-05-18-targets-bulk-select-design.md`
+- Plan: `docs/superpowers/plans/2026-05-18-targets-bulk-select.md`
+
+---
+
 > **2026-05-18 session note:** end-of-session checkpoint after a multi-day push (commits span 2026-05-12 through 2026-05-14 date headers but the working session ran through 2026-05-18). Major arcs landed: subscription cancellation flow (main + Growth+), Overview snapshot split, Instagram Audit card, tinted header band across Overview, single-target processing model + tooltips, Engagement defaults-on + all-time stats, Settings billing card-with-chip-header layout, mobile-overflow fix on Settings grid track. Granular commits available in `git log`. See CONTEXT.md "Resume context (2026-05-18)" for the full state map.
 
 ## 2026-05-18 — Multi-arc session summary
