@@ -290,21 +290,16 @@ function StateBanner({ status, isProcessing, className = '' }) {
     archived: 'Archived',
   }
   const STATE_EXPLAIN = {
-    active:
-      'The engine processes one target at a time — this is the one being worked on now.',
-    queued:
-      'In rotation. Will run when the active target depletes or is paused.',
-    paused:
-      "Engine isn't running on this target. Resume it from below to put it back in the queue.",
-    depleted:
-      'All available followers from this target have been processed. Add a new target to keep growing.',
-    archived:
-      'Removed from rotation. Restore from the Archive tab to use it again.',
+    active: 'Being processed by the engine now.',
+    queued: 'Runs when the active target finishes.',
+    paused: 'Engine paused. Resume below.',
+    depleted: 'All followers processed. Add a new target.',
+    archived: 'Removed from rotation.',
   }
   const s = STATE_STYLES[status] ?? STATE_STYLES.paused
-  const label = isProcessing ? 'Following…' : STATE_LABEL[status]
+  const label = isProcessing ? 'Following' : STATE_LABEL[status]
   const explain = isProcessing
-    ? 'The engine just picked this target and is following a user right now.'
+    ? 'Picking a user from this target.'
     : STATE_EXPLAIN[status]
 
   return (
@@ -321,10 +316,13 @@ function StateBanner({ status, isProcessing, className = '' }) {
         )}
         <span className={`relative inline-block h-2 w-2 rounded-full ${s.dot}`} />
       </span>
-      <p className="min-w-0 flex-1 truncate text-xs leading-snug">
-        <span className={`font-semibold ${s.label}`}>{label}</span>
-        <span className="mx-1.5 text-text-muted">·</span>
-        <span className="text-text-secondary">{explain}</span>
+      <p className="flex min-w-0 flex-1 items-center gap-2 text-xs leading-snug">
+        <span className={`shrink-0 font-semibold ${s.label}`}>{label}</span>
+        <span
+          aria-hidden="true"
+          className="h-3 w-px shrink-0 bg-border"
+        />
+        <span className="min-w-0 flex-1 text-text-secondary">{explain}</span>
       </p>
     </section>
   )
