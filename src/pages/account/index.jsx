@@ -63,11 +63,11 @@ export default function AccountPage() {
         <SettingsTabs />
       </header>
 
-      <div className="mt-5 grid gap-6 lg:grid-cols-[200px_1fr]">
+      <div className="mt-5 grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
         <aside className="hidden lg:sticky lg:top-6 lg:block lg:self-start">
           <SettingsNav />
         </aside>
-        <section>{outlet}</section>
+        <section className="min-w-0">{outlet}</section>
       </div>
 
       <PasswordModal open={passwordOpen} onClose={() => setPasswordOpen(false)} />
