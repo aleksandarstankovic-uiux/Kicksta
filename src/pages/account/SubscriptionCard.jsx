@@ -14,7 +14,7 @@ export default function SubscriptionCard({ subscription }) {
   return (
     <Link
       to={`/account/subscriptions/${subscription.id}`}
-      className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:bg-bg md:gap-4 md:p-4"
+      className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:bg-bg md:items-center md:gap-4 md:p-4"
     >
       {profilePic ? (
         <img
@@ -34,14 +34,16 @@ export default function SubscriptionCard({ subscription }) {
             {pill.label}
           </span>
         </div>
-        <p className="mt-0.5 truncate text-xs text-text-secondary">
+        <p className="mt-0.5 text-xs text-text-secondary">
           {planLabel}
           {subscription.growthPlus ? ' · Growth+' : ''}
-          <span className="mx-1.5 text-text-muted">·</span>
-          ${subscription.nextBillingAmount} on {formatDate(subscription.nextBillingAt)}
+        </p>
+        <p className="mt-0.5 text-xs text-text-muted">
+          Next: ${subscription.nextBillingAmount} on{' '}
+          {formatDate(subscription.nextBillingAt)}
         </p>
       </div>
-      <ChevronRight className="h-5 w-5 shrink-0 text-text-muted" />
+      <ChevronRight className="mt-3 h-5 w-5 shrink-0 self-start text-text-muted md:mt-0 md:self-center" />
     </Link>
   )
 }

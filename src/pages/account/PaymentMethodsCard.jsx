@@ -33,9 +33,11 @@ export default function PaymentMethodsCard() {
           on the left, Add card pinned right. Matches the ProfilePanel
           card recipe one tab over so Settings reads as a coherent
           surface. */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <CardChip color="blue" icon={CreditCard} />
-        <h2 className="text-base font-semibold text-text-primary">Payment method</h2>
+        <h2 className="min-w-0 truncate text-base font-semibold text-text-primary">
+          Payment method
+        </h2>
         <InfoTooltip text="Cards on file for this account. The primary card is charged for every subscription." />
         <button
           onClick={openAdd}
