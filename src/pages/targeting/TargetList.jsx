@@ -7,6 +7,7 @@ import {
   filterTargets,
   sortTargets,
 } from '@/stores/useTargetsStore'
+import { useToasts } from '@/stores/useToasts'
 
 export default function TargetList({ onOpen, onBulkRemove, onBulkRestore }) {
   const targets = useTargetsStore((s) => s.targets)
@@ -58,24 +59,24 @@ export default function TargetList({ onOpen, onBulkRemove, onBulkRestore }) {
   )
 
   const handlePause = () => {
-    selectedTargets.forEach((t) => {
-      if (t.status === 'active' || t.status === 'queued') pauseTarget(t.id)
-    })
-    // Toast + exit handled here so the bar's onPause is a thin wrapper.
-    import('@/stores/useToasts').then(({ useToasts }) => {
-      const count = selectedTargets.filter(
-        (t) => t.status === 'active' || t.status === 'queued',
-      ).length
-      const message = count === 1
-        ? `${selectedTargets.find((t) => t.status === 'active' || t.status === 'queued').value} paused`
-        : `${count} targets paused`
-      useToasts.getState().addToast({ message, tone: 'success' })
-    })
+    const pausable = selectedTargets.filter(
+      (t) => t.status === 'active' || t.status === 'queued',
+    )
+    pausable.forEach((t) => pauseTarget(t.id))
+    const message =
+      pausable.length === 1
+        ? `${pausable[0].value} paused`
+        : `${pausable.length} targets paused`
+    useToasts.getState().addToast({ message, tone: 'success' })
     exitSelection()
   }
 
   return (
-    <section className="mt-4 overflow-hidden rounded-xl border border-border bg-surface">
+    <>
+      {/* BulkActionBar lives OUTSIDE the section so its `sticky top-0`
+          can actually stick — the section card has `overflow-hidden`
+          for row-clipping, which would create a scroll container that
+          breaks position:sticky. */}
       {selectionMode && (
         <BulkActionBar
           count={selectedCount}
@@ -88,6 +89,7 @@ export default function TargetList({ onOpen, onBulkRemove, onBulkRestore }) {
         />
       )}
 
+      <section className="mt-4 overflow-hidden rounded-xl border border-border bg-surface">
       <div className="flex items-center justify-between px-4 pt-4 pb-2 text-[11px] font-medium uppercase tracking-wide text-text-muted">
         <div className="flex items-center gap-3">
           {selectionMode && (
@@ -128,7 +130,8 @@ export default function TargetList({ onOpen, onBulkRemove, onBulkRestore }) {
           ))}
         </div>
       )}
-    </section>
+      </section>
+    </>
   )
 }
 

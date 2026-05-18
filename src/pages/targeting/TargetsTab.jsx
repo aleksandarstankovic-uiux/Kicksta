@@ -27,16 +27,20 @@ export default function TargetsTab() {
   const restoreTargetAction = useTargetsStore((s) => s.restoreTarget)
   const allTargets = useTargetsStore((s) => s.targets)
 
-  // Page-level Esc handler — exits selection when active. Modal-level
-  // Esc handlers already exist inside the modals themselves.
+  // Page-level Esc handler — exits selection when active AND no
+  // modal is open. Modal-level Esc handlers own the key when a modal
+  // is showing, so without this gate Escape on the modal would both
+  // close the modal AND silently exit selection (discarding the
+  // selection the user explicitly preserved by dismissing the modal).
   useEffect(() => {
     if (!selectionMode) return
+    if (bulkRemoveTargets || restoreLimitData) return
     function onKey(e) {
       if (e.key === 'Escape') exitSelection()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [selectionMode, exitSelection])
+  }, [selectionMode, exitSelection, bulkRemoveTargets, restoreLimitData])
 
   const handleBulkRemove = (targets) => {
     if (!targets || targets.length === 0) return

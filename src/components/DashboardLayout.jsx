@@ -344,7 +344,12 @@ export default function DashboardLayout() {
       </header>
 
       {/* Main content */}
-      <main className={cn('overflow-hidden pt-14 pb-20 transition-all duration-200 lg:pt-0 lg:pb-0', collapsed ? 'lg:pl-16' : 'lg:pl-60')}>
+      {/* overflow-x-clip (not overflow-hidden) so descendants with
+          position:sticky still work — overflow-hidden on the vertical
+          axis creates a formatting context that breaks sticky. The
+          horizontal clip is still needed to guard against the mobile
+          long-content overflow that the Settings grid surfaced. */}
+      <main className={cn('overflow-x-clip pt-14 pb-20 transition-all duration-200 lg:pt-0 lg:pb-0', collapsed ? 'lg:pl-16' : 'lg:pl-60')}>
         <Outlet />
       </main>
 
