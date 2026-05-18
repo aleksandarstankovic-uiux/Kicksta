@@ -57,7 +57,7 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
 
   if (!invoices || invoices.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border bg-surface p-8 text-center shadow-sm">
+      <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border p-8 text-center">
         <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg text-text-muted">
           <Receipt className="h-5 w-5" />
         </span>
@@ -75,7 +75,7 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
           description column has a fixed width via table-layout:auto
           + the inner <span> applying truncate, so long descriptions
           never push the row taller. */}
-      <div className="hidden overflow-hidden rounded-xl border border-border bg-surface shadow-sm md:block">
+      <div className="hidden overflow-hidden rounded-lg border border-border md:block">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-border bg-bg/40 text-xs uppercase tracking-wide text-text-secondary">
             <tr>
@@ -119,7 +119,7 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
           {sorted.map((inv) => (
             <li
               key={inv.id}
-              className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3 shadow-sm"
+              className="flex items-center gap-3 rounded-lg border border-border p-3"
             >
               <div className="min-w-0 flex-1">
                 <p

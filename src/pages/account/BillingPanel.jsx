@@ -28,7 +28,7 @@ export default function BillingPanel() {
           Add button routes to the same signup flow used by AccountSwitcher's
           "Add account" so adding a subscription from here connects a new IG
           account end-to-end. */}
-      <div className="flex flex-col gap-2 md:gap-3">
+      <section className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
         <div className="flex items-center gap-2">
           <CardChip color="blue" icon={Layers} />
           <h2 className="text-base font-semibold text-text-primary">Subscriptions</h2>
@@ -46,30 +46,32 @@ export default function BillingPanel() {
           </Link>
         </div>
         {subs.length === 0 ? (
-          <p className="text-sm text-text-secondary">
+          <p className="mt-4 text-sm text-text-secondary">
             No subscriptions yet — connect your first Instagram account to get started.
           </p>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="mt-4 flex flex-col gap-2">
             {subs.map((sub) => (
               <SubscriptionCard key={sub.id} subscription={sub} />
             ))}
           </div>
         )}
-      </div>
+      </section>
 
       {/* Billing history */}
-      <div className="flex flex-col gap-2 md:gap-3">
+      <section className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
         <div className="flex items-center gap-2">
           <CardChip color="neutral" icon={Receipt} />
           <h2 className="text-base font-semibold text-text-primary">Billing history</h2>
           <InfoTooltip text="Every charge across every subscription on this account, newest first." />
         </div>
-        <InvoicesTable
-          invoices={mockInvoices}
-          emptyMessage="No invoices yet — your first charge will appear here after your trial ends."
-        />
-      </div>
+        <div className="mt-4">
+          <InvoicesTable
+            invoices={mockInvoices}
+            emptyMessage="No invoices yet — your first charge will appear here after your trial ends."
+          />
+        </div>
+      </section>
 
     </div>
   )

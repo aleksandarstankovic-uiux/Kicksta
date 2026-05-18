@@ -14,40 +14,34 @@ export default function SubscriptionCard({ subscription }) {
   return (
     <Link
       to={`/account/subscriptions/${subscription.id}`}
-      className="block rounded-xl border border-border bg-surface p-4 shadow-sm transition-shadow hover:shadow-md md:p-6"
+      className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:bg-bg md:gap-4 md:p-4"
     >
-      <div className="flex items-start gap-3">
-        {profilePic ? (
-          <img
-            src={profilePic}
-            alt=""
-            className="h-10 w-10 shrink-0 rounded-full object-cover"
-          />
-        ) : (
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-tint text-sm font-semibold text-blue-text">
-            {letterFor(username)}
+      {profilePic ? (
+        <img
+          src={profilePic}
+          alt=""
+          className="h-10 w-10 shrink-0 rounded-full object-cover"
+        />
+      ) : (
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-tint text-sm font-semibold text-blue-text">
+          {letterFor(username)}
+        </span>
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="truncate text-sm font-semibold text-text-primary">{username}</p>
+          <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${pill.cls}`}>
+            {pill.label}
           </span>
-        )}
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-semibold text-text-primary">{username}</p>
-            <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${pill.cls}`}>
-              {pill.label}
-            </span>
-          </div>
-          <p className="mt-0.5 text-xs text-text-secondary">
-            {planLabel}
-            {subscription.growthPlus ? ' · Growth+' : ''}
-          </p>
-          <p className="mt-2 text-xs text-text-secondary">
-            Next billing:{' '}
-            <span className="text-text-primary">
-              ${subscription.nextBillingAmount} on {formatDate(subscription.nextBillingAt)}
-            </span>
-          </p>
         </div>
-        <ChevronRight className="h-5 w-5 shrink-0 self-center text-text-muted" />
+        <p className="mt-0.5 truncate text-xs text-text-secondary">
+          {planLabel}
+          {subscription.growthPlus ? ' · Growth+' : ''}
+          <span className="mx-1.5 text-text-muted">·</span>
+          ${subscription.nextBillingAmount} on {formatDate(subscription.nextBillingAt)}
+        </p>
       </div>
+      <ChevronRight className="h-5 w-5 shrink-0 text-text-muted" />
     </Link>
   )
 }
