@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { CreditCard, Plus, MoreHorizontal, Star, Pencil, Trash2 } from 'lucide-react'
 import CardChip from '@/components/CardChip'
+import CardBrandIcon from '@/components/CardBrandIcon'
 import InfoTooltip from '@/components/InfoTooltip'
 import { usePaymentMethods } from '@/stores/usePaymentMethods'
 import EditPaymentModal from './EditPaymentModal'
@@ -49,7 +50,7 @@ export default function PaymentMethodsCard() {
         </button>
       </div>
 
-      <ul className="mt-4 flex flex-col gap-2">
+      <ul className="mt-4 flex flex-col">
         {cards.map((card) => (
           <CardRow
             key={card.id}
@@ -82,19 +83,18 @@ function CardRow({ card, onEdit, onSetPrimary, onRemove }) {
     return () => document.removeEventListener('mousedown', onClick)
   }, [menuOpen])
 
-  // Primary card is visually distinct: blue border + tint background
-  // + filled blue chip. Secondary cards use the default border/surface.
-  const rowCls = card.primary
-    ? 'border-blue-base bg-blue-tint/40 shadow-sm'
-    : 'border-border bg-surface'
-  const chipCls = card.primary
+  const isPrimary = card.primary
+  const rowCls = isPrimary
+    ? 'rounded-lg border border-blue-base bg-blue-tint/40 shadow-sm p-3 mb-1'
+    : 'py-3 border-b border-border last:border-b-0 last:pb-0'
+  const chipCls = isPrimary
     ? 'bg-blue-base text-white'
-    : 'bg-blue-tint text-blue-text'
+    : 'bg-bg text-text-secondary'
 
   return (
-    <li className={`flex items-center gap-3 rounded-lg border p-3 ${rowCls}`}>
+    <li className={`flex items-center gap-3 ${rowCls}`}>
       <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${chipCls}`}>
-        <CreditCard className="h-5 w-5" />
+        <CardBrandIcon brand={card.brand} className="h-5 w-5" />
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex flex-wrap items-center gap-2">

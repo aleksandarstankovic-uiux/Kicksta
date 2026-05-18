@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Layers, Plus, Receipt } from 'lucide-react'
+import { Clock, Layers, Plus } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 import { useSubscriptions } from '@/stores/useSubscriptions'
@@ -50,7 +50,7 @@ export default function BillingPanel() {
             No subscriptions yet — connect your first Instagram account to get started.
           </p>
         ) : (
-          <div className="mt-4 flex flex-col gap-2">
+          <div className="mt-4 flex flex-col">
             {subs.map((sub) => (
               <SubscriptionCard key={sub.id} subscription={sub} />
             ))}
@@ -61,7 +61,7 @@ export default function BillingPanel() {
       {/* Billing history */}
       <section className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
         <div className="flex flex-wrap items-center gap-2">
-          <CardChip color="neutral" icon={Receipt} />
+          <CardChip color="neutral" icon={Clock} />
           <h2 className="text-base font-semibold text-text-primary">Billing history</h2>
           <InfoTooltip text="Every charge across every subscription on this account, newest first." />
         </div>

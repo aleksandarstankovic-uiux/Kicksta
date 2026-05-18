@@ -14,7 +14,7 @@ export default function SubscriptionCard({ subscription }) {
   return (
     <Link
       to={`/account/subscriptions/${subscription.id}`}
-      className="flex items-start gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:bg-bg md:items-center md:gap-4 md:p-4"
+      className="flex items-start gap-3 border-b border-border py-3 transition-colors first:pt-0 last:border-b-0 last:pb-0 hover:bg-bg/50 md:items-center md:gap-4"
     >
       {profilePic ? (
         <img
