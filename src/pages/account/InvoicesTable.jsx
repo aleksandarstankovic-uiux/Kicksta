@@ -110,16 +110,13 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
         </table>
       </div>
 
-      {/* Mobile: each invoice is its own card. Heading is the plan
-          + account (description); metadata (date, amount, status,
-          download) lives below. Reads as a real record — plan first,
-          numbers second. */}
+      {/* Mobile: simple rows separated by dividers — no per-row cards. */}
       <div className="max-h-[480px] overflow-y-auto pr-1 md:hidden">
-        <ul className="flex flex-col gap-3">
+        <ul className="flex flex-col">
           {sorted.map((inv) => (
             <li
               key={inv.id}
-              className="flex items-center gap-3 rounded-lg border border-border p-3"
+              className="flex items-center gap-3 border-b border-border py-3 first:pt-0 last:border-b-0 last:pb-0"
             >
               <div className="min-w-0 flex-1">
                 <p

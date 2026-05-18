@@ -14,6 +14,15 @@ export const mockPaymentMethods = [
   },
   {
     id: 'pm_002',
+    brand: 'mastercard',
+    last4: '5100',
+    expMonth: 11,
+    expYear: 2027,
+    primary: false,
+    billingEmail: 'alex@example.com',
+  },
+  {
+    id: 'pm_003',
     brand: 'amex',
     last4: '8888',
     expMonth: 3,
