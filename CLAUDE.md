@@ -11,6 +11,16 @@
 
 ---
 
+## Review Cadence
+
+**No per-task reviews.** Implement tasks back-to-back. Run ONE comprehensive review at the end of a batch of tasks, before pushing.
+
+This overrides any sub-skill (including `superpowers:subagent-driven-development`) that prescribes per-task spec/code reviews. Per-task reviews of paste-from-plan work produce no value and ~5× the wall-clock time. The end-of-batch review is what catches real bugs (architectural issues, integration problems, cross-component coupling) — front-loading reviews per task does not.
+
+If a task is genuinely high-risk (e.g. touches auth, billing, schema migrations, or destructive actions), call it out and review that specific task inline. Default is batch-and-review-at-end.
+
+---
+
 ## V1 Scope
 
 **Frontend only.** No backend, no API integration. All data is mocked with realistic placeholders defined in `src/mocks/`. Build every component, page, and flow as if real data were connected — the switch to live data should require only replacing imports, not restructuring components.
