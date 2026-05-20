@@ -248,8 +248,16 @@ export default function BlacklistModal({ open, onClose }) {
             )}
             {draft.map((e) => (
               <div key={e.id} className="flex items-center gap-3 py-2.5">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg text-xs font-semibold text-text-secondary">
-                  {letterFor(e.username)}
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-xs font-semibold text-text-secondary">
+                  {e.profilePic ? (
+                    <img
+                      src={e.profilePic}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    letterFor(e.username)
+                  )}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm text-text-primary">
                   {e.username}
