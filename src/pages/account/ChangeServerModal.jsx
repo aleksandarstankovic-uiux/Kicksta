@@ -93,14 +93,9 @@ export default function ChangeServerModal({ open, subscription, onClose }) {
         </div>
 
         <div className="px-5 pb-5 pt-4">
-          <p className="text-xs leading-relaxed text-text-muted">
-            Closer servers improve growth speed and Instagram safety
-            limits.
-          </p>
-
           <label
             htmlFor="server-country"
-            className="mt-4 block text-xs font-medium text-text-secondary"
+            className="block text-xs font-medium text-text-secondary"
           >
             Country
           </label>

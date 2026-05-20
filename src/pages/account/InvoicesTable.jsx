@@ -71,29 +71,35 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
 
   return (
     <>
-      {/* Desktop: real table inside a single bordered shell. The
-          description column has a fixed width via table-layout:auto
-          + the inner <span> applying truncate, so long descriptions
-          never push the row taller. */}
+      {/* Desktop: real table. Description column uses table-layout
+          tricks (max-w-0 on the <td>) so its truncate kicks in based
+          on remaining table width — not an arbitrary character cap.
+          The other columns stay whitespace-nowrap to keep their full
+          values legible. */}
       <div className="hidden overflow-hidden rounded-lg border border-border md:block">
-        <table className="w-full text-left text-sm">
+        <table className="w-full table-fixed text-left text-sm">
+          <colgroup>
+            <col className="w-32" />
+            <col />
+            <col className="w-24" />
+            <col className="w-28" />
+            <col className="w-20" />
+          </colgroup>
           <thead className="border-b border-border bg-bg/40 text-xs uppercase tracking-wide text-text-secondary">
             <tr>
               <th className="whitespace-nowrap px-4 py-3 font-medium">Date</th>
-              <th className="w-full px-4 py-3 font-medium">Description</th>
+              <th className="px-4 py-3 font-medium">Description</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">Amount</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">Status</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Action</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">Action</th>
             </tr>
           </thead>
           <tbody>
             {sorted.map((inv) => (
               <tr key={inv.id} className="border-b border-border last:border-b-0">
                 <td className="whitespace-nowrap px-4 py-3 text-text-primary">{formatDate(inv.date)}</td>
-                <td className="px-4 py-3 text-text-secondary">
-                  <span className="block max-w-[28ch] truncate" title={inv.description}>
-                    {inv.description}
-                  </span>
+                <td className="truncate px-4 py-3 text-text-secondary" title={inv.description}>
+                  {inv.description}
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 font-medium text-text-primary">
                   ${inv.amount.toFixed(2)}
@@ -110,35 +116,38 @@ export default function InvoicesTable({ invoices, emptyMessage = 'No invoices ye
         </table>
       </div>
 
-      {/* Mobile: simple rows separated by dividers — no per-row cards. */}
-      <div className="max-h-[480px] overflow-y-auto pr-1 md:hidden">
-        <ul className="flex flex-col">
-          {sorted.map((inv) => (
-            <li
-              key={inv.id}
-              className="flex items-center gap-3 border-b border-border py-3 first:pt-0 last:border-b-0 last:pb-0"
-            >
-              <div className="min-w-0 flex-1">
-                <p
-                  className="truncate text-sm font-semibold text-text-primary"
-                  title={inv.description}
-                >
-                  {inv.description}
+      {/* Mobile: date-led rows, amount + status anchored right. Mirrors
+          the desktop column order (Date → Description → Amount/Status)
+          so the user reads the same identity at every breakpoint. */}
+      <ul className="flex flex-col md:hidden">
+        {sorted.map((inv) => (
+          <li
+            key={inv.id}
+            className="flex items-start gap-3 border-b border-border py-4 first:pt-0 last:border-b-0 last:pb-0"
+          >
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <p className="text-sm font-semibold text-text-primary">
+                  {formatDate(inv.date)}
                 </p>
-                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-secondary">
-                  <span>{formatDate(inv.date)}</span>
-                  <span aria-hidden="true">·</span>
-                  <span className="font-medium text-text-primary">
-                    ${inv.amount.toFixed(2)}
-                  </span>
-                  <StatusPill status={inv.status} />
-                </div>
+                <StatusPill status={inv.status} />
               </div>
+              <p
+                className="mt-1 truncate text-xs text-text-secondary"
+                title={inv.description}
+              >
+                {inv.description}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              <p className="text-sm font-semibold text-text-primary">
+                ${inv.amount.toFixed(2)}
+              </p>
               <DownloadButton onClick={handleDownload} />
-            </li>
-          ))}
-        </ul>
-      </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </>
   )
 }

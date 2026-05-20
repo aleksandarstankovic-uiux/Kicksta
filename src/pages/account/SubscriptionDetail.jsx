@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Clock } from 'lucide-react'
+import CardChip from '@/components/CardChip'
+import InfoTooltip from '@/components/InfoTooltip'
 import { useSubscriptions } from '@/stores/useSubscriptions'
 import { useAccounts } from '@/stores/useAccounts'
 import { invoicesForSubscription } from '@/mocks/invoices'
 import PlanCard from './PlanCard'
 import InvoicesTable from './InvoicesTable'
 import CancelSubscriptionModal from './CancelSubscriptionModal'
+import PayOverdueModal from './PayOverdueModal'
 import ServerCard from './ServerCard'
 import SubscriptionStateBanner from './SubscriptionStateBanner'
 import { STATUS_PILL, letterFor } from './subscriptionShared'
@@ -18,6 +21,7 @@ export default function SubscriptionDetail() {
   const resume = useSubscriptions((s) => s.resume)
   const payOverdue = useSubscriptions((s) => s.payOverdue)
   const [cancelOpen, setCancelOpen] = useState(false)
+  const [payOpen, setPayOpen] = useState(false)
 
   if (!sub) return <Navigate to="/account/billing" replace />
 
@@ -61,19 +65,28 @@ export default function SubscriptionDetail() {
           <SubscriptionStateBanner
             subscription={sub}
             onResume={() => resume(sub.id)}
-            onPayOverdue={() => payOverdue(sub.id)}
+            onPayOverdue={() => setPayOpen(true)}
           />
         )}
         <PlanCard subscription={sub} />
         <ServerCard subscription={sub} />
 
-        <div className="flex flex-col gap-3">
-          <h2 className="text-base font-semibold text-text-primary">Invoices</h2>
-          <InvoicesTable
-            invoices={invoices}
-            emptyMessage="No invoices yet for this subscription."
-          />
-        </div>
+        {/* Invoices live inside the same surface treatment as the rest
+            of the detail page (PlanCard, ServerCard). Without the card
+            shell the table read as floating against the page bg. */}
+        <section className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <CardChip color="neutral" icon={Clock} />
+            <h2 className="text-base font-semibold text-text-primary">Invoices</h2>
+            <InfoTooltip text="Every charge on this subscription, newest first." />
+          </div>
+          <div className="mt-4">
+            <InvoicesTable
+              invoices={invoices}
+              emptyMessage="No invoices yet for this subscription."
+            />
+          </div>
+        </section>
 
         {!isOnHold && (
           <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border bg-bg p-4 md:flex-row md:items-center md:justify-between md:p-6">
@@ -99,6 +112,16 @@ export default function SubscriptionDetail() {
         open={cancelOpen}
         subscription={sub}
         onClose={() => setCancelOpen(false)}
+      />
+
+      <PayOverdueModal
+        open={payOpen}
+        subscription={sub}
+        onClose={() => setPayOpen(false)}
+        onConfirm={() => {
+          payOverdue(sub.id)
+          setPayOpen(false)
+        }}
       />
     </div>
   )

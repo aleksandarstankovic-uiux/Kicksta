@@ -120,7 +120,7 @@ export default function CancelGrowthPlusModal({
         if (e.target === e.currentTarget && step !== 'processing') onClose?.()
       }}
     >
-      <div className="w-full rounded-t-2xl bg-surface shadow-xl lg:mx-4 lg:max-w-md lg:rounded-2xl">
+      <div className="w-full rounded-t-2xl border border-border bg-surface shadow-xl lg:mx-4 lg:max-w-md lg:rounded-2xl">
         <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <CardChip color="red" icon={AlertTriangle} />

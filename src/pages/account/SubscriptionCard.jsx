@@ -72,16 +72,16 @@ export default function SubscriptionCard({ subscription }) {
   return (
     <Link
       to={`/account/subscriptions/${subscription.id}`}
-      className="flex items-start gap-3 border-b border-border py-3 transition-colors first:pt-0 last:border-b-0 last:pb-0 hover:bg-bg/50 md:items-center md:gap-4"
+      className="flex items-center gap-4 border-b border-border py-4 transition-colors first:pt-0 last:border-b-0 last:pb-0 hover:bg-bg/50"
     >
       {profilePic ? (
         <img
           src={profilePic}
           alt=""
-          className="h-10 w-10 shrink-0 rounded-full object-cover"
+          className="h-11 w-11 shrink-0 rounded-full object-cover"
         />
       ) : (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-tint text-sm font-semibold text-blue-text">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-tint text-sm font-semibold text-blue-text">
           {letterFor(username)}
         </span>
       )}
@@ -92,13 +92,13 @@ export default function SubscriptionCard({ subscription }) {
             {pill.label}
           </span>
         </div>
-        <p className="mt-0.5 text-xs text-text-secondary">
+        <p className="mt-1 text-xs text-text-secondary">
           {planLabel}
           {subscription.growthPlus ? ' · Growth+' : ''}
         </p>
         <BillingLine subscription={subscription} />
       </div>
-      <ChevronRight className="mt-3 h-5 w-5 shrink-0 self-start text-text-muted md:mt-0 md:self-center" />
+      <ChevronRight className="h-5 w-5 shrink-0 text-text-muted" />
     </Link>
   )
 }

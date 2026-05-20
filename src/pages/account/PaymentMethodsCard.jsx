@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
-import { CreditCard, Plus, MoreHorizontal, Star, Pencil, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { CreditCard, Plus, MoreHorizontal, Star, Pencil, Trash2, X } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import CardBrandIcon from '@/components/CardBrandIcon'
 import InfoTooltip from '@/components/InfoTooltip'
@@ -17,6 +18,7 @@ export default function PaymentMethodsCard() {
 
   const [modalCardId, setModalCardId] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const [actionsCardId, setActionsCardId] = useState(null)
 
   function openEdit(id) {
     setModalCardId(id)
@@ -27,6 +29,10 @@ export default function PaymentMethodsCard() {
     setModalCardId(null)
     setModalOpen(true)
   }
+
+  const actionsCard = actionsCardId
+    ? cards.find((c) => c.id === actionsCardId)
+    : null
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
@@ -55,9 +61,7 @@ export default function PaymentMethodsCard() {
           <CardRow
             key={card.id}
             card={card}
-            onEdit={() => openEdit(card.id)}
-            onSetPrimary={() => setPrimary(card.id)}
-            onRemove={() => removeCard(card.id)}
+            onOpenActions={() => setActionsCardId(card.id)}
           />
         ))}
       </ul>
@@ -67,22 +71,19 @@ export default function PaymentMethodsCard() {
         cardId={modalCardId}
         onClose={() => setModalOpen(false)}
       />
+
+      <CardActionsSheet
+        card={actionsCard}
+        onClose={() => setActionsCardId(null)}
+        onSetPrimary={() => setPrimary(actionsCardId)}
+        onEdit={() => openEdit(actionsCardId)}
+        onRemove={() => removeCard(actionsCardId)}
+      />
     </section>
   )
 }
 
-function CardRow({ card, onEdit, onSetPrimary, onRemove }) {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const ref = useRef(null)
-
-  useEffect(() => {
-    function onClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) setMenuOpen(false)
-    }
-    if (menuOpen) document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
-  }, [menuOpen])
-
+function CardRow({ card, onOpenActions }) {
   const isPrimary = card.primary
   const rowCls = isPrimary
     ? 'rounded-lg border border-blue-base bg-blue-tint/40 shadow-sm p-3 mb-1'
@@ -111,50 +112,119 @@ function CardRow({ card, onEdit, onSetPrimary, onRemove }) {
           Expires {String(card.expMonth).padStart(2, '0')}/{card.expYear}
         </p>
       </div>
-      <div ref={ref} className="relative">
-        <button
-          onClick={() => setMenuOpen((v) => !v)}
-          className="flex h-10 w-10 items-center justify-center rounded-md text-text-muted hover:bg-bg hover:text-text-primary"
-          aria-label={`Actions for ${brandLabel(card.brand)} ending in ${card.last4}`}
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </button>
-        {menuOpen && (
-          <div className="absolute right-0 top-11 z-20 w-48 rounded-lg border border-border bg-surface shadow-lg">
-            {!card.primary && (
-              <button
-                onClick={() => {
-                  setMenuOpen(false)
-                  onSetPrimary()
-                }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-bg"
-              >
-                <Star className="h-4 w-4" /> Set as primary
-              </button>
-            )}
+      <button
+        onClick={onOpenActions}
+        className="flex h-10 w-10 items-center justify-center rounded-md text-text-muted hover:bg-bg hover:text-text-primary"
+        aria-label={`Actions for ${brandLabel(card.brand)} ending in ${card.last4}`}
+      >
+        <MoreHorizontal className="h-4 w-4" />
+      </button>
+    </li>
+  )
+}
+
+// Card-actions sheet. Bottom drawer on mobile, centered modal on
+// desktop — same shell as EditPaymentModal so the two share visual
+// identity. Header repeats the card identity so the user sees which
+// card they're acting on (the original inline dropdown didn't).
+function CardActionsSheet({ card, onClose, onSetPrimary, onEdit, onRemove }) {
+  const open = !!card
+
+  useEffect(() => {
+    if (!open) return
+    function onKey(e) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
+  if (!open) return null
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 lg:items-center lg:p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div className="w-full overflow-hidden rounded-t-2xl border border-border bg-surface pb-[calc(env(safe-area-inset-bottom))] shadow-xl lg:max-w-sm lg:rounded-2xl lg:pb-0">
+        {/* Header — card preview + close. The preview matches the
+            visual identity of the row itself, so it's obvious which
+            card the actions apply to. */}
+        <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bg text-text-secondary">
+            <CardBrandIcon brand={card.brand} className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-semibold text-text-primary">
+                {brandLabel(card.brand)} ending in {card.last4}
+              </p>
+              {card.primary && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-base px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                  <Star className="h-3 w-3" aria-hidden="true" /> Primary
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-text-secondary">
+              Expires {String(card.expMonth).padStart(2, '0')}/{card.expYear}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-text-muted hover:bg-bg hover:text-text-primary"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Action list — tall enough for thumb targets. Set as primary
+            and Remove only render when applicable (primary can't be
+            removed, and is already primary so can't be set again). */}
+        <div className="flex flex-col py-2">
+          {!card.primary && (
             <button
+              type="button"
               onClick={() => {
-                setMenuOpen(false)
-                onEdit()
+                onClose()
+                onSetPrimary()
               }}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-bg"
+              className="flex h-12 w-full items-center gap-3 px-5 text-left text-sm font-medium text-text-primary hover:bg-bg"
             >
-              <Pencil className="h-4 w-4" /> Edit
+              <Star className="h-4 w-4 text-text-secondary" />
+              Set as primary
             </button>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              onClose()
+              onEdit()
+            }}
+            className="flex h-12 w-full items-center gap-3 px-5 text-left text-sm font-medium text-text-primary hover:bg-bg"
+          >
+            <Pencil className="h-4 w-4 text-text-secondary" />
+            Edit
+          </button>
+          {!card.primary && (
             <button
+              type="button"
               onClick={() => {
-                setMenuOpen(false)
+                onClose()
                 onRemove()
               }}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-text hover:bg-red-tint"
+              className="flex h-12 w-full items-center gap-3 px-5 text-left text-sm font-medium text-red-text hover:bg-red-tint"
             >
-              <Trash2 className="h-4 w-4" /> Remove
+              <Trash2 className="h-4 w-4" />
+              Remove
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </li>
+    </div>,
+    document.body,
   )
 }
