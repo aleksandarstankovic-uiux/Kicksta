@@ -1677,29 +1677,38 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Bottom block — single 2-col grid that owns the Audit/G+
-            row AND the Targets / Settings / Engagement block underneath.
-            Each column is a flex stack: the top card (Audit / G+)
-            takes its natural height so the two are not coupled —
-            generating an audit doesn't force G+ to grow. The bottom
-            card in each column (TargetsOverview on the left,
-            EngagementSnapshot on the right) flex-grows to fill any
-            remaining vertical space so the two columns end at the
-            same Y position — the dashboard's bottom stays aligned. */}
-        <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+        {/* Bottom block — single 2-col grid on lg:+ that owns the
+            Audit/G+ row AND the Targets / Settings / Engagement block.
+            Each grid cell is a `contents` wrapper on mobile (so its
+            children become direct grid children and stack in the
+            correct mobile order via `order-*` classes) and a real
+            flex column on lg:+ (so each column lays out as Audit→TO
+            on the left and G+→TS→ES on the right, with the bottom
+            card flex-growing to keep the dashboard's bottom aligned).
+            Mobile order: Audit → G+ → TargetsOverview → TargetingSettings
+            → EngagementSnapshot. Desktop: 2 columns, Audit and G+ each
+            take their natural height because they're not in the same
+            grid row anymore. */}
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-stretch">
           {/* Left column */}
-          <div className="flex flex-col gap-4">
-            <InstagramAuditCard />
-            <div className="flex flex-1 flex-col">
+          <div className="contents lg:flex lg:flex-col lg:gap-4">
+            <div className="order-1 lg:order-none">
+              <InstagramAuditCard />
+            </div>
+            <div className="order-3 flex flex-col lg:order-none lg:flex-1">
               <TargetsOverview plan={user.plan} />
             </div>
           </div>
 
           {/* Right column */}
-          <div className="flex flex-col gap-4">
-            <GrowthPlusOverviewCard user={user} />
-            <TargetingSettingsSnapshot />
-            <div className="flex flex-1 flex-col">
+          <div className="contents lg:flex lg:flex-col lg:gap-4">
+            <div className="order-2 lg:order-none">
+              <GrowthPlusOverviewCard user={user} />
+            </div>
+            <div className="order-4 lg:order-none">
+              <TargetingSettingsSnapshot />
+            </div>
+            <div className="order-5 flex flex-col lg:order-none lg:flex-1">
               <EngagementSnapshot />
             </div>
           </div>
