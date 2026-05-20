@@ -33,7 +33,7 @@ export const mockInvoices = [
   {
     id: 'inv_004',
     subscriptionId: 'sub_003',
-    date: '2026-04-15T00:00:00Z',
+    date: '2026-05-01T00:00:00Z',
     amount: 49,
     description: 'Advanced plan — @fitclub.brand',
     status: 'failed',
@@ -42,16 +42,16 @@ export const mockInvoices = [
   {
     id: 'inv_005',
     subscriptionId: 'sub_003',
-    date: '2026-03-15T00:00:00Z',
+    date: '2026-04-15T00:00:00Z',
     amount: 49,
     description: 'Advanced plan — @fitclub.brand',
-    status: 'paid',
+    status: 'failed',
     pdfUrl: null,
   },
   {
     id: 'inv_006',
     subscriptionId: 'sub_003',
-    date: '2026-02-15T00:00:00Z',
+    date: '2026-03-15T00:00:00Z',
     amount: 49,
     description: 'Advanced plan — @fitclub.brand',
     status: 'paid',
@@ -60,7 +60,7 @@ export const mockInvoices = [
   {
     id: 'inv_007',
     subscriptionId: 'sub_002',
-    date: '2026-05-10T00:00:00Z',
+    date: '2026-05-20T00:00:00Z',
     amount: 29,
     description: 'Growth plan — @alex.personal',
     status: 'pending',

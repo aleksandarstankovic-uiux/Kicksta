@@ -37,12 +37,12 @@ export default function PaymentMethodsCard() {
       <div className="flex flex-wrap items-center gap-2">
         <CardChip color="blue" icon={CreditCard} />
         <h2 className="min-w-0 truncate text-base font-semibold text-text-primary">
-          Payment method
+          Payment methods
         </h2>
         <InfoTooltip text="Cards on file for this account. The primary card is charged for every subscription." />
         <button
           onClick={openAdd}
-          aria-label="Add payment method"
+          aria-label="Add card"
           className="ml-auto inline-flex h-10 shrink-0 items-center gap-1 rounded-lg border border-border bg-surface px-3 text-sm font-medium text-text-primary hover:bg-bg"
         >
           <Plus className="h-4 w-4" />
@@ -115,7 +115,9 @@ function CardRow({ card, onEdit, onSetPrimary, onRemove }) {
         <button
           onClick={() => setMenuOpen((v) => !v)}
           className="flex h-10 w-10 items-center justify-center rounded-md text-text-muted hover:bg-bg hover:text-text-primary"
-          aria-label="Card actions"
+          aria-label={`Actions for ${brandLabel(card.brand)} ending in ${card.last4}`}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
         >
           <MoreHorizontal className="h-4 w-4" />
         </button>

@@ -46,7 +46,7 @@ export const mockSubscriptions = [
     server: 'us-lax',
     status: 'past_due',
     trialEndsAt: null,
-    nextBillingAt: '2026-05-01T00:00:00Z',
+    nextBillingAt: '2026-05-25T00:00:00Z',
     nextBillingAmount: 49,
     startedAt: '2026-02-10T00:00:00Z',
     pauseUntil: null,
