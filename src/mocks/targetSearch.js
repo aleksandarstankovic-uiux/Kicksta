@@ -50,6 +50,14 @@ function normalize(q) {
   return String(q || '').replace(/^[@#]/, '').trim().toLowerCase()
 }
 
+// Stamps a deterministic Pravatar URL on every account match so the
+// typeahead dropdown + downstream list entries (whitelist / blacklist)
+// have a real PFP. Production swaps these for the real IG profile pic
+// from the resolved-handle API.
+function withAvatar(a) {
+  return { ...a, profilePic: `https://i.pravatar.cc/80?u=${a.username}` }
+}
+
 // Returns up to 5 matches. Prefers startsWith results, falls back to
 // includes for broader discovery.
 export async function searchTargets(query, type) {
@@ -67,7 +75,7 @@ export async function searchTargets(query, type) {
   const includes = ACCOUNTS.filter(
     (a) => !a.username.startsWith(q) && a.username.includes(q)
   )
-  return [...starts, ...includes].slice(0, 5)
+  return [...starts, ...includes].slice(0, 5).map(withAvatar)
 }
 
 // Compatibility wrapper: exact lookup for a single username.
@@ -76,5 +84,5 @@ export async function mockResolveAccount(rawUsername) {
   await delay(200 + Math.random() * 200)
   if (!q) return null
   const hit = ACCOUNTS.find((a) => a.username === q)
-  return hit ? { ...hit } : null
+  return hit ? withAvatar(hit) : null
 }

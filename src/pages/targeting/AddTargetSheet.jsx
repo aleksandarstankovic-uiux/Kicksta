@@ -495,7 +495,7 @@ export default function AddTargetSheet({ open, onClose }) {
             disabled={!canSubmit}
             className="inline-flex h-12 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Add target
+            Add source
           </button>
         </div>
       </div>

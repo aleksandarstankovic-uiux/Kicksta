@@ -13,7 +13,7 @@ import SettingsTab from './SettingsTab'
 // reserved for page-level switchers so it can't be confused with
 // `bg-blue-tint` (sidebar nav) or `bg-blue-base` (primary CTAs).
 const TABS = [
-  { value: 'targets', label: 'Targets', icon: Crosshair },
+  { value: 'targets', label: 'Sources', icon: Crosshair },
   { value: 'settings', label: 'Settings', icon: SlidersHorizontal },
 ]
 

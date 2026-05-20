@@ -90,8 +90,15 @@ export default function BlacklistModal({ open, onClose }) {
     }
     // Newest entries appear at the top of the list — same convention as
     // the page-level cards so the user immediately sees what they just added.
+    // Carry the matched profilePic forward so the page-level BlacklistCard
+    // shows the real avatar, not the letter fallback.
     setDraft((prev) => [
-      { id: newId(), username, addedAt: new Date().toISOString() },
+      {
+        id: newId(),
+        username,
+        addedAt: new Date().toISOString(),
+        profilePic: pickedMatch.profilePic ?? null,
+      },
       ...prev,
     ])
     setInput('')
@@ -187,7 +194,15 @@ export default function BlacklistModal({ open, onClose }) {
                       className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-bg"
                     >
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-xs font-semibold text-text-secondary">
-                        {letter}
+                        {m.profilePic ? (
+                          <img
+                            src={m.profilePic}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          letter
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-medium text-text-primary">

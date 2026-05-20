@@ -42,7 +42,7 @@ export default function TargetsHeroCard({ onAddTarget }) {
           className="inline-flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-base px-5 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90 sm:w-auto"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />
-          Add target
+          Add source
         </button>
       </div>
     </section>

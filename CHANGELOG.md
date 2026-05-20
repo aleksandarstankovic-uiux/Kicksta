@@ -5,6 +5,47 @@
 
 ---
 
+## 2026-05-20 — Targets bulk-select polish + Overview restructure
+
+Two areas in one session. First, restyled the Targets bulk-select to match the dashboard's pill language and moved the per-row checkboxes from the right edge to the left. Second, a large Overview pass: a pause-growth confirmation modal, audit card turned into a state-aware data surface, a new Growth+ overview card with subscribed/upsell states, and a refactor of the bottom block so Audit + G+ live in a 2-col row paired with Targets + Settings/Engagement with the dashboard's bottom kept aligned.
+
+### Added
+- **`src/pages/overview/PauseGrowthModal.jsx`** — bottom-sheet/modal confirming intent before pausing growth. Body explains that all engine activity stops and the system needs a short warm-up window on resume. Primary button uses the action name ("Pause growth") per the design rules. Resume stays one-click.
+- **`src/pages/overview/GrowthPlusOverviewCard.jsx`** — full Growth+ snapshot card with two states.
+  - **Subscribed**: neutral `bg-bg/50` header band with chip + "Growth+" + tier pill + "View details →" link top-right; body is a 3-stat strip (Boosts this month / Followers from G+ / Reach added) with vertical separators between cells.
+  - **Upsell (not subscribed)**: purple gradient chrome (`border-purple-base/20` + `bg-gradient-to-br from-purple-tint via-purple-tint to-purple-base/15`) with a purple-banded header (`bg-purple-base/15` + `border-b border-purple-base/20`) hosting the chip + "Growth+" + solid-purple "FROM $X/MO" pill. Body has a 2-row blurb + "Get Growth+" CTA. Min price is computed from `mockGrowthPlusTiers` so it stays accurate.
+- **`src/mocks/audit.js`** — top-3 audit numbers (`reach7d`, `engagementRate`, `avgLikes`) with `delta` and `deltaTone` so the audit card can render the numbers + colored delta strings without re-parsing math on the consumer side.
+
+### Changed
+- **`src/pages/targeting/BulkActionBar.jsx`** — dropped the sticky chrome bar (`sticky top-0`, `backdrop-blur`, no border-radius) in favor of FilterRow's pill language. "N selected" is now a removable `h-8 rounded-full bg-blue-tint text-blue-text` chip with an embedded X. Pause / Remove / Restore are `h-8 rounded-full` pills matching the Sort/Select rhythm. Pause and Remove gained Lucide icons (Pause, Archive); Restore got ArchiveRestore. All three disable when `count === 0`.
+- **`src/pages/targeting/TargetRow.jsx`** — per-row checkbox in selection mode moved from the right edge to the left edge of the row. Vertically aligned with the select-all checkbox in the list header. Right edge now holds only the chevron in non-selection mode and is empty in selection mode.
+- **`src/pages/overview/index.jsx`** — major restructure:
+  - AccountCard's pause CTA now routes through `PauseGrowthModal` when going running → paused; resume bypasses the modal.
+  - AccountCard's identity row gained a purple Growth+ pill (Sparkles icon, `bg-purple-tint`/`text-purple-text`) when `user.growthPlusSubscribed`.
+  - Audit + Growth+ cards now share a single bottom block grid that ALSO owns the Targets / Settings / Engagement rows. Mobile DOM order: Audit → G+ → TargetsOverview → TargetingSettings → EngagementSnapshot. Desktop: 2-col with column-internal stacking (Audit + TargetsOverview on the left; G+ + TargetingSettings + EngagementSnapshot on the right). Achieved via `display: contents` on the column wrappers on mobile + `order-*` on cells to preserve mobile order without sacrificing the desktop layout.
+  - Bottom alignment: TargetsOverview (left column) and EngagementSnapshot (right column) both `flex-grow` to absorb the vertical-height difference between Audit and G+, so both columns end at the same Y regardless of which state Audit and G+ are in.
+  - Overview's `user` is composed from `mockUser` + `useGrowthPlusSubscription` + `useGrowthConfig.growthPlusControls.tier` so the upsell → subscribed flip happens inline when the user upgrades through `/growth-plus`.
+- **`src/components/InstagramAuditCard.jsx`** — became state-aware data card.
+  - **Not generated**: header band has only title + AVAILABLE pill (no CTA up there); body holds a 2-row description + primary "Get Instagram Audit" button below. While generating, the same button shows "Generating audit…" + spinner and is disabled.
+  - **Generated (cooldown)**: header band gains a small "View audit →" link top-right (Edit / View all pattern); body is a 3-stat strip (Profile reach / Engagement rate / Avg likes per post) with deltas and vertical separators.
+- **Sparklines on the three Overview stat cards** — `activeDot={false}` added so Recharts doesn't show a hover dot.
+- **`src/mocks/user.js`** — default `mockUser` starts un-subscribed (`growthPlusSubscribed: false`, `growthPlusTier: null`). Upgrading through `/growth-plus` flips `useGrowthPlusSubscription`; the Overview reads from that store to render the subscribed state.
+- **Both card descriptions** (audit not-generated, G+ upsell) constrained to 2 rows via `line-clamp-2 min-h-[2lh]`. Trimmed copy so each fits cleanly: "A weekly PDF of your growth — follower trends, top targets, and engagement metrics." / "Algorithmic boosts that amplify your reach and accelerate follower growth on top of your plan."
+- **`src/pages/overview/EngagementSnapshot.jsx`** — root container gains `flex h-full flex-col` so it can grow inside the right column's `flex-1` wrapper for bottom alignment.
+
+### Decisions (locked, don't revisit)
+- **Pausing growth always opens a confirmation modal; resuming is one-click.** Pause stops engine activity; the system needs a warm-up window on resume — the user gets a chance to back out.
+- **Default Growth+ state is upsell.** `mockUser` ships un-subscribed. The dashboard reads from `useGrowthPlusSubscription` + `useGrowthConfig` so the existing `/growth-plus` upsell flow drives the state transition.
+- **Audit + G+ are NOT height-coupled by `items-stretch`.** They each take their natural state-specific height. The bottom card in each column flex-grows so the dashboard's bottom row stays aligned.
+- **Subscribed cards use the neutral `bg-bg/50` header band; the Growth+ upsell card uses purple chrome.** The subscribed state is a data card and must match the rest of the dashboard. The upsell is meant to drive conversion and gets its own brand-color treatment.
+- **Per-row checkboxes in target selection live on the LEFT edge** of the row, vertically aligned with the list-header select-all checkbox. Right edge is reserved for the chevron in non-selection mode.
+
+### Removed
+- **G+ stat strip inside `AccountCard`** — was a 4-stat row at the bottom of the AccountCard. Moved out into the dedicated `GrowthPlusOverviewCard` so subscription value lives on its own surface (not nested inside identity), and so its typography can match the dashboard's stat scale (`text-xl/2xl semibold`) instead of the cramped sizes it had inside the AccountCard.
+- **`mockUserNoGrowthPlus` variant** — default `mockUser` IS the non-G+ scenario now; the variant became redundant.
+
+---
+
 ## 2026-05-20 — Settings/billing fixes & polish
 
 Two passes against the Billing tab and the per-subscription detail page. First pass shipped a status-aware billing line, invoice history corrections, ARIA cleanup, mobile card-actions drawer, pay-overdue confirmation popup, and invoice card-wrapping. Second pass fixed three items the first pass missed or got wrong.
