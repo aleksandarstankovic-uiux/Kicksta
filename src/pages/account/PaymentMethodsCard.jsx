@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CreditCard, Plus, MoreHorizontal, Star, Pencil, Trash2, X } from 'lucide-react'
 import CardChip from '@/components/CardChip'
@@ -11,6 +11,25 @@ function brandLabel(brand) {
   return { visa: 'Visa', mastercard: 'Mastercard', amex: 'Amex' }[brand] ?? 'Card'
 }
 
+// Match the Tailwind `md:` breakpoint (768px). Used to pick between the
+// inline desktop dropdown and the portal-rendered mobile bottom drawer
+// for the per-card action menu.
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia('(max-width: 767px)').matches
+  })
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)')
+    function onChange(e) {
+      setIsMobile(e.matches)
+    }
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+  return isMobile
+}
+
 export default function PaymentMethodsCard() {
   const cards = usePaymentMethods((s) => s.cards)
   const setPrimary = usePaymentMethods((s) => s.setPrimary)
@@ -18,7 +37,6 @@ export default function PaymentMethodsCard() {
 
   const [modalCardId, setModalCardId] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
-  const [actionsCardId, setActionsCardId] = useState(null)
 
   function openEdit(id) {
     setModalCardId(id)
@@ -29,10 +47,6 @@ export default function PaymentMethodsCard() {
     setModalCardId(null)
     setModalOpen(true)
   }
-
-  const actionsCard = actionsCardId
-    ? cards.find((c) => c.id === actionsCardId)
-    : null
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 shadow-sm md:p-6">
@@ -61,7 +75,9 @@ export default function PaymentMethodsCard() {
           <CardRow
             key={card.id}
             card={card}
-            onOpenActions={() => setActionsCardId(card.id)}
+            onSetPrimary={() => setPrimary(card.id)}
+            onEdit={() => openEdit(card.id)}
+            onRemove={() => removeCard(card.id)}
           />
         ))}
       </ul>
@@ -71,19 +87,31 @@ export default function PaymentMethodsCard() {
         cardId={modalCardId}
         onClose={() => setModalOpen(false)}
       />
-
-      <CardActionsSheet
-        card={actionsCard}
-        onClose={() => setActionsCardId(null)}
-        onSetPrimary={() => setPrimary(actionsCardId)}
-        onEdit={() => openEdit(actionsCardId)}
-        onRemove={() => removeCard(actionsCardId)}
-      />
     </section>
   )
 }
 
-function CardRow({ card, onOpenActions }) {
+// Row + its action menu. Mobile opens a bottom drawer (portal-rendered
+// so it escapes any overflow ancestors); desktop opens an inline
+// dropdown anchored to the trigger button. The trigger and menuOpen
+// state are shared — only the UI surface changes per viewport.
+function CardRow({ card, onSetPrimary, onEdit, onRemove }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const ref = useRef(null)
+  const isMobile = useIsMobile()
+
+  // Desktop dropdown: close on outside click. The mobile drawer handles
+  // its own dismissal (backdrop click + ESC) so we only need this on
+  // desktop.
+  useEffect(() => {
+    if (isMobile) return
+    function onClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setMenuOpen(false)
+    }
+    if (menuOpen) document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [menuOpen, isMobile])
+
   const isPrimary = card.primary
   const rowCls = isPrimary
     ? 'rounded-lg border border-blue-base bg-blue-tint/40 shadow-sm p-3 mb-1'
@@ -112,24 +140,72 @@ function CardRow({ card, onOpenActions }) {
           Expires {String(card.expMonth).padStart(2, '0')}/{card.expYear}
         </p>
       </div>
-      <button
-        onClick={onOpenActions}
-        className="flex h-10 w-10 items-center justify-center rounded-md text-text-muted hover:bg-bg hover:text-text-primary"
-        aria-label={`Actions for ${brandLabel(card.brand)} ending in ${card.last4}`}
-      >
-        <MoreHorizontal className="h-4 w-4" />
-      </button>
+      <div ref={ref} className="relative">
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          className="flex h-10 w-10 items-center justify-center rounded-md text-text-muted hover:bg-bg hover:text-text-primary"
+          aria-label={`Actions for ${brandLabel(card.brand)} ending in ${card.last4}`}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </button>
+
+        {/* Desktop: inline dropdown anchored to the trigger button. */}
+        {menuOpen && !isMobile && (
+          <div className="absolute right-0 top-11 z-20 w-48 rounded-lg border border-border bg-surface shadow-lg">
+            {!card.primary && (
+              <button
+                onClick={() => {
+                  setMenuOpen(false)
+                  onSetPrimary()
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-bg"
+              >
+                <Star className="h-4 w-4" /> Set as primary
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setMenuOpen(false)
+                onEdit()
+              }}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-bg"
+            >
+              <Pencil className="h-4 w-4" /> Edit
+            </button>
+            {!card.primary && (
+              <button
+                onClick={() => {
+                  setMenuOpen(false)
+                  onRemove()
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-text hover:bg-red-tint"
+              >
+                <Trash2 className="h-4 w-4" /> Remove
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Mobile: bottom drawer rendered via portal, gated by useIsMobile
+          so it only mounts on viewports below the md breakpoint. */}
+      {isMobile && (
+        <CardActionsSheet
+          open={menuOpen}
+          card={card}
+          onClose={() => setMenuOpen(false)}
+          onSetPrimary={onSetPrimary}
+          onEdit={onEdit}
+          onRemove={onRemove}
+        />
+      )}
     </li>
   )
 }
 
-// Card-actions sheet. Bottom drawer on mobile, centered modal on
-// desktop — same shell as EditPaymentModal so the two share visual
-// identity. Header repeats the card identity so the user sees which
-// card they're acting on (the original inline dropdown didn't).
-function CardActionsSheet({ card, onClose, onSetPrimary, onEdit, onRemove }) {
-  const open = !!card
-
+function CardActionsSheet({ open, card, onClose, onSetPrimary, onEdit, onRemove }) {
   useEffect(() => {
     if (!open) return
     function onKey(e) {
@@ -139,19 +215,21 @@ function CardActionsSheet({ card, onClose, onSetPrimary, onEdit, onRemove }) {
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
-  if (!open) return null
+  if (!open || !card) return null
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 lg:items-center lg:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="w-full overflow-hidden rounded-t-2xl border border-border bg-surface pb-[calc(env(safe-area-inset-bottom))] shadow-xl lg:max-w-sm lg:rounded-2xl lg:pb-0">
-        {/* Header — card preview + close. The preview matches the
-            visual identity of the row itself, so it's obvious which
-            card the actions apply to. */}
+      <div className="w-full overflow-hidden rounded-t-2xl border border-border bg-surface pb-[calc(env(safe-area-inset-bottom))] shadow-xl">
+        {/* Header — card preview + close. Repeats the row's visual
+            identity so the user is sure which card the actions apply
+            to (the inline desktop dropdown is anchored to the row, so
+            on desktop this isn't necessary; on mobile the drawer is
+            detached from the row entirely). */}
         <div className="flex items-center gap-3 border-b border-border px-5 py-4">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bg text-text-secondary">
             <CardBrandIcon brand={card.brand} className="h-5 w-5" />
@@ -181,9 +259,6 @@ function CardActionsSheet({ card, onClose, onSetPrimary, onEdit, onRemove }) {
           </button>
         </div>
 
-        {/* Action list — tall enough for thumb targets. Set as primary
-            and Remove only render when applicable (primary can't be
-            removed, and is already primary so can't be set again). */}
         <div className="flex flex-col py-2">
           {!card.primary && (
             <button

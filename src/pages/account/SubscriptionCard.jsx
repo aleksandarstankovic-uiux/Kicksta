@@ -20,42 +20,42 @@ function BillingLine({ subscription }) {
 
   if (status === 'past_due') {
     return (
-      <p className="mt-0.5 text-xs font-medium text-red-text">
+      <p className="mt-1 text-xs font-medium text-red-text">
         Payment failed · ${nextBillingAmount} overdue
       </p>
     )
   }
   if (status === 'paused') {
     return (
-      <p className="mt-0.5 text-xs text-text-muted">
+      <p className="mt-1 text-xs text-text-muted">
         {pauseUntil ? `Resumes ${formatDate(pauseUntil)}` : 'Paused'}
       </p>
     )
   }
   if (status === 'cancelled_pending') {
     return (
-      <p className="mt-0.5 text-xs text-text-muted">
+      <p className="mt-1 text-xs text-text-muted">
         {endsAt ? `Ends ${formatDate(endsAt)}` : 'Ending soon'}
       </p>
     )
   }
   if (status === 'canceled') {
     return (
-      <p className="mt-0.5 text-xs text-text-muted">
+      <p className="mt-1 text-xs text-text-muted">
         {endsAt ? `Ended ${formatDate(endsAt)}` : 'Canceled'}
       </p>
     )
   }
   if (status === 'trialing') {
     return (
-      <p className="mt-0.5 text-xs text-text-muted">
+      <p className="mt-1 text-xs text-text-muted">
         Trial ends {formatDate(trialEndsAt ?? nextBillingAt)} · then ${nextBillingAmount}
       </p>
     )
   }
   // active (default)
   return (
-    <p className="mt-0.5 text-xs text-text-muted">
+    <p className="mt-1 text-xs text-text-muted">
       Next: ${nextBillingAmount} on {formatDate(nextBillingAt)}
     </p>
   )
@@ -72,33 +72,33 @@ export default function SubscriptionCard({ subscription }) {
   return (
     <Link
       to={`/account/subscriptions/${subscription.id}`}
-      className="flex items-center gap-4 border-b border-border py-4 transition-colors first:pt-0 last:border-b-0 last:pb-0 hover:bg-bg/50"
+      className="flex items-center gap-4 border-b border-border py-5 transition-colors first:pt-0 last:border-b-0 last:pb-0 hover:bg-bg/50"
     >
       {profilePic ? (
         <img
           src={profilePic}
           alt=""
-          className="h-11 w-11 shrink-0 rounded-full object-cover"
+          className="h-12 w-12 shrink-0 self-center rounded-full object-cover"
         />
       ) : (
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-tint text-sm font-semibold text-blue-text">
+        <span className="flex h-12 w-12 shrink-0 self-center items-center justify-center rounded-full bg-blue-tint text-base font-semibold text-blue-text">
           {letterFor(username)}
         </span>
       )}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 self-center">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-sm font-semibold text-text-primary">{username}</p>
+          <p className="truncate text-base font-semibold text-text-primary">{username}</p>
           <span className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${pill.cls}`}>
             {pill.label}
           </span>
         </div>
-        <p className="mt-1 text-xs text-text-secondary">
+        <p className="mt-1.5 text-sm text-text-secondary">
           {planLabel}
           {subscription.growthPlus ? ' · Growth+' : ''}
         </p>
         <BillingLine subscription={subscription} />
       </div>
-      <ChevronRight className="h-5 w-5 shrink-0 text-text-muted" />
+      <ChevronRight className="h-5 w-5 shrink-0 self-center text-text-muted" />
     </Link>
   )
 }

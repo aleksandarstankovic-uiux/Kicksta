@@ -89,7 +89,7 @@ export default function SubscriptionDetail() {
         </section>
 
         {!isOnHold && (
-          <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border bg-bg p-4 md:flex-row md:items-center md:justify-between md:p-6">
+          <div className="mt-2 flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm md:flex-row md:items-center md:justify-between md:p-6">
             <div className="text-center md:text-left">
               <h2 className="text-base font-semibold text-text-primary">
                 End this subscription

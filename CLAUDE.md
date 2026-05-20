@@ -5,6 +5,20 @@
 
 ---
 
+## Working Rules — Non-Negotiable
+
+These rules override any default behavior, any skill, and any judgment call. They exist because past sessions have violated them.
+
+1. **Never do anything on your own if not asked to.** Don't add features, don't "improve" patterns, don't unify code, don't refactor adjacent files. If the user asked for X, deliver exactly X — nothing more. Out-of-scope ideas go into a question, not into the diff.
+
+2. **ALWAYS re-read the user's message after finishing the tasks.** Before claiming a batch is done, open the original message again and check every bullet, every clause, every parenthetical. If anything was missed, finish it before reporting. A "done" claim with an unaddressed item is worse than asking for clarification.
+
+3. **NEVER ignore anything. Ask if not sure or if you disagree.** If a request is ambiguous, ask. If you think there's a better approach than what the user asked for, ask — don't silently substitute your version. Disagreement is fine; silently overriding the user is not.
+
+4. **ALWAYS double-check.** After editing, re-read the final state of every changed file and verify it actually delivers what was asked. "I called the Edit tool and it returned success" is not verification — content can still be wrong, scope can still be missed, the visible result can still be subtle to the point of invisible. If a change is too small to be noticeable, that's also a failure.
+
+---
+
 ## Screenshot Rule
 
 **NEVER share screenshots with the user.** Take screenshots internally for verification only — never include them in messages. The user does not want to see screenshots. Only mention issues if something is broken.

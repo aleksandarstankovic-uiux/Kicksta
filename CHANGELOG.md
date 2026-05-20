@@ -5,6 +5,39 @@
 
 ---
 
+## 2026-05-20 — Settings/billing fixes & polish
+
+Two passes against the Billing tab and the per-subscription detail page. First pass shipped a status-aware billing line, invoice history corrections, ARIA cleanup, mobile card-actions drawer, pay-overdue confirmation popup, and invoice card-wrapping. Second pass fixed three items the first pass missed or got wrong.
+
+### Added
+- **`src/pages/account/PayOverdueModal.jsx`** — confirmation popup before retrying a past-due charge. Shows plan + amount line items, total due, and which primary card will be charged. Processing → success states match the cancel-flow shell. Wired into `SubscriptionDetail` via `SubscriptionStateBanner.onPayOverdue` — the banner no longer fires the store mutation directly.
+- **`useIsMobile` hook (local to `PaymentMethodsCard`)** — bound to `matchMedia('(max-width: 767px)')` so the card-actions menu can swap between desktop dropdown and mobile drawer.
+- **`Working Rules — Non-Negotiable` section in `CLAUDE.md`** — four rules at the top of the project doc: never do anything unasked, always re-read the user's message after finishing, never ignore anything (ask if unsure), always double-check. Captures lessons from a session where each of those was violated.
+
+### Changed
+- **`SubscriptionCard`** — status-aware `BillingLine` component replaces the unconditional `Next: $X on …`. Branches: `active`, `trialing` (Trial ends · then $X), `past_due` (red "Payment failed · $X overdue"), `paused` (Resumes …), `cancelled_pending` (Ends …), `canceled` (Ended …). Spacing rebuilt for visibility: `py-5`, `h-12` avatar (`text-base` initial), `text-base` username, `mt-1.5` plan label, BillingLine internal `mt-1`. Explicit `self-center` on avatar + text-col + chevron so vertical centering can't drift.
+- **`PaymentMethodsCard`** — header pluralized (`Payment method` → `Payment methods`). Add-button `aria-label` now matches its visible "Add card" text. Row menu trigger gets a per-card `aria-label` (`Actions for Visa ending in 4242`) plus `aria-haspopup="menu"` and `aria-expanded`. **Mobile** opens a portal-rendered bottom drawer with the card preview echoed in the header; **desktop** keeps the original inline dropdown. Both source the same `menuOpen` state and trigger button.
+- **`InvoicesTable` desktop** — switched to `table-fixed` + `colgroup` widths so the Description cell truncates against remaining column width instead of an arbitrary `max-w-[28ch]` cap. Long descriptions stop clipping.
+- **`InvoicesTable` mobile** — redesigned rows: date + status pill on the primary line (matches desktop column order), description as truncated subtext, amount + download anchored right. Removes the prior dot-separated wrap of `date · amount · pill`.
+- **`SubscriptionDetail`** — Invoices now wrapped in the same surface treatment as PlanCard / ServerCard (CardChip + InfoTooltip header + bordered `bg-surface` section). The "End this subscription" panel changed from `bg-bg` (page-bg color) to `bg-surface` so it reads as a card instead of disappearing into the page.
+- **`ChangeServerModal`** — removed the "Closer servers improve growth speed and Instagram safety limits" line. Redundant with the modal subhead.
+- **`CancelSubscriptionModal` + `CancelGrowthPlusModal`** — added `border-border` to the sheet shell so the modal surface has a defined edge.
+- **`mocks/invoices.js`** — `inv_007` date bumped `2026-05-10` → `2026-05-20` (a pending invoice on the trial-end date matches `sub_002`'s trialing status). `inv_004` / `inv_005` reordered into a coherent two-failure retry sequence for `sub_003`.
+- **`mocks/subscriptions.js`** — `sub_003.nextBillingAt` `2026-05-01` → `2026-05-25`, so the past-due card no longer reads "next billing on a date that's already past."
+
+### Decisions (locked, don't revisit)
+- **Subscription billing line copy is status-driven.** Active = Next; trialing = Trial ends · then $X; past_due = red Payment failed · $X overdue; paused = Resumes; cancelled_pending = Ends; canceled = Ended. The list row never shows misleading "Next: $X" copy for non-active states.
+- **Past-due retries go through `PayOverdueModal`.** The user never triggers a charge in one tap — they see plan, amount, and card before confirming.
+- **Card actions UI is viewport-split:** drawer on mobile (`< 768px`), dropdown on desktop. Driven by `useIsMobile` matching the `md:` breakpoint.
+- **"End this subscription" and Invoices on the subscription detail page use `bg-surface`**, not `bg-bg`. The detail page is a stack of cards on a page background — sections that drop to `bg-bg` blend into the page.
+
+### Removed
+- Per-row inline-dropdown-only menu on Payment methods (mobile users now get a drawer; desktop unchanged).
+- Arbitrary `max-w-[28ch]` description truncation on the invoices table.
+- "Closer servers improve growth speed and Instagram safety limits" subhead from `ChangeServerModal`.
+
+---
+
 ## 2026-05-18 — Billing page de-clutter
 
 Polish pass on top of the Option-2 card-with-chip-header restructure that landed the same day. Flattens the visual treatment so Billing reads as a clean list-inside-card surface instead of cards-stacked-inside-cards.
