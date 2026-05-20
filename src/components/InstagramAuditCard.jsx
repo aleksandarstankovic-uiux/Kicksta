@@ -143,10 +143,9 @@ function NotGeneratedBody({ state, onGenerate }) {
   const processing = state === 'processing'
   return (
     <div className="flex flex-col">
-      <p className="text-sm leading-relaxed text-text-secondary">
-        A weekly PDF snapshot of your account's growth from the last
-        7 days. Track follower trends, top-performing targets, and
-        engagement metrics over time.
+      <p className="line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-text-secondary">
+        A weekly PDF of your growth — follower trends, top targets,
+        and engagement metrics.
       </p>
       <div className="mt-4">
         <button

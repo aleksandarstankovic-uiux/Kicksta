@@ -4,31 +4,40 @@ import CardChip from '@/components/CardChip'
 import {
   mockGrowthPlusInsights,
   mockGrowthPlusTierById,
+  mockGrowthPlusTiers,
 } from '@/mocks/growth'
 import { formatCount } from '@/utils/formatCount'
 
-// Growth+ snapshot for the Overview page. Renders one of two states:
-//   - subscribed: tier pill in the header + "View details" link top-
-//     right + 3-stat strip in the body.
-//   - non-subscribed: short benefit blurb in the body + "Get Growth+"
-//     primary CTA below it (mirrors the audit card's empty-state
-//     shape so the two surfaces share visual rhythm in the 2-col
-//     Overview row).
+// Growth+ snapshot for the Overview page. Two states:
 //
-// Header band uses `bg-bg/50` — same recipe as every other tinted-
-// header card on the dashboard. G+ identity is carried by the purple
-// chip + tier pill + purple link tones, not the band color.
+//   - Subscribed: tier pill + "View details" link in the neutral
+//     header band; body is a 3-stat strip with separators. Same
+//     chrome as every other tinted-header card on the dashboard.
 //
-// Typography mirrors MetricCard: text-xs muted labels + text-xl/2xl
-// semibold values. Stats sit in a single row with vertical dividers
-// between them so the numbers read as a structured strip.
+//   - Not subscribed (upsell): purple gradient chrome (G+ brand
+//     color) with a "from $X/mo" pill in the header — the card is
+//     meant to drive conversion, not just inform. Body: 2-row blurb
+//     + Get Growth+ CTA.
 export default function GrowthPlusOverviewCard({ user }) {
   const subscribed = !!user?.growthPlusSubscribed
+  return subscribed ? <SubscribedCard user={user} /> : <UpsellCard />
+}
+
+// --- Subscribed state ---
+
+function SubscribedCard({ user }) {
+  const insights =
+    mockGrowthPlusInsights[user.growthPlusTier] ?? mockGrowthPlusInsights.pro
+  const tier = mockGrowthPlusTierById[user.growthPlusTier] ?? null
+
+  const stats = [
+    { label: 'Boosts this month', value: formatCount(insights.algorithmicBoost) },
+    { label: 'Followers from G+', value: `+${formatCount(insights.totalFollowersGained)}` },
+    { label: 'Reach added', value: formatCount(insights.totalReachAdded) },
+  ]
 
   return (
     <section className="flex flex-col rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
-      {/* Tinted header band — symmetric with every other Overview
-          card that uses this chrome (Audit, snapshots, etc). */}
       <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-border bg-bg/50 px-4 py-4 lg:-mx-6 lg:-mt-6 lg:px-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -37,87 +46,85 @@ export default function GrowthPlusOverviewCard({ user }) {
               <h2 className="text-base font-semibold text-text-primary">
                 Growth+
               </h2>
-              {subscribed && <SubscribedTierPill user={user} />}
+              {tier && (
+                <span className="inline-flex items-center rounded-full bg-purple-tint px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-purple-text">
+                  {tier.name}
+                </span>
+              )}
             </div>
           </div>
 
-          {subscribed && (
-            <Link
-              to="/growth-plus"
-              className="inline-flex items-center gap-1 text-sm font-medium text-purple-text transition-opacity hover:opacity-80"
-            >
-              View details
-              <ChevronRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          )}
+          <Link
+            to="/growth-plus"
+            className="inline-flex items-center gap-1 text-sm font-medium text-purple-text transition-opacity hover:opacity-80"
+          >
+            View details
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </div>
       </div>
 
-      {subscribed ? <SubscribedBody user={user} /> : <UpsellBody />}
+      <div className="grid grid-cols-1 sm:grid-cols-3">
+        {stats.map((s, i, arr) => (
+          <div
+            key={s.label}
+            className={[
+              'min-w-0 py-2 sm:px-4 sm:py-0',
+              i > 0 ? 'border-t border-border pt-3' : '',
+              i > 0 ? 'sm:border-l sm:border-border sm:border-t-0 sm:pt-0' : '',
+              i === 0 ? 'sm:pl-0' : '',
+              i === arr.length - 1 ? 'sm:pr-0' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            <p className="truncate text-xs font-medium text-text-muted">
+              {s.label}
+            </p>
+            <p className="mt-1 truncate text-xl font-semibold text-text-primary lg:text-2xl">
+              {s.value}
+            </p>
+          </div>
+        ))}
+      </div>
     </section>
   )
 }
 
-function SubscribedTierPill({ user }) {
-  const tier = mockGrowthPlusTierById[user.growthPlusTier] ?? null
-  if (!tier) return null
+// --- Upsell state ---
+
+// Minimum monthly price across the tier catalog. Surfaced as a
+// "from $X/mo" pill so the upsell card has a clear price anchor
+// without committing to a specific tier.
+const MIN_GROWTH_PLUS_PRICE = Math.min(
+  ...mockGrowthPlusTiers.map((t) => t.price),
+)
+
+function UpsellCard() {
   return (
-    <span className="inline-flex items-center rounded-full bg-purple-tint px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-purple-text">
-      {tier.name}
-    </span>
-  )
-}
-
-function SubscribedBody({ user }) {
-  const insights =
-    mockGrowthPlusInsights[user.growthPlusTier] ?? mockGrowthPlusInsights.pro
-
-  // Three stats — the headline growth metrics G+ delivers. Engagement
-  // rate is intentionally not in this strip; it lives on the audit
-  // side of the row.
-  const stats = [
-    { label: 'Boosts this month', value: formatCount(insights.algorithmicBoost) },
-    { label: 'Followers from G+', value: `+${formatCount(insights.totalFollowersGained)}` },
-    { label: 'Reach added', value: formatCount(insights.totalReachAdded) },
-  ]
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-3">
-      {stats.map((s, i, arr) => (
-        <div
-          key={s.label}
-          className={[
-            'min-w-0 py-2 sm:py-0 sm:px-4',
-            // Mobile: horizontal separator between rows
-            i > 0 ? 'border-t border-border pt-3' : '',
-            // Desktop: vertical separator between adjacent cells
-            i > 0 ? 'sm:border-l sm:border-border sm:border-t-0 sm:pt-0' : '',
-            // Trim outer padding so the strip aligns with the card edges
-            i === 0 ? 'sm:pl-0' : '',
-            i === arr.length - 1 ? 'sm:pr-0' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-        >
-          <p className="truncate text-xs font-medium text-text-muted">
-            {s.label}
-          </p>
-          <p className="mt-1 truncate text-xl font-semibold text-text-primary lg:text-2xl">
-            {s.value}
-          </p>
+    <section className="flex flex-col rounded-xl border border-purple-base/20 bg-gradient-to-br from-purple-tint via-purple-tint to-purple-base/15 p-4 pb-3 lg:p-6">
+      {/* No tinted band on the upsell — the whole card is the brand
+          surface. Chip + title + price pill on a single row at the
+          top, blurb + CTA below. */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <CardChip color="purple" icon={Sparkles} />
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h2 className="text-base font-semibold text-text-primary">
+              Growth+
+            </h2>
+            <span className="inline-flex items-center rounded-full bg-purple-base px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+              from ${MIN_GROWTH_PLUS_PRICE}/mo
+            </span>
+          </div>
         </div>
-      ))}
-    </div>
-  )
-}
+      </div>
 
-function UpsellBody() {
-  return (
-    <div className="flex flex-col">
-      <p className="text-sm leading-relaxed text-text-secondary">
+      <p className="mt-4 line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-text-secondary">
         Algorithmic boosts that amplify your reach and accelerate
-        follower growth — on top of your existing plan.
+        follower growth on top of your plan.
       </p>
+
       <div className="mt-4">
         <Link
           to="/growth-plus"
@@ -128,6 +135,6 @@ function UpsellBody() {
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
-    </div>
+    </section>
   )
 }
