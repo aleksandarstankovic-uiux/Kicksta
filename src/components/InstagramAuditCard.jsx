@@ -123,15 +123,24 @@ export default function InstagramAuditCard() {
         </div>
       </div>
 
-      {/* Top-3 stats from the latest audit — replaces the descriptive
-          paragraph. The full PDF still lives behind the CTA in the
-          header; this strip turns the card into a glance-value data
-          surface. 3-col grid on sm:+, stacked on mobile. */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
-        <AuditStat stat={mockAuditTopStats.reach7d} />
-        <AuditStat stat={mockAuditTopStats.engagementRate} />
-        <AuditStat stat={mockAuditTopStats.avgLikes} />
-      </div>
+      {/* Body — descriptive paragraph until the user has generated
+          their first audit. Once an audit exists (inCooldown), the
+          card flips to a glance-value data surface showing the top
+          three numbers from the latest run. The full PDF stays
+          behind the "View audit" CTA in the header either way. */}
+      {hasDownloaded ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
+          <AuditStat stat={mockAuditTopStats.reach7d} />
+          <AuditStat stat={mockAuditTopStats.engagementRate} />
+          <AuditStat stat={mockAuditTopStats.avgLikes} />
+        </div>
+      ) : (
+        <p className="text-sm leading-relaxed text-text-secondary">
+          A weekly PDF snapshot of your account's growth from the last
+          7 days. Track follower trends, top-performing targets, and
+          engagement metrics over time.
+        </p>
+      )}
     </section>
   )
 }

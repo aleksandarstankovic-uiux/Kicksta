@@ -35,7 +35,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { useAccounts } from '@/stores/useAccounts'
-import { mockUser, PLAN_CATALOG } from '@/mocks/user'
+import { mockUser, mockUserGrowthPlus, PLAN_CATALOG } from '@/mocks/user'
 import {
   mockGrowthDaily,
   mockGrowthPlusInsights,
@@ -1574,7 +1574,11 @@ export default function OverviewPage() {
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
   const connection = accounts.find((a) => a.id === activeId) ?? accounts[0]
-  const user = mockUser
+  // V1 demo defaults to the Growth+ user variant so the AccountCard's
+  // G+ pill + 4-stat strip render on first load. Swap to `mockUser` for
+  // the non-G+ / on-trial scenario, or to `mockUserGrowthPlusStarter` /
+  // `mockUserGrowthPlusElite` to exercise tier gating.
+  const user = mockUserGrowthPlus
   const isDisconnected = connection.connectionState === 'disconnected'
 
   // Effective period — 'trial' while on trial, user-selected otherwise.
