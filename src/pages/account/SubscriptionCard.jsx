@@ -72,7 +72,7 @@ export default function SubscriptionCard({ subscription }) {
   return (
     <Link
       to={`/account/subscriptions/${subscription.id}`}
-      className="flex items-center gap-3 border-b border-border py-3 transition-colors last:border-b-0 hover:bg-bg/60 md:gap-4"
+      className="-mx-4 flex items-center gap-3 border-b border-border px-4 py-3 transition-colors last:border-b-0 hover:bg-bg/60 md:-mx-6 md:gap-4 md:px-6"
     >
       {profilePic ? (
         <img
