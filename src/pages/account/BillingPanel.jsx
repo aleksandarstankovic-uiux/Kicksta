@@ -51,8 +51,12 @@ export default function BillingPanel() {
           </p>
         ) : (
           <div className="mt-4 flex flex-col">
-            {subs.map((sub) => (
-              <SubscriptionCard key={sub.id} subscription={sub} />
+            {subs.map((sub, i) => (
+              <SubscriptionCard
+                key={sub.id}
+                subscription={sub}
+                isLast={i === subs.length - 1}
+              />
             ))}
           </div>
         )}
