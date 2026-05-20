@@ -86,6 +86,21 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
         selectionMode && isSelected ? 'bg-blue-tint/30' : ''
       }`}
     >
+      {/* Selection checkbox — left edge, aligns vertically with the
+          select-all checkbox in the list header. */}
+      {selectionMode && (
+        <span
+          aria-hidden="true"
+          className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
+            isSelected
+              ? 'border-blue-base bg-blue-base text-white'
+              : 'border-border bg-surface'
+          }`}
+        >
+          {isSelected && <Check className="h-3.5 w-3.5" />}
+        </span>
+      )}
+
       {/* Avatar / hashtag icon */}
       <div
         className={`flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bg text-sm font-semibold text-text-secondary ${
@@ -192,19 +207,9 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
         </span>
       </div>
 
-      {/* Right-edge affordance: chevron normally; checkbox in selection mode. */}
-      {selectionMode ? (
-        <span
-          aria-hidden="true"
-          className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-            isSelected
-              ? 'border-blue-base bg-blue-base text-white'
-              : 'border-border bg-surface'
-          }`}
-        >
-          {isSelected && <Check className="h-3.5 w-3.5" />}
-        </span>
-      ) : (
+      {/* Right-edge chevron — hidden in selection mode since the
+          checkbox now sits on the left. */}
+      {!selectionMode && (
         <div className="inline-flex h-7 w-7 shrink-0 items-center justify-center">
           <ChevronRight
             className="h-4 w-4 text-text-muted transition-colors group-hover:text-text-primary"
