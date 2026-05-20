@@ -61,7 +61,7 @@ function BillingLine({ subscription }) {
   )
 }
 
-export default function SubscriptionCard({ subscription, isLast = false }) {
+export default function SubscriptionCard({ subscription }) {
   const accounts = useAccounts((s) => s.accounts)
   const account = accounts.find((a) => a.id === subscription.accountId)
   const username = account?.username ?? '@unknown'
@@ -72,25 +72,8 @@ export default function SubscriptionCard({ subscription, isLast = false }) {
   return (
     <Link
       to={`/account/subscriptions/${subscription.id}`}
-      className="group relative isolate flex items-center gap-3 py-3 first:pt-0 last:pb-0 md:gap-4"
+      className="flex items-center gap-3 border-b border-border py-3 transition-colors last:border-b-0 hover:bg-bg/60 md:gap-4"
     >
-      {/* Hover background — inset rounded pill behind the content so
-          the highlight reads as a contained shape rather than an
-          edge-to-edge wash. */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-2 inset-y-1 -z-10 rounded-lg bg-bg/60 opacity-0 transition-opacity group-hover:opacity-100"
-      />
-      {/* Divider — drawn as an inset span instead of the Link's
-          border-b so the line matches the hover pill's horizontal
-          inset. The previous edge-to-edge border-b extended past the
-          rounded hover's right edge, breaking the visual rectangle. */}
-      {!isLast && (
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-2 bottom-0 h-px bg-border"
-        />
-      )}
       {profilePic ? (
         <img
           src={profilePic}
