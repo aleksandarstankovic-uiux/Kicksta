@@ -103,24 +103,26 @@ const MIN_GROWTH_PLUS_PRICE = Math.min(
 function UpsellCard() {
   return (
     <section className="flex flex-col rounded-xl border border-purple-base/20 bg-gradient-to-br from-purple-tint via-purple-tint to-purple-base/15 p-4 pb-3 lg:p-6">
-      {/* No tinted band on the upsell — the whole card is the brand
-          surface. Chip + title + price pill on a single row at the
-          top, blurb + CTA below. */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <CardChip color="purple" icon={Sparkles} />
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h2 className="text-base font-semibold text-text-primary">
-              Growth+
-            </h2>
-            <span className="inline-flex items-center rounded-full bg-purple-base px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-              from ${MIN_GROWTH_PLUS_PRICE}/mo
-            </span>
+      {/* Purple-banded header — mirrors the audit card's banded-top
+          structure so heights match, but stays in the upsell's
+          brand color. Hosts the chip + title + "from $X/mo" pill. */}
+      <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-purple-base/20 bg-purple-base/15 px-4 py-4 lg:-mx-6 lg:-mt-6 lg:px-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <CardChip color="purple" icon={Sparkles} />
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <h2 className="text-base font-semibold text-text-primary">
+                Growth+
+              </h2>
+              <span className="inline-flex items-center rounded-full bg-purple-base px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+                from ${MIN_GROWTH_PLUS_PRICE}/mo
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      <p className="mt-4 line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-text-secondary">
+      <p className="line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-text-secondary">
         Algorithmic boosts that amplify your reach and accelerate
         follower growth on top of your plan.
       </p>
