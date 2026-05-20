@@ -1677,21 +1677,13 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Growth+ snapshot — only renders when the user has G+.
-            Grouped lower in the page next to the Audit since both
-            surface "subscription value" insights. */}
-        {user.growthPlusSubscribed && (
-          <div className="mt-4">
-            <GrowthPlusOverviewCard user={user} />
-          </div>
-        )}
-
-        {/* Instagram Audit — full-width row between the chart and the
-            bottom 2-col block. Adjacency with the chart is deliberate:
-            the audit is a PDF snapshot of the same growth data the
-            chart just rendered on screen. */}
-        <div className="mt-4">
+        {/* Audit + Growth+ — paired row of "subscription value" cards
+            below the chart. 2-col on lg:+ (Audit left, G+ right),
+            stacked on mobile. items-stretch keeps both cards the same
+            height regardless of which state each is in. */}
+        <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
           <InstagramAuditCard />
+          <GrowthPlusOverviewCard user={user} />
         </div>
 
         {/* Bottom block — single 2-col row. Left column is the Top

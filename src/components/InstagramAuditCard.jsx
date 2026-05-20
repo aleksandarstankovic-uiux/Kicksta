@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FileText, Loader2 } from 'lucide-react'
+import { ChevronRight, FileText, Loader2 } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import { useInstagramAudit } from '@/stores/useInstagramAudit'
 import {
@@ -9,22 +9,20 @@ import {
 import { useToasts } from '@/stores/useToasts'
 import { mockAuditTopStats } from '@/mocks/audit'
 
-// Instagram Audit card — single-CTA component on the Overview page.
+// Instagram Audit card — Overview page. Two states:
 //
-// CTA copy + color encode the action:
-//   - "Get Instagram Audit"  → blue-base / white (primary generate)
-//   - "Generating audit…"    → blue-base / white + spinner (disabled)
-//   - "View audit"           → blue-tint / blue-text (secondary view
-//                              of existing audit; doesn't change
-//                              cooldown)
+//   - Not yet generated: header is title-only; body holds the
+//     descriptive paragraph + primary "Get Instagram Audit" button
+//     below it. While generating, the same button flips to
+//     "Generating audit…" + spinner and is disabled.
 //
-// Availability is communicated by a pill next to the title — always
-// rendered so the card's footprint doesn't shift between states:
-//   - available  → green-tint "Available"
-//   - cooldown   → yellow-tint "Available in {N}h"
+//   - Already generated (cooldown): header gets a small "View audit"
+//     link top-right (chevron, blue-text) matching the Edit / View
+//     all pattern other cards on the Overview use. Body becomes a
+//     glance-value 3-stat strip.
 //
-// CTA has a min-width on `md:+` so swapping labels between
-// generate ↔ view doesn't reflow the right column.
+// Header band uses `bg-bg/50` to match every other tinted-header
+// card on the dashboard.
 export default function InstagramAuditCard() {
   const lastDownloadedAt = useInstagramAudit((s) => s.lastDownloadedAt)
   const download = useInstagramAudit((s) => s.download)
@@ -38,7 +36,7 @@ export default function InstagramAuditCard() {
 
   // Run the 1500ms simulated generation, then commit the download
   // (stamps timestamp + fires "Audit downloaded." toast) and return
-  // to idle. CTA then derives from `inCooldown` on next render.
+  // to idle. The card then re-renders into the generated state.
   useEffect(() => {
     if (state !== 'processing') return
     const id = setTimeout(() => {
@@ -48,35 +46,17 @@ export default function InstagramAuditCard() {
     return () => clearTimeout(id)
   }, [state, download])
 
-  function handleClick() {
+  function handleGenerate() {
     if (state !== 'idle') return
-    if (inCooldown) {
-      // View existing audit — toast only in V1; backend will open
-      // the stored PDF. Cooldown unchanged.
-      addToast({ message: 'Audit opened.', tone: 'success' })
-      return
-    }
     setState('processing')
   }
 
-  // CTA props derived from state.
-  let ctaLabel
-  let ctaColor
-  let showSpinner = false
-  if (state === 'processing') {
-    ctaLabel = 'Generating audit…'
-    ctaColor = 'bg-blue-base text-white'
-    showSpinner = true
-  } else if (inCooldown) {
-    ctaLabel = 'View audit'
-    ctaColor = 'bg-blue-tint text-blue-text hover:bg-blue-tint/70'
-  } else {
-    ctaLabel = 'Get Instagram Audit'
-    ctaColor = 'bg-blue-base text-white hover:opacity-90'
+  function handleViewAudit() {
+    // V1: toast only — backend will open the stored PDF.
+    addToast({ message: 'Audit opened.', tone: 'success' })
   }
-  const ctaDisabled = state === 'processing'
 
-  // Pill — always rendered to keep layout stable.
+  // Status pill — always rendered to keep layout stable.
   const pillClass = inCooldown
     ? 'bg-yellow-tint text-yellow-text'
     : 'bg-green-tint text-green-text'
@@ -85,12 +65,12 @@ export default function InstagramAuditCard() {
     inCooldown && cooldownLabel ? `Available in ${cooldownLabel}` : 'Available'
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
-      {/* Tinted header band — same recipe as every other card on the
-          Overview. Hosts chip + title + status pill + CTA. Subtitle
-          drops to the body below so the band stays compact. */}
+    <section className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
+      {/* Tinted header band. Hosts chip + title + status pill. When
+          the audit has already been generated, a small "View audit"
+          link sits in the top-right (Edit/View-all pattern). */}
       <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-border bg-bg/50 px-4 py-4 lg:-mx-6 lg:-mt-6 lg:px-6">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <CardChip color="blue" icon={FileText} />
             <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -109,65 +89,77 @@ export default function InstagramAuditCard() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleClick}
-            disabled={ctaDisabled}
-            className={`inline-flex h-10 w-full shrink-0 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 md:w-auto md:min-w-[200px] ${ctaColor}`}
-          >
-            {showSpinner && (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            )}
-            {ctaLabel}
-          </button>
+          {hasDownloaded && (
+            <button
+              type="button"
+              onClick={handleViewAudit}
+              className="inline-flex items-center gap-1 text-sm font-medium text-blue-text transition-opacity hover:opacity-80"
+            >
+              View audit
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Body — descriptive paragraph until the user has generated
-          their first audit. Once an audit exists (inCooldown), the
-          card flips to a glance-value data surface showing the top
-          three numbers from the latest run. The full PDF stays
-          behind the "View audit" CTA in the header either way. */}
-      {hasDownloaded ? (
-        // Stat strip — stacked on mobile with horizontal separators
-        // between rows, 3-up on sm:+ with vertical separators between
-        // columns. Same separator pattern as GrowthPlusOverviewCard
-        // so the two surfaces read as siblings.
-        <div className="grid grid-cols-1 sm:grid-cols-3">
-          {[
-            mockAuditTopStats.reach7d,
-            mockAuditTopStats.engagementRate,
-            mockAuditTopStats.avgLikes,
-          ].map((s, i, arr) => (
-            <div
-              key={s.label}
-              className={[
-                'px-0 py-2 sm:px-4 sm:py-0',
-                // Mobile: horizontal separator between rows
-                i > 0 ? 'border-t border-border pt-3' : '',
-                // Desktop: vertical separator on every cell except first
-                i > 0 ? 'sm:border-l sm:border-border' : '',
-                // Desktop: kill the mobile horizontal separator + extra padding
-                i > 0 ? 'sm:border-t-0 sm:pt-0' : '',
-                // Trim outer padding so the strip aligns with the card edges
-                i === 0 ? 'sm:pl-0' : '',
-                i === arr.length - 1 ? 'sm:pr-0' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
-              <AuditStat stat={s} />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-sm leading-relaxed text-text-secondary">
-          A weekly PDF snapshot of your account's growth from the last
-          7 days. Track follower trends, top-performing targets, and
-          engagement metrics over time.
-        </p>
-      )}
+      {hasDownloaded ? <GeneratedBody /> : <NotGeneratedBody state={state} onGenerate={handleGenerate} />}
     </section>
+  )
+}
+
+function GeneratedBody() {
+  // 3-stat strip — stacked on mobile with horizontal separators,
+  // 3-up on sm:+ with vertical separators between columns. Same
+  // pattern as GrowthPlusOverviewCard so the two cards read as
+  // siblings in the 2-col Overview row.
+  const stats = [
+    mockAuditTopStats.reach7d,
+    mockAuditTopStats.engagementRate,
+    mockAuditTopStats.avgLikes,
+  ]
+  return (
+    <div className="grid flex-1 grid-cols-1 sm:grid-cols-3">
+      {stats.map((s, i, arr) => (
+        <div
+          key={s.label}
+          className={[
+            'py-2 sm:px-4 sm:py-0',
+            i > 0 ? 'border-t border-border pt-3' : '',
+            i > 0 ? 'sm:border-l sm:border-border sm:border-t-0 sm:pt-0' : '',
+            i === 0 ? 'sm:pl-0' : '',
+            i === arr.length - 1 ? 'sm:pr-0' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          <AuditStat stat={s} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function NotGeneratedBody({ state, onGenerate }) {
+  const processing = state === 'processing'
+  return (
+    <div className="flex flex-1 flex-col">
+      <p className="text-sm leading-relaxed text-text-secondary">
+        A weekly PDF snapshot of your account's growth from the last
+        7 days. Track follower trends, top-performing targets, and
+        engagement metrics over time.
+      </p>
+      <div className="mt-4">
+        <button
+          type="button"
+          onClick={onGenerate}
+          disabled={processing}
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-blue-base px-4 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto md:min-w-[200px]"
+        >
+          {processing && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+          {processing ? 'Generating audit…' : 'Get Instagram Audit'}
+        </button>
+      </div>
+    </div>
   )
 }
 
