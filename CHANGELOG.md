@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-05-18 — Billing page de-clutter
+
+Polish pass on top of the Option-2 card-with-chip-header restructure that landed the same day. Flattens the visual treatment so Billing reads as a clean list-inside-card surface instead of cards-stacked-inside-cards.
+
+### Added
+- **`src/components/CardBrandIcon.jsx`** — inline SVG logos for Visa, Mastercard, Amex (Discover gets a gradient placeholder). Used by `PaymentMethodsCard` to surface the actual brand instead of the generic `CreditCard` lucide icon.
+- **Mastercard entry in `mockPaymentMethods`** so the icon mapping has coverage during dev.
+
+### Changed
+- **Payment-method rows** — primary card keeps its bordered chip (visual emphasis on the default-charge card). Secondary cards collapse from individually-bordered rows to **divider-separated list rows** inside the parent card.
+- **Subscription rows** (`SubscriptionCard`) — same treatment: drop per-row `rounded-lg border`, render as divider-separated list rows inside the Subscriptions parent card.
+- **Invoice mobile rows** — drop per-card `rounded-lg border`, render as divider-separated rows inside the Billing history parent card.
+- **Billing history header icon** swapped from `Receipt` → `Clock`. Avoids visual collision with the empty-state `Receipt` icon still used inside `InvoicesTable` when there are no invoices.
+
+### Decisions (locked, don't revisit)
+- **Primary payment method gets visual emphasis** (kept its bordered chip + blue tint) while secondary cards flatten to dividers. The "default-charge" card needs to be unmistakable at a glance.
+- **Divider-separated rows inside the parent card** is the standard treatment for Billing list contents — beats per-row borders which read as cards-in-cards. Pattern shared by Payment methods (secondary), Subscriptions, and Invoices (mobile).
+- **Billing history's header icon is `Clock`.** `Receipt` is reserved for the empty-state inside `InvoicesTable`.
+
 ## 2026-05-18 — Targets bulk-select
 
 Multi-row selection mode on the Targets list at `/targeting`. Pending-queue item #1 from the prior session, shipped end-to-end through the brainstorming → spec → plan → subagent-driven-development cycle.
