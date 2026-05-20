@@ -65,7 +65,7 @@ export default function InstagramAuditCard() {
     inCooldown && cooldownLabel ? `Available in ${cooldownLabel}` : 'Available'
 
   return (
-    <section className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
+    <section className="flex flex-col rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       {/* Tinted header band. Hosts chip + title + status pill. When
           the audit has already been generated, a small "View audit"
           link sits in the top-right (Edit/View-all pattern). */}
@@ -118,7 +118,7 @@ function GeneratedBody() {
     mockAuditTopStats.avgLikes,
   ]
   return (
-    <div className="grid flex-1 grid-cols-1 sm:grid-cols-3">
+    <div className="grid grid-cols-1 sm:grid-cols-3">
       {stats.map((s, i, arr) => (
         <div
           key={s.label}
@@ -142,7 +142,7 @@ function GeneratedBody() {
 function NotGeneratedBody({ state, onGenerate }) {
   const processing = state === 'processing'
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-col">
       <p className="text-sm leading-relaxed text-text-secondary">
         A weekly PDF snapshot of your account's growth from the last
         7 days. Track follower trends, top-performing targets, and

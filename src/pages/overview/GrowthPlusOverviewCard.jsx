@@ -26,7 +26,7 @@ export default function GrowthPlusOverviewCard({ user }) {
   const subscribed = !!user?.growthPlusSubscribed
 
   return (
-    <section className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
+    <section className="flex flex-col rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       {/* Tinted header band — symmetric with every other Overview
           card that uses this chrome (Audit, snapshots, etc). */}
       <div className="-mx-4 -mt-4 mb-4 rounded-t-xl border-b border-border bg-bg/50 px-4 py-4 lg:-mx-6 lg:-mt-6 lg:px-6">
@@ -82,7 +82,7 @@ function SubscribedBody({ user }) {
   ]
 
   return (
-    <div className="grid flex-1 grid-cols-1 sm:grid-cols-3">
+    <div className="grid grid-cols-1 sm:grid-cols-3">
       {stats.map((s, i, arr) => (
         <div
           key={s.label}
@@ -113,7 +113,7 @@ function SubscribedBody({ user }) {
 
 function UpsellBody() {
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-col">
       <p className="text-sm leading-relaxed text-text-secondary">
         Algorithmic boosts that amplify your reach and accelerate
         follower growth — on top of your existing plan.

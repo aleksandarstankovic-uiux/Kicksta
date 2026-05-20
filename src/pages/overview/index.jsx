@@ -1677,27 +1677,31 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Audit + Growth+ — paired row of "subscription value" cards
-            below the chart. 2-col on lg:+ (Audit left, G+ right),
-            stacked on mobile. items-stretch keeps both cards the same
-            height regardless of which state each is in. */}
+        {/* Bottom block — single 2-col grid that owns the Audit/G+
+            row AND the Targets / Settings / Engagement block underneath.
+            Each column is a flex stack: the top card (Audit / G+)
+            takes its natural height so the two are not coupled —
+            generating an audit doesn't force G+ to grow. The bottom
+            card in each column (TargetsOverview on the left,
+            EngagementSnapshot on the right) flex-grows to fill any
+            remaining vertical space so the two columns end at the
+            same Y position — the dashboard's bottom stays aligned. */}
         <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-          <InstagramAuditCard />
-          <GrowthPlusOverviewCard user={user} />
-        </div>
-
-        {/* Bottom block — single 2-col row. Left column is the Top
-            Targets list (one tall card). Right column stacks the
-            Targeting + Engagement snapshots with a matching gap.
-            `items-stretch` on the grid + `h-full` on the left card
-            makes the two outer columns share the same height —
-            whichever side has the larger natural content drives the
-            row height and the other stretches to match. */}
-        <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-          <TargetsOverview plan={user.plan} />
+          {/* Left column */}
           <div className="flex flex-col gap-4">
+            <InstagramAuditCard />
+            <div className="flex flex-1 flex-col">
+              <TargetsOverview plan={user.plan} />
+            </div>
+          </div>
+
+          {/* Right column */}
+          <div className="flex flex-col gap-4">
+            <GrowthPlusOverviewCard user={user} />
             <TargetingSettingsSnapshot />
-            <EngagementSnapshot />
+            <div className="flex flex-1 flex-col">
+              <EngagementSnapshot />
+            </div>
           </div>
         </div>
       </div>
