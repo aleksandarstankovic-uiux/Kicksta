@@ -129,10 +129,36 @@ export default function InstagramAuditCard() {
           three numbers from the latest run. The full PDF stays
           behind the "View audit" CTA in the header either way. */}
       {hasDownloaded ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
-          <AuditStat stat={mockAuditTopStats.reach7d} />
-          <AuditStat stat={mockAuditTopStats.engagementRate} />
-          <AuditStat stat={mockAuditTopStats.avgLikes} />
+        // Stat strip — stacked on mobile with horizontal separators
+        // between rows, 3-up on sm:+ with vertical separators between
+        // columns. Same separator pattern as GrowthPlusOverviewCard
+        // so the two surfaces read as siblings.
+        <div className="grid grid-cols-1 sm:grid-cols-3">
+          {[
+            mockAuditTopStats.reach7d,
+            mockAuditTopStats.engagementRate,
+            mockAuditTopStats.avgLikes,
+          ].map((s, i, arr) => (
+            <div
+              key={s.label}
+              className={[
+                'px-0 py-2 sm:px-4 sm:py-0',
+                // Mobile: horizontal separator between rows
+                i > 0 ? 'border-t border-border pt-3' : '',
+                // Desktop: vertical separator on every cell except first
+                i > 0 ? 'sm:border-l sm:border-border' : '',
+                // Desktop: kill the mobile horizontal separator + extra padding
+                i > 0 ? 'sm:border-t-0 sm:pt-0' : '',
+                // Trim outer padding so the strip aligns with the card edges
+                i === 0 ? 'sm:pl-0' : '',
+                i === arr.length - 1 ? 'sm:pr-0' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              <AuditStat stat={s} />
+            </div>
+          ))}
         </div>
       ) : (
         <p className="text-sm leading-relaxed text-text-secondary">
