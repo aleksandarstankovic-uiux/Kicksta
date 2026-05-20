@@ -19,6 +19,7 @@ import {
   Star,
   Pause,
   Play,
+  Sparkles,
 } from 'lucide-react'
 import {
   BarChart,
@@ -37,7 +38,9 @@ import { useAccounts } from '@/stores/useAccounts'
 import { mockUser, PLAN_CATALOG } from '@/mocks/user'
 import {
   mockGrowthDaily,
+  mockGrowthPlusInsights,
 } from '@/mocks/growth'
+import { formatCount } from '@/utils/formatCount'
 import { mockTargets } from '@/mocks/targets'
 import { mockGrowthConfig } from '@/mocks/growthConfig'
 import { mockActivity } from '@/mocks/activity'
@@ -56,6 +59,7 @@ import Tooltip from '@/components/Tooltip'
 import { STATUS_TOOLTIP } from '@/pages/targeting/targetStatus'
 import TargetingSettingsSnapshot from './TargetingSettingsSnapshot'
 import EngagementSnapshot from './EngagementSnapshot'
+import PauseGrowthModal from './PauseGrowthModal'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 
 // --- Helpers ---
@@ -212,6 +216,7 @@ function Sparkline({ data, gradientId }) {
             strokeWidth={1.5}
             fill={`url(#${gradientId})`}
             dot={false}
+            activeDot={false}
             isAnimationActive={true}
             animationDuration={400}
           />
@@ -339,12 +344,11 @@ function AccountPauseCTA({ status, onPauseToggle, className = '' }) {
 
   if (isHidden) return null
 
+  // Toast + state transition both live in the parent now: pausing
+  // routes through a confirmation modal, resuming is one-click. The
+  // CTA is dumb — it just signals intent.
   const handleClick = () => {
     onPauseToggle?.()
-    useToasts.getState().addToast({
-      message: isPaused ? 'Growth resumed.' : 'Growth paused.',
-      tone: 'success',
-    })
   }
 
   if (isPaused) {
@@ -567,6 +571,14 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
 
   const planLabel = user.plan === 'advanced' ? 'Advanced' : 'Growth'
 
+  // Growth+ insights for the current tier — drives the 4-stat strip
+  // that appears at the bottom of the card when the user has G+. Falls
+  // back to `pro` insights if the tier is missing for any reason so the
+  // strip never renders empty.
+  const gpInsights = user.growthPlusSubscribed
+    ? mockGrowthPlusInsights[user.growthPlusTier] ?? mockGrowthPlusInsights.pro
+    : null
+
   return (
     <div className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       <div className="flex items-start gap-3 sm:justify-between">
@@ -589,8 +601,10 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
           </div>
 
           <div className="min-w-0 flex-1">
-            {/* Identity row: @handle + plan pill + optional Trial pill. */}
-            <div className="flex items-center gap-2">
+            {/* Identity row: @handle + plan pill + optional Trial pill
+                + optional Growth+ pill. Pills wrap below the handle on
+                narrow widths so they never push the handle off-screen. */}
+            <div className="flex flex-wrap items-center gap-2">
               <span className="truncate text-sm font-semibold text-text-primary lg:text-base">@{connection.username}</span>
               <span className="shrink-0 rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-secondary">
                 {planLabel}
@@ -598,6 +612,12 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
               {user.isOnTrial && (
                 <span className="shrink-0 rounded-full bg-blue-tint px-2 py-0.5 text-xs font-medium text-blue-text">
                   Trial
+                </span>
+              )}
+              {user.growthPlusSubscribed && (
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-purple-tint px-2 py-0.5 text-xs font-medium text-purple-text">
+                  <Sparkles className="h-3 w-3" aria-hidden="true" />
+                  Growth+
                 </span>
               )}
             </div>
@@ -623,6 +643,35 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
       <div className="mt-3 sm:hidden">
         <AccountPauseCTA status={systemStatus} onPauseToggle={onPauseToggle} className="w-full" />
       </div>
+
+      {/* Growth+ stat strip — only when the user has G+. Lives at the
+          bottom of the AccountCard so subscription value sits next to
+          subscription identity. 4 columns on sm:+, 2 on mobile so the
+          numbers stay legible at any width. */}
+      {gpInsights && (
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-3 sm:grid-cols-4">
+          <GrowthPlusStat label="Boosts this month" value={gpInsights.algorithmicBoost} />
+          <GrowthPlusStat label="Followers from G+" value={`+${formatCount(gpInsights.totalFollowersGained)}`} />
+          <GrowthPlusStat label="Reach added" value={formatCount(gpInsights.totalReachAdded)} />
+          <GrowthPlusStat label="Engagement" value={`${(gpInsights.engagementRate * 100).toFixed(1)}%`} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Small reusable block for the AccountCard's Growth+ stat strip. Label
+// on top in muted micro-type, value below in primary. Kept local to
+// AccountCard since it's the only consumer.
+function GrowthPlusStat({ label, value }) {
+  return (
+    <div className="min-w-0">
+      <p className="truncate text-[11px] font-medium text-text-muted">
+        {label}
+      </p>
+      <p className="mt-0.5 truncate text-sm font-semibold text-text-primary">
+        {value}
+      </p>
     </div>
   )
 }
@@ -1537,12 +1586,29 @@ export default function OverviewPage() {
   // actually do something in V1 (just flips the state). Real app will
   // sync this to the backend.
   const [systemStatus, setSystemStatus] = useState(mockSystemStatus)
+  const [pauseModalOpen, setPauseModalOpen] = useState(false)
+
+  // Resume is one-click; pausing opens a confirmation modal first so
+  // the user knows the engine will need to warm back up.
   const handlePauseToggle = () => {
-    setSystemStatus((curr) =>
-      curr.state === 'paused'
-        ? mockSystemStatusFollowing // resume
-        : mockSystemStatusPaused,
-    )
+    if (systemStatus.state === 'paused') {
+      setSystemStatus(mockSystemStatusFollowing)
+      useToasts.getState().addToast({
+        message: 'Growth resumed.',
+        tone: 'success',
+      })
+      return
+    }
+    setPauseModalOpen(true)
+  }
+
+  const confirmPause = () => {
+    setSystemStatus(mockSystemStatusPaused)
+    setPauseModalOpen(false)
+    useToasts.getState().addToast({
+      message: 'Growth paused.',
+      tone: 'success',
+    })
   }
 
   return (
@@ -1672,6 +1738,13 @@ export default function OverviewPage() {
           </div>
         </div>
       </div>
+
+      {pauseModalOpen && (
+        <PauseGrowthModal
+          onClose={() => setPauseModalOpen(false)}
+          onConfirm={confirmPause}
+        />
+      )}
     </div>
   )
 }

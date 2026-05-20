@@ -7,6 +7,7 @@ import {
   nextAuditAvailableIn,
 } from '@/utils/auditCooldown'
 import { useToasts } from '@/stores/useToasts'
+import { mockAuditTopStats } from '@/mocks/audit'
 
 // Instagram Audit card — single-CTA component on the Overview page.
 //
@@ -122,11 +123,44 @@ export default function InstagramAuditCard() {
         </div>
       </div>
 
-      <p className="text-sm leading-relaxed text-text-secondary">
-        A weekly PDF snapshot of your account's growth from the last
-        7 days. Track follower trends, top-performing targets, and
-        engagement metrics over time.
-      </p>
+      {/* Top-3 stats from the latest audit — replaces the descriptive
+          paragraph. The full PDF still lives behind the CTA in the
+          header; this strip turns the card into a glance-value data
+          surface. 3-col grid on sm:+, stacked on mobile. */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
+        <AuditStat stat={mockAuditTopStats.reach7d} />
+        <AuditStat stat={mockAuditTopStats.engagementRate} />
+        <AuditStat stat={mockAuditTopStats.avgLikes} />
+      </div>
     </section>
+  )
+}
+
+const DELTA_TONE_CLASS = {
+  up: 'text-green-text',
+  down: 'text-red-text',
+  flat: 'text-text-muted',
+}
+
+function AuditStat({ stat }) {
+  if (!stat) return null
+  return (
+    <div className="min-w-0">
+      <p className="truncate text-xs font-medium text-text-muted">
+        {stat.label}
+      </p>
+      <div className="mt-1 flex items-baseline gap-2">
+        <p className="text-xl font-semibold text-text-primary lg:text-2xl">
+          {stat.value}
+        </p>
+        {stat.delta && (
+          <span
+            className={`text-xs font-medium ${DELTA_TONE_CLASS[stat.deltaTone] ?? 'text-text-muted'}`}
+          >
+            {stat.delta}
+          </span>
+        )}
+      </div>
+    </div>
   )
 }
