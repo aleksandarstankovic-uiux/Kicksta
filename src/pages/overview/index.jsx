@@ -35,12 +35,10 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { useAccounts } from '@/stores/useAccounts'
-import { mockUser, mockUserGrowthPlus, PLAN_CATALOG } from '@/mocks/user'
+import { mockUser, PLAN_CATALOG } from '@/mocks/user'
 import {
   mockGrowthDaily,
-  mockGrowthPlusInsights,
 } from '@/mocks/growth'
-import { formatCount } from '@/utils/formatCount'
 import { mockTargets } from '@/mocks/targets'
 import { mockGrowthConfig } from '@/mocks/growthConfig'
 import { mockActivity } from '@/mocks/activity'
@@ -60,6 +58,7 @@ import { STATUS_TOOLTIP } from '@/pages/targeting/targetStatus'
 import TargetingSettingsSnapshot from './TargetingSettingsSnapshot'
 import EngagementSnapshot from './EngagementSnapshot'
 import PauseGrowthModal from './PauseGrowthModal'
+import GrowthPlusOverviewCard from './GrowthPlusOverviewCard'
 import { formatRelativeTime } from '@/utils/formatRelativeTime'
 
 // --- Helpers ---
@@ -571,14 +570,6 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
 
   const planLabel = user.plan === 'advanced' ? 'Advanced' : 'Growth'
 
-  // Growth+ insights for the current tier — drives the 4-stat strip
-  // that appears at the bottom of the card when the user has G+. Falls
-  // back to `pro` insights if the tier is missing for any reason so the
-  // strip never renders empty.
-  const gpInsights = user.growthPlusSubscribed
-    ? mockGrowthPlusInsights[user.growthPlusTier] ?? mockGrowthPlusInsights.pro
-    : null
-
   return (
     <div className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       <div className="flex items-start gap-3 sm:justify-between">
@@ -643,35 +634,6 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
       <div className="mt-3 sm:hidden">
         <AccountPauseCTA status={systemStatus} onPauseToggle={onPauseToggle} className="w-full" />
       </div>
-
-      {/* Growth+ stat strip — only when the user has G+. Lives at the
-          bottom of the AccountCard so subscription value sits next to
-          subscription identity. 4 columns on sm:+, 2 on mobile so the
-          numbers stay legible at any width. */}
-      {gpInsights && (
-        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-3 sm:grid-cols-4">
-          <GrowthPlusStat label="Boosts this month" value={gpInsights.algorithmicBoost} />
-          <GrowthPlusStat label="Followers from G+" value={`+${formatCount(gpInsights.totalFollowersGained)}`} />
-          <GrowthPlusStat label="Reach added" value={formatCount(gpInsights.totalReachAdded)} />
-          <GrowthPlusStat label="Engagement" value={`${(gpInsights.engagementRate * 100).toFixed(1)}%`} />
-        </div>
-      )}
-    </div>
-  )
-}
-
-// Small reusable block for the AccountCard's Growth+ stat strip. Label
-// on top in muted micro-type, value below in primary. Kept local to
-// AccountCard since it's the only consumer.
-function GrowthPlusStat({ label, value }) {
-  return (
-    <div className="min-w-0">
-      <p className="truncate text-[11px] font-medium text-text-muted">
-        {label}
-      </p>
-      <p className="mt-0.5 truncate text-sm font-semibold text-text-primary">
-        {value}
-      </p>
     </div>
   )
 }
@@ -1574,11 +1536,7 @@ export default function OverviewPage() {
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
   const connection = accounts.find((a) => a.id === activeId) ?? accounts[0]
-  // V1 demo defaults to the Growth+ user variant so the AccountCard's
-  // G+ pill + 4-stat strip render on first load. Swap to `mockUser` for
-  // the non-G+ / on-trial scenario, or to `mockUserGrowthPlusStarter` /
-  // `mockUserGrowthPlusElite` to exercise tier gating.
-  const user = mockUserGrowthPlus
+  const user = mockUser
   const isDisconnected = connection.connectionState === 'disconnected'
 
   // Effective period — 'trial' while on trial, user-selected otherwise.
@@ -1718,6 +1676,15 @@ export default function OverviewPage() {
             </div>
           </div>
         </div>
+
+        {/* Growth+ snapshot — only renders when the user has G+.
+            Grouped lower in the page next to the Audit since both
+            surface "subscription value" insights. */}
+        {user.growthPlusSubscribed && (
+          <div className="mt-4">
+            <GrowthPlusOverviewCard user={user} />
+          </div>
+        )}
 
         {/* Instagram Audit — full-width row between the chart and the
             bottom 2-col block. Adjacency with the chart is deliberate:
