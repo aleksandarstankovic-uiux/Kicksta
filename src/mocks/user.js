@@ -32,24 +32,17 @@ export const mockUser = {
   plan: 'advanced',
   trialEndsAt,
   isOnTrial: true,
-  // Default mock subscribes the user to Growth+ from "day one" so the
-  // dashboard renders its full subscription state (trial + base plan
-  // + G+ add-on) without any variant swap. The variants below stay
-  // available for non-G+ scenarios.
-  growthPlusSubscribed: true,
+  // Default starts UN-subscribed so the Overview's Growth+ card and
+  // the AccountCard pill begin in the upsell / not-subscribed state.
+  // Upgrading through /growth-plus flips `useGrowthPlusSubscription`
+  // (and `useGrowthConfig.growthPlusControls.tier`); the dashboard
+  // reads from those stores to render the subscribed state inline.
+  growthPlusSubscribed: false,
   // Current Growth+ tier when subscribed. "starter" | "pro" | "elite"
   // | null. null when growthPlusSubscribed === false. Drives the hero
   // pill, metric ceilings, and which control segments unlock.
-  growthPlusTier: 'pro',
-  createdAt,
-}
-
-// Variant: trial user who has NOT subscribed to Growth+ yet. Use for
-// exercising the upsell / non-G+ render paths on the Overview.
-export const mockUserNoGrowthPlus = {
-  ...mockUser,
-  growthPlusSubscribed: false,
   growthPlusTier: null,
+  createdAt,
 }
 
 export const mockUserGrowthPlus = {

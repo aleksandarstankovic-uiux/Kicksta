@@ -51,6 +51,7 @@ import { useSystemStatus } from '@/hooks/useSystemStatus'
 import { useToasts } from '@/stores/useToasts'
 import { useTargetsStore } from '@/stores/useTargetsStore'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
+import { useGrowthPlusSubscription } from '@/stores/useGrowthPlusSubscription'
 import InstagramConnectionBanner from '@/components/InstagramConnectionBanner'
 import InstagramAuditCard from '@/components/InstagramAuditCard'
 import Tooltip from '@/components/Tooltip'
@@ -1536,8 +1537,25 @@ export default function OverviewPage() {
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
   const connection = accounts.find((a) => a.id === activeId) ?? accounts[0]
-  const user = mockUser
   const isDisconnected = connection.connectionState === 'disconnected'
+
+  // Effective G+ state — `mockUser` starts un-subscribed. After the
+  // user upgrades through /growth-plus the `useGrowthPlusSubscription`
+  // store flips to `subscribed: true` and `useGrowthConfig` records
+  // their chosen tier. We compose those into an effective user so the
+  // AccountCard pill + Growth+ card on this page flip from the upsell
+  // state to the subscribed state without a page reload.
+  const gpSubscribed = useGrowthPlusSubscription(
+    (s) => s.subscribed ?? mockUser.growthPlusSubscribed,
+  )
+  const gpStatus = useGrowthPlusSubscription((s) => s.status)
+  const gpTier = useGrowthConfig((s) => s.config.growthPlusControls.tier)
+  const isGrowthPlusActive = gpSubscribed && gpStatus !== 'lapsed'
+  const user = {
+    ...mockUser,
+    growthPlusSubscribed: isGrowthPlusActive,
+    growthPlusTier: isGrowthPlusActive ? gpTier : null,
+  }
 
   // Effective period — 'trial' while on trial, user-selected otherwise.
   // All downstream widgets read from this so the chart / feed / metric
