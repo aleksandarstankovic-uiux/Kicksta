@@ -8,6 +8,7 @@ import { useThemeStore } from '@/stores/useThemeStore'
 import ToastContainer from '@/components/Toast'
 import AccountSwitcher from '@/components/AccountSwitcher'
 import MobileNavDrawer from '@/components/MobileNavDrawer'
+import DashboardPresetWidget from '@/components/DashboardPresetWidget'
 import useDismissOnOutsideClick from '@/hooks/useDismissOnOutsideClick'
 import kickstaLogo from '@/assets/kicksta-logo.svg'
 import kickstaFullLogo from '@/assets/kicksta-full-logo.svg'
@@ -380,6 +381,7 @@ export default function DashboardLayout() {
       </nav>
 
       <ToastContainer />
+      <DashboardPresetWidget />
     </div>
   )
 }
