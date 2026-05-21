@@ -34,7 +34,7 @@ export default function ConfirmGrowthPlusModal({ open, subscription, onClose }) 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 lg:items-center lg:p-4">
       <div
-        className={`w-full max-w-md rounded-t-2xl border border-border bg-surface p-6 shadow-xl transition-all duration-200 lg:rounded-2xl ${
+        className={`w-full max-w-md rounded-t-xl border border-border bg-surface p-6 shadow-xl transition-all duration-200 lg:rounded-xl ${
           mounted ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
@@ -62,13 +62,13 @@ export default function ConfirmGrowthPlusModal({ open, subscription, onClose }) 
         <div className="mt-5 flex items-center justify-end gap-2">
           <button
             onClick={onClose}
-            className="inline-flex h-10 items-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-text-primary hover:bg-bg"
+            className="inline-flex h-12 items-center justify-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-text-primary hover:bg-bg"
           >
             Cancel
           </button>
           <button
             onClick={confirm}
-            className="inline-flex h-10 items-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white hover:opacity-90"
+            className="inline-flex h-12 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white hover:opacity-90"
           >
             {adding ? 'Add for $10/mo' : 'Remove Growth+'}
           </button>

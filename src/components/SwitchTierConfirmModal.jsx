@@ -83,7 +83,7 @@ export default function SwitchTierConfirmModal({
         if (e.target === e.currentTarget && state === 'confirm') onClose?.()
       }}
     >
-      <div className="w-full rounded-t-2xl bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-sm lg:rounded-2xl lg:pb-6">
+      <div className="w-full rounded-t-xl border border-border bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-md lg:rounded-xl lg:pb-6">
         {state === 'confirm' && (
           <>
             <div className="flex items-center justify-between">

@@ -175,7 +175,7 @@ export default function TargetRow({ target, isTop, isFirst, onOpen }) {
             className="hidden shrink-0 md:inline-flex"
           >
             <span
-              className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
+              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
                 statusPillClass[target.status]
               } ${
                 isProcessing

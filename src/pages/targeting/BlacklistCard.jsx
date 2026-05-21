@@ -12,7 +12,7 @@ export default function BlacklistCard({ onEdit }) {
   const blacklist = useLists((s) => s.blacklist)
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
+    <section className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <CardChip color="neutral" icon={Ban} />

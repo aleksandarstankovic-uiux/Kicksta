@@ -272,7 +272,7 @@ export default function SignupLayout() {
           onClick={(e) => { if (e.target === e.currentTarget) setShowBackConfirm(false) }}
         >
           <div
-            className="w-full rounded-t-2xl bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-sm lg:rounded-2xl lg:pb-6"
+            className="w-full rounded-t-xl bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-sm lg:rounded-xl lg:pb-6"
             style={{ animation: window.innerWidth < 1024 ? 'drawerSlideUp 0.3s ease-out' : 'fadeSlideIn 0.25s ease-out' }}
           >
             <div className="flex flex-col items-center text-center">

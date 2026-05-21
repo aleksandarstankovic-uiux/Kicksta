@@ -116,7 +116,7 @@ function TrialProgress({ user }) {
 
   const remaining = daysUntil(user.trialEndsAt)
   return (
-    <span className="flex w-full items-center justify-center gap-2 rounded-lg border border-blue-base/20 bg-blue-tint px-3 py-1.5 sm:inline-flex sm:w-auto sm:py-1">
+    <span className="flex w-full items-center justify-center gap-2 rounded-full border border-blue-base/20 bg-blue-tint px-3 py-1.5 sm:inline-flex sm:w-auto sm:py-1">
       <Clock className="h-3.5 w-3.5 shrink-0 text-blue-text" />
       <span className="text-xs font-semibold text-blue-text">
         Trial: {remaining} {remaining === 1 ? 'day' : 'days'} left
@@ -175,7 +175,7 @@ function TrialBanner({ user }) {
         </div>
         <Link
           to="/signup/plan-selection"
-          className="inline-flex h-9 w-full shrink-0 items-center justify-center gap-1.5 rounded-lg bg-blue-text px-4 text-sm font-semibold text-surface transition-opacity hover:opacity-90 sm:w-auto"
+          className="inline-flex h-10 w-full shrink-0 items-center justify-center gap-1.5 rounded-lg bg-blue-base px-4 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 sm:w-auto"
         >
           Manage plan
           <ArrowRight className="h-4 w-4" />
@@ -356,7 +356,7 @@ function AccountPauseCTA({ status, onPauseToggle, className = '' }) {
       <button
         type="button"
         onClick={handleClick}
-        className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-green-base px-4 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90 ${className}`}
+        className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-green-base px-4 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 ${className}`}
       >
         <Play className="h-4 w-4" aria-hidden="true" />
         Resume growth
@@ -368,7 +368,7 @@ function AccountPauseCTA({ status, onPauseToggle, className = '' }) {
     <button
       type="button"
       onClick={handleClick}
-      className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 text-sm font-medium text-text-primary transition-colors hover:bg-bg ${className}`}
+      className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 text-sm font-medium text-text-primary transition-colors hover:bg-bg shadow-sm ${className}`}
     >
       <Pause className="h-4 w-4" aria-hidden="true" />
       Pause growth
@@ -1270,7 +1270,7 @@ function ActivityFeed({ items, period, customRange }) {
     // taller. On mobile the card cap at `max-h-[420px]` so a long
     // history scrolls inside the card (~5 rows visible) instead of
     // pushing the page.
-    <div className="flex h-full max-h-[420px] min-h-0 flex-col rounded-xl border border-border bg-surface p-4 lg:max-h-none lg:p-6">
+    <div className="flex h-full max-h-[420px] min-h-0 flex-col rounded-xl border border-border bg-surface p-4 pb-3 lg:max-h-none lg:p-6">
       {/* Tinted header band — matches the chart + bottom-row cards
           so the Overview reads as a coherent set with consistent
           chrome. Title on the left, Live pill pinned right. */}

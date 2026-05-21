@@ -32,8 +32,8 @@ export default function AudienceReachEstimate() {
   const { count, health, tone } = estimateAudienceReach(filters)
 
   return (
-    <div className="mt-4 rounded-lg bg-bg p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">
+    <div className="mt-4 rounded-xl bg-bg p-4">
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-text-muted">
         Estimated audience
       </p>
       <div className="mt-1 flex items-center justify-between gap-3">

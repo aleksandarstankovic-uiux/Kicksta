@@ -64,7 +64,7 @@ export default function DowngradePlanConfirmModal({
         if (e.target === e.currentTarget && state === 'confirm') onClose?.()
       }}
     >
-      <div className="w-full overflow-hidden rounded-t-2xl bg-surface pb-[calc(env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-sm lg:rounded-2xl lg:pb-0">
+      <div className="w-full overflow-hidden rounded-t-xl bg-surface pb-[calc(env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-sm lg:rounded-xl lg:pb-0">
         {state === 'confirm' && (
           <>
             <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">

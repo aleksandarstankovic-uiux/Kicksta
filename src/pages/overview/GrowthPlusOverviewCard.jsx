@@ -47,7 +47,7 @@ function SubscribedCard({ user }) {
                 Growth+
               </h2>
               {tier && (
-                <span className="inline-flex items-center rounded-full bg-purple-tint px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-purple-text">
+                <span className="inline-flex items-center rounded-full bg-purple-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-purple-text">
                   {tier.name}
                 </span>
               )}
@@ -114,7 +114,7 @@ function UpsellCard() {
               <h2 className="text-base font-semibold text-text-primary">
                 Growth+
               </h2>
-              <span className="inline-flex items-center rounded-full bg-purple-base px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+              <span className="inline-flex items-center rounded-full bg-purple-base px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
                 from ${MIN_GROWTH_PLUS_PRICE}/mo
               </span>
             </div>

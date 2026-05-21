@@ -84,7 +84,7 @@ export default function ModeCard() {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
+    <section className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       {/* Header row — chip + title + tooltip + within-IG-limits pill inline.
           When dirty, Save/Cancel buttons appear at the right end on desktop
           only (mobile gets them below the grid for thumb reach). */}

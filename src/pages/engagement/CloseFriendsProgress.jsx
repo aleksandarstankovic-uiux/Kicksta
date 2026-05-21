@@ -45,7 +45,7 @@ export default function CloseFriendsProgress({ mode, enabled }) {
             : 'Activity will appear when on'}
         </p>
         {enabled && (
-          <span className="inline-flex items-center rounded-full bg-green-tint px-2.5 py-1 text-xs font-medium text-green-text">
+          <span className="inline-flex items-center rounded-full bg-green-tint px-2 py-0.5 text-xs font-medium text-green-text">
             Active
           </span>
         )}

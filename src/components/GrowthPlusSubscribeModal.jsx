@@ -66,7 +66,7 @@ export default function GrowthPlusSubscribeModal({
 
       {(state === 'confirm' || state === 'success') && (
         <div
-          className="w-full rounded-t-2xl bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-sm lg:rounded-2xl lg:pb-6"
+          className="w-full rounded-t-xl bg-surface p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-xl lg:mx-4 lg:max-w-sm lg:rounded-xl lg:pb-6"
           style={{
             animation:
               typeof window !== 'undefined' && window.innerWidth < 1024

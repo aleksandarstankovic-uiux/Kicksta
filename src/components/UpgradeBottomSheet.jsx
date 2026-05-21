@@ -126,14 +126,14 @@ export default function UpgradeBottomSheet({ open, onClose, feature = 'welcome_d
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-11 items-center justify-center rounded-lg bg-bg px-4 text-sm font-medium text-text-primary hover:opacity-90"
+            className="inline-flex h-12 items-center justify-center rounded-lg bg-bg px-4 text-sm font-medium text-text-primary hover:opacity-90"
           >
             Cancel
           </button>
           <Link
             to="/signup/plan-selection"
             onClick={onClose}
-            className="inline-flex h-11 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="inline-flex h-12 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             Upgrade to Advanced
           </Link>

@@ -12,7 +12,7 @@ export default function WhitelistCard({ onEdit }) {
   const whitelist = useLists((s) => s.whitelist)
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 lg:p-5">
+    <section className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <CardChip color="green" icon={ShieldCheck} />

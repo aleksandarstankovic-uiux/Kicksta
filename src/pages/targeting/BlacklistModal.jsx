@@ -289,7 +289,7 @@ export default function BlacklistModal({ open, onClose }) {
           <button
             type="button"
             onClick={handleSave}
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-blue-base px-5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="inline-flex h-12 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             Save
           </button>

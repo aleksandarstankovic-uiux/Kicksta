@@ -72,7 +72,7 @@ export default function TargetingSettingsSnapshot() {
           </h2>
           <Link
             to="/targeting?tab=settings"
-            className="inline-flex items-center gap-1 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
+            className="inline-flex items-center gap-1 text-sm font-medium text-blue-text transition-opacity hover:opacity-80"
           >
             Edit
             <ChevronRight className="h-4 w-4" />
@@ -86,7 +86,7 @@ export default function TargetingSettingsSnapshot() {
             <Settings2 className="h-4 w-4 text-text-muted" aria-hidden="true" />
             <span className="text-sm text-text-secondary">Mode</span>
           </div>
-          <span className="rounded-full bg-blue-tint px-2.5 py-1 text-xs font-medium text-blue-text">
+          <span className="rounded-full bg-blue-tint px-2 py-0.5 text-xs font-medium text-blue-text">
             {MODE_LABELS[config.mode]}
           </span>
         </div>
@@ -99,11 +99,11 @@ export default function TargetingSettingsSnapshot() {
             </span>
           </div>
           {config.likeAfterFollow ? (
-            <span className="rounded-full bg-green-tint px-2.5 py-1 text-xs font-medium text-green-text">
+            <span className="rounded-full bg-green-tint px-2 py-0.5 text-xs font-medium text-green-text">
               On
             </span>
           ) : (
-            <span className="rounded-full bg-bg px-2.5 py-1 text-xs font-medium text-text-muted">
+            <span className="rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-muted">
               Off
             </span>
           )}

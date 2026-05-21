@@ -26,7 +26,7 @@ export default function EngagementSnapshot() {
           </h2>
           <Link
             to="/engagement"
-            className="inline-flex items-center gap-1 text-sm font-medium text-blue-text transition-colors hover:opacity-80"
+            className="inline-flex items-center gap-1 text-sm font-medium text-blue-text transition-opacity hover:opacity-80"
           >
             Edit
             <ChevronRight className="h-4 w-4" />
@@ -46,15 +46,15 @@ export default function EngagementSnapshot() {
               <span className="text-sm text-text-secondary">Welcome DM</span>
             </div>
             {!isAdvanced ? (
-              <span className="rounded-full bg-bg px-2.5 py-1 text-xs font-medium text-text-muted">
+              <span className="rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-muted">
                 Advanced
               </span>
             ) : config.welcomeDm.enabled ? (
-              <span className="rounded-full bg-green-tint px-2.5 py-1 text-xs font-medium text-green-text">
+              <span className="rounded-full bg-green-tint px-2 py-0.5 text-xs font-medium text-green-text">
                 On
               </span>
             ) : (
-              <span className="rounded-full bg-bg px-2.5 py-1 text-xs font-medium text-text-muted">
+              <span className="rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-muted">
                 Off
               </span>
             )}
@@ -78,15 +78,15 @@ export default function EngagementSnapshot() {
               </span>
             </div>
             {!isAdvanced ? (
-              <span className="rounded-full bg-bg px-2.5 py-1 text-xs font-medium text-text-muted">
+              <span className="rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-muted">
                 Advanced
               </span>
             ) : config.closeFriendsAdder.enabled ? (
-              <span className="rounded-full bg-green-tint px-2.5 py-1 text-xs font-medium text-green-text">
+              <span className="rounded-full bg-green-tint px-2 py-0.5 text-xs font-medium text-green-text">
                 On
               </span>
             ) : (
-              <span className="rounded-full bg-bg px-2.5 py-1 text-xs font-medium text-text-muted">
+              <span className="rounded-full bg-bg px-2 py-0.5 text-xs font-medium text-text-muted">
                 Off
               </span>
             )}
