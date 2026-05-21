@@ -20,6 +20,7 @@ import {
   Pause,
   Play,
   Sparkles,
+  X,
 } from 'lucide-react'
 import {
   BarChart,
@@ -36,6 +37,7 @@ import {
 } from 'recharts'
 import { useAccounts } from '@/stores/useAccounts'
 import { useUserStore } from '@/stores/useUserStore'
+import { useUiState } from '@/stores/useUiState'
 import { useActivityFeed } from '@/stores/useActivityFeed'
 import { useGrowthData } from '@/stores/useGrowthData'
 import { PLAN_CATALOG } from '@/mocks/user'
@@ -135,7 +137,11 @@ function TrialProgress({ user }) {
 // blue-tint to a touch of blue-base warms the card; the icon chip uses
 // solid blue-text + white glyph for crisp contrast on the tint bg.
 function TrialBanner({ user }) {
+  const trialBannerDismissed = useUiState((s) => s.trialBannerDismissed)
+  const setTrialBannerDismissed = useUiState((s) => s.setTrialBannerDismissed)
+
   if (!user.isOnTrial || !isTrialLastDay(user)) return null
+  if (trialBannerDismissed) return null
 
   const { value, unit } = remainingTime(user.trialEndsAt)
   const timeCopy =
@@ -146,39 +152,36 @@ function TrialBanner({ user }) {
   const planInfo = PLAN_CATALOG[user.plan] ?? { name: 'your plan', price: null }
   // Reassurance copy — tell the user exactly what happens at billing
   // (automation keeps running, no manual step) so the deadline feels
-  // routine, not alarming. Drops the old "or cancel anytime" line until
-  // we actually ship a cancel path — it was promising something the page
-  // can't deliver yet.
+  // routine, not alarming.
   const renewalCopy = planInfo.price != null
     ? `Kicksta will charge $${planInfo.price} for your ${planInfo.name} plan automatically. Your automation keeps running — no action needed on your end.`
     : `Kicksta will charge for your ${planInfo.name} plan automatically. Your automation keeps running — no action needed on your end.`
 
   return (
     <div className="rounded-xl border border-blue-base/20 bg-gradient-to-br from-blue-tint via-blue-tint to-blue-base/15 shadow-sm">
-      <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4">
-        <div className="flex min-w-0 flex-1 items-center gap-3">
-          <span
-            aria-hidden
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-text text-surface shadow-sm"
-          >
-            <Clock className="h-4 w-4" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold leading-snug text-blue-text">
-              {timeCopy}
-            </p>
-            <p className="mt-0.5 text-xs leading-relaxed text-blue-text/90">
-              {renewalCopy}
-            </p>
-          </div>
-        </div>
-        <Link
-          to="/signup/plan-selection"
-          className="inline-flex h-10 w-full shrink-0 items-center justify-center gap-1.5 rounded-lg bg-blue-base px-4 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 sm:w-auto"
+      <div className="flex items-center gap-3 p-3 sm:gap-4 sm:p-4">
+        <span
+          aria-hidden
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-text text-surface shadow-sm"
         >
-          Manage plan
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+          <Clock className="h-4 w-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold leading-snug text-blue-text">
+            {timeCopy}
+          </p>
+          <p className="mt-0.5 text-xs leading-relaxed text-blue-text/90">
+            {renewalCopy}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setTrialBannerDismissed(true)}
+          aria-label="Dismiss trial banner"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-blue-text/70 transition-colors hover:bg-blue-base/10 hover:text-blue-text"
+        >
+          <X className="h-4 w-4" aria-hidden="true" />
+        </button>
       </div>
     </div>
   )
@@ -255,6 +258,8 @@ const ACCOUNT_PHASE_LABEL = {
   warming_up: 'Warming up — growth starts within 72 hours',
   setup: 'Setup needed — add your first target to start',
   paused: 'Paused',
+  disconnected: 'Disconnected — reconnect to resume growth',
+  empty: 'Ready — add your first source to start growing',
 }
 
 const ACCOUNT_PHASE_ICON = {
@@ -265,12 +270,15 @@ const ACCOUNT_PHASE_ICON = {
   warming_up: Flame,
   setup: Settings,
   paused: Pause,
+  disconnected: AlertTriangle,
+  empty: Target,
 }
 
 function iconToneForPhase(phase) {
   if (phase === 'following') return 'text-green-base'
-  if (phase === 'setup') return 'text-yellow-base'
+  if (phase === 'setup' || phase === 'empty') return 'text-yellow-base'
   if (phase === 'paused') return 'text-text-muted'
+  if (phase === 'disconnected') return 'text-red-base'
   // analyzing / unfollowing / waiting / warming_up — informational blue.
   return 'text-blue-base'
 }
@@ -284,14 +292,22 @@ function isRunningPhase(phase) {
   )
 }
 
-function AccountLiveStatus({ status }) {
+function AccountLiveStatus({ status, connection, targetsCount }) {
   const live = useSystemStatus()
+  const isDisconnected = connection?.connectionState === 'disconnected'
+  const isEmpty = !isDisconnected && targetsCount === 0
   const isPaused = status.state === 'paused'
 
-  // When the parent paused state is on, the hook still ticks phases
-  // under the hood but the UI should present the stopped state. Force
-  // phase to 'paused' when the parent says we're paused.
-  const phase = isPaused ? 'paused' : live.phase
+  // Priority order for the displayed phase:
+  //   disconnected > empty (no targets) > paused > live engine phase.
+  // Disconnected and empty are user-facing "no engine work happening"
+  // states; they override the ticking phase so the AccountCard speaks
+  // the truth instead of mid-cycle copy that can't be true.
+  let phase
+  if (isDisconnected) phase = 'disconnected'
+  else if (isEmpty) phase = 'empty'
+  else if (isPaused) phase = 'paused'
+  else phase = live.phase
   const targetHandle =
     phase === 'following' || phase === 'unfollowing' ? live.targetHandle : null
 
@@ -336,10 +352,17 @@ function AccountLiveStatus({ status }) {
 }
 
 // AccountPauseCTA — outlined ghost when running, filled-green primary
-// when paused. Hidden entirely for warming_up / setup states.
-function AccountPauseCTA({ status, onPauseToggle, className = '' }) {
+// when paused. Hidden entirely for warming_up / setup states AND
+// when the account is disconnected / has no targets to pause.
+function AccountPauseCTA({ status, onPauseToggle, connection, targetsCount, className = '' }) {
   const isPaused = status.state === 'paused'
-  const isHidden = status.state === 'warming_up' || status.state === 'setup'
+  const isDisconnected = connection?.connectionState === 'disconnected'
+  const isEmpty = !isDisconnected && targetsCount === 0
+  const isHidden =
+    status.state === 'warming_up' ||
+    status.state === 'setup' ||
+    isDisconnected ||
+    isEmpty
 
   if (isHidden) return null
 
@@ -557,7 +580,7 @@ function FollowBackRateMetric({ data, period }) {
   )
 }
 
-function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) {
+function AccountCard({ connection, user, period, systemStatus, onPauseToggle, targetsCount }) {
   // Small connection-state dot pinned to the avatar — tells you IG is
   // connected / warming / disconnected at a glance. Live per-action state
   // lives in the StatusPill on the right of this card.
@@ -617,14 +640,14 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
                 aligned with the handle (not the avatar) via the parent
                 flex gap. Full name was removed in v4 — the handle is
                 enough identity and this row carries the live signal. */}
-            <AccountLiveStatus status={systemStatus} />
+            <AccountLiveStatus status={systemStatus} connection={connection} targetsCount={targetsCount} />
           </div>
         </div>
 
         {/* Desktop: Pause/Resume CTA sits to the right of the identity
             block. Replaces the old StatusPill. */}
         <div className="hidden shrink-0 sm:block">
-          <AccountPauseCTA status={systemStatus} onPauseToggle={onPauseToggle} />
+          <AccountPauseCTA status={systemStatus} onPauseToggle={onPauseToggle} connection={connection} targetsCount={targetsCount} />
         </div>
       </div>
 
@@ -632,7 +655,7 @@ function AccountCard({ connection, user, period, systemStatus, onPauseToggle }) 
           full-width button. Hidden on sm:+ where it's in the identity
           row instead. */}
       <div className="mt-3 sm:hidden">
-        <AccountPauseCTA status={systemStatus} onPauseToggle={onPauseToggle} className="w-full" />
+        <AccountPauseCTA status={systemStatus} onPauseToggle={onPauseToggle} connection={connection} targetsCount={targetsCount} className="w-full" />
       </div>
     </div>
   )
@@ -1295,7 +1318,9 @@ function ActivityFeed({ items, period, customRange }) {
         <div className="flex flex-1 flex-col items-center justify-center gap-1 py-6 text-center">
           <p className="text-sm font-medium text-text-primary">No activity yet</p>
           <p className="text-xs text-text-secondary">
-            Nothing in this range yet — try a longer period.
+            {items.length === 0
+              ? 'Activity will appear here once Kicksta starts engaging with your targets.'
+              : 'Nothing in this range yet — try a longer period.'}
           </p>
         </div>
       ) : (
@@ -1416,11 +1441,39 @@ function TargetsOverviewBody({ targets, plan }) {
       </div>
 
       {/* Column header — establishes the Name | Follow-backs layout.
-          px-3 matches the row padding so labels align with their columns. */}
-      <div className="flex items-center justify-between px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-text-secondary">
-        <span>Name</span>
-        <span>Follow-backs</span>
-      </div>
+          px-3 matches the row padding so labels align with their columns.
+          Hidden when there are no targets so the empty state can own
+          the body. */}
+      {displayTargets.length > 0 && (
+        <div className="flex items-center justify-between px-3 pb-2 text-[11px] font-semibold uppercase tracking-wide text-text-secondary">
+          <span>Name</span>
+          <span>Follow-backs</span>
+        </div>
+      )}
+
+      {displayTargets.length === 0 && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-10 text-center">
+          <span
+            aria-hidden="true"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-tint text-blue-text"
+          >
+            <Target className="h-5 w-5" />
+          </span>
+          <p className="text-sm font-medium text-text-primary">
+            No targets yet
+          </p>
+          <p className="max-w-[220px] text-xs leading-relaxed text-text-secondary">
+            Add an account or hashtag on the Targeting page to start growing.
+          </p>
+          <Link
+            to="/targeting"
+            className="mt-2 inline-flex h-9 items-center gap-1 rounded-lg bg-bg px-3 text-sm font-medium text-text-primary transition-colors hover:bg-bg/70"
+          >
+            Add source
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+      )}
 
       <div className="flex flex-col">
         {displayTargets.map((target, i) => {
@@ -1529,6 +1582,11 @@ export default function OverviewPage() {
   // we have <=7 days of signal and no meaningful historical windows.
   const [selectedPeriod, setSelectedPeriod] = useState('7d')
 
+  // Subscribe to targets count so AccountCard can show the "empty"
+  // status when the user has none and re-renders correctly when the
+  // preset switcher swaps the targets array.
+  const targetsCountForCard = useTargetsStore((s) => s.targets.length)
+
   // IG connection sources from the AccountSwitcher's active
   // account so every surface (this page, the dropdown, the drawer
   // banner) stays in lockstep when the user switches accounts.
@@ -1536,7 +1594,6 @@ export default function OverviewPage() {
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
   const connection = accounts.find((a) => a.id === activeId) ?? accounts[0]
-  const isDisconnected = connection.connectionState === 'disconnected'
 
   // Effective G+ state — the base user comes from useUserStore. After the
   // user upgrades through /growth-plus the `useGrowthPlusSubscription`
@@ -1641,6 +1698,7 @@ export default function OverviewPage() {
             period={effectivePeriod}
             systemStatus={systemStatus}
             onPauseToggle={handlePauseToggle}
+            targetsCount={targetsCountForCard}
           />
         </div>
 
@@ -1665,15 +1723,9 @@ export default function OverviewPage() {
           </div>
         )}
 
-        {/* Disconnected Banner — sources from useAccounts so it
-            reflects the AccountSwitcher's currently-active account.
-            Wrapped in `mt-4` only when the active account actually
-            is disconnected so we don't leave an orphan gap. */}
-        {isDisconnected && (
-          <div className="mt-4">
-            <InstagramConnectionBanner />
-          </div>
-        )}
+        {/* Disconnected banner now lives in DashboardLayout so it
+            appears on Targeting and Engagement too. The Overview
+            page no longer renders its own copy. */}
 
         {/* Growth Chart + Recent activity — ~62/38 on desktop, stacked
             on mobile. On lg: the feed is absolutely positioned inside

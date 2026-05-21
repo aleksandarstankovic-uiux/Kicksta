@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ChevronRight, FileText, Loader2 } from 'lucide-react'
+import { ChevronRight, FileText, Loader2, Lock } from 'lucide-react'
 import CardChip from '@/components/CardChip'
 import { useInstagramAudit } from '@/stores/useInstagramAudit'
 import {
@@ -7,6 +7,7 @@ import {
   nextAuditAvailableIn,
 } from '@/utils/auditCooldown'
 import { useToasts } from '@/stores/useToasts'
+import { useUserStore } from '@/stores/useUserStore'
 import { mockAuditTopStats } from '@/mocks/audit'
 
 // Instagram Audit card — Overview page. Two states:
@@ -27,12 +28,19 @@ export default function InstagramAuditCard() {
   const lastDownloadedAt = useInstagramAudit((s) => s.lastDownloadedAt)
   const download = useInstagramAudit((s) => s.download)
   const addToast = useToasts((s) => s.addToast)
+  const isOnTrial = useUserStore((s) => s.user.isOnTrial)
   const [state, setState] = useState('idle')
 
   const available = isAuditAvailable(lastDownloadedAt)
   const hasDownloaded = !!lastDownloadedAt
   const inCooldown = hasDownloaded && !available
   const cooldownLabel = nextAuditAvailableIn(lastDownloadedAt)
+
+  // During the trial we don't have enough data to produce an audit
+  // — the card flips to a locked state with a yellow "Available
+  // after trial" pill and a disabled CTA. Lifts P2 behavior in here
+  // so the trial presets render correctly.
+  const isTrialLocked = isOnTrial
 
   // Run the 1500ms simulated generation, then commit the download
   // (stamps timestamp + fires "Audit downloaded." toast) and return
@@ -57,12 +65,21 @@ export default function InstagramAuditCard() {
   }
 
   // Status pill — always rendered to keep layout stable.
-  const pillClass = inCooldown
+  const pillClass = isTrialLocked
+    ? 'bg-yellow-tint text-yellow-text'
+    : inCooldown
     ? 'bg-yellow-tint text-yellow-text'
     : 'bg-green-tint text-green-text'
-  const pillDot = inCooldown ? 'bg-yellow-base' : 'bg-green-base'
-  const pillLabel =
-    inCooldown && cooldownLabel ? `Available in ${cooldownLabel}` : 'Available'
+  const pillDot = isTrialLocked
+    ? 'bg-yellow-base'
+    : inCooldown
+    ? 'bg-yellow-base'
+    : 'bg-green-base'
+  const pillLabel = isTrialLocked
+    ? 'Available after trial'
+    : inCooldown && cooldownLabel
+    ? `Available in ${cooldownLabel}`
+    : 'Available'
 
   return (
     <section className="flex flex-col rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
@@ -102,8 +119,35 @@ export default function InstagramAuditCard() {
         </div>
       </div>
 
-      {hasDownloaded ? <GeneratedBody /> : <NotGeneratedBody state={state} onGenerate={handleGenerate} />}
+      {isTrialLocked ? (
+        <TrialLockedBody />
+      ) : hasDownloaded ? (
+        <GeneratedBody />
+      ) : (
+        <NotGeneratedBody state={state} onGenerate={handleGenerate} />
+      )}
     </section>
+  )
+}
+
+function TrialLockedBody() {
+  return (
+    <div className="flex flex-col">
+      <p className="line-clamp-2 min-h-[2lh] text-sm leading-relaxed text-text-secondary">
+        Your first audit unlocks once your trial ends — we need at
+        least a week of activity to make it useful.
+      </p>
+      <div className="mt-4">
+        <button
+          type="button"
+          disabled
+          className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-bg px-4 text-sm font-semibold text-text-muted shadow-sm cursor-not-allowed md:w-auto md:min-w-[200px]"
+        >
+          <Lock className="h-4 w-4" aria-hidden="true" />
+          Available after trial
+        </button>
+      </div>
+    </div>
   )
 }
 

@@ -5,10 +5,12 @@ import { cn } from '@/lib/utils'
 import { useNotifications } from '@/stores/useNotifications'
 import { useNavDrawer } from '@/stores/useNavDrawer'
 import { useThemeStore } from '@/stores/useThemeStore'
+import { useAccounts } from '@/stores/useAccounts'
 import ToastContainer from '@/components/Toast'
 import AccountSwitcher from '@/components/AccountSwitcher'
 import MobileNavDrawer from '@/components/MobileNavDrawer'
 import DashboardPresetWidget from '@/components/DashboardPresetWidget'
+import InstagramConnectionBanner from '@/components/InstagramConnectionBanner'
 import useDismissOnOutsideClick from '@/hooks/useDismissOnOutsideClick'
 import kickstaLogo from '@/assets/kicksta-logo.svg'
 import kickstaFullLogo from '@/assets/kicksta-full-logo.svg'
@@ -351,6 +353,12 @@ export default function DashboardLayout() {
           horizontal clip is still needed to guard against the mobile
           long-content overflow that the Settings grid surfaced. */}
       <main className={cn('overflow-x-clip pt-14 pb-20 transition-all duration-200 lg:pt-0 lg:pb-0', collapsed ? 'lg:pl-16' : 'lg:pl-60')}>
+        {/* Persistent disconnect banner — appears at the top of every
+            dashboard page when the active IG account is disconnected.
+            Self-gates inside InstagramConnectionBanner (returns null
+            when connected) so the wrapper div only adds spacing in the
+            disconnected case. */}
+        <ConnectionBannerSlot />
         <Outlet />
       </main>
 
@@ -382,6 +390,22 @@ export default function DashboardLayout() {
 
       <ToastContainer />
       <DashboardPresetWidget />
+    </div>
+  )
+}
+
+// Renders the connection-disconnect banner at the top of the main
+// page area, page-padded so it visually lines up with the page
+// content underneath. Returns null when the active account is
+// connected so the wrapper div doesn't add empty space.
+function ConnectionBannerSlot() {
+  const accounts = useAccounts((s) => s.accounts)
+  const activeId = useAccounts((s) => s.activeId)
+  const activeAccount = accounts.find((a) => a.id === activeId) ?? accounts[0]
+  if (activeAccount?.connectionState !== 'disconnected') return null
+  return (
+    <div className="mx-auto w-full max-w-5xl px-4 pt-6 md:px-6 lg:px-8">
+      <InstagramConnectionBanner />
     </div>
   )
 }
