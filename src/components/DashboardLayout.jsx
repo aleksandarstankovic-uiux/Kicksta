@@ -180,6 +180,13 @@ function SidebarBottomZone({ collapsed, setCollapsed }) {
           rather than the primary nav so the primary nav reads as
           "product surfaces" only. Active when path starts with
           `/account` so subscription drilldowns also light up. */}
+
+      {/* Compact disconnect strip — sits above Settings / Dark mode /
+          Log out when the active IG account is disconnected. Mirrors
+          the top banner's signal at the bottom of the nav so the user
+          sees the disconnect state even when scrolled past the top. */}
+      <SidebarDisconnectStrip collapsed={collapsed} />
+
       <NavLink
         to="/account"
         title={collapsed ? 'Settings' : undefined}
@@ -407,5 +414,49 @@ function ConnectionBannerSlot() {
     <div className="mx-auto w-full max-w-5xl px-4 pt-6 md:px-6 lg:px-8">
       <InstagramConnectionBanner />
     </div>
+  )
+}
+
+// Compact disconnect strip in the sidebar footer (above Settings /
+// Dark mode / Log out). Mirrors the disconnect signal at the bottom
+// of the nav so the state is visible without scrolling back to the
+// top banner. Returns null when connected.
+//
+// Collapsed-sidebar variant shows just the red AlertTriangle icon
+// in a 44px tappable target; expanded shows the full message + a
+// Reconnect link.
+function SidebarDisconnectStrip({ collapsed }) {
+  const accounts = useAccounts((s) => s.accounts)
+  const activeId = useAccounts((s) => s.activeId)
+  const activeAccount = accounts.find((a) => a.id === activeId) ?? accounts[0]
+  if (activeAccount?.connectionState !== 'disconnected') return null
+
+  if (collapsed) {
+    return (
+      <NavLink
+        to="/signup/connect-instagram"
+        title="Disconnected — reconnect"
+        className="mb-1 flex items-center justify-center rounded-lg bg-red-tint px-0 py-2.5 text-red-text transition-opacity hover:opacity-80"
+      >
+        <AlertTriangle className="h-5 w-5 shrink-0" aria-hidden="true" />
+      </NavLink>
+    )
+  }
+
+  return (
+    <NavLink
+      to="/signup/connect-instagram"
+      className="mb-1 flex items-start gap-2.5 rounded-lg bg-red-tint px-3 py-2.5 text-left transition-opacity hover:opacity-80"
+    >
+      <AlertTriangle className="h-4 w-4 shrink-0 text-red-text" aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-semibold leading-snug text-red-text">
+          Disconnected
+        </p>
+        <p className="text-[11px] leading-snug text-red-text/80">
+          Reconnect to resume growth
+        </p>
+      </div>
+    </NavLink>
   )
 }
