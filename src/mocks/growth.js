@@ -26,6 +26,24 @@ export const mockGrowthDaily = Array.from({ length: 30 }, (_, i) => {
   return { date: dateStr, targetedGain, growthPlusGain, followBackRate, engagementRate }
 })
 
+// Empty growth variant — used by the "Active — Empty", "Trial —
+// First day", and "Trial — Disconnected" presets so the chart and
+// stat-card sparklines render zeros instead of fabricated data.
+// Same shape as mockGrowthDaily (30 entries anchored to today) but
+// every gain is 0. Keeps the chart's x-axis bracketed correctly so
+// the trial overlay still positions itself, just with empty bars.
+export const mockGrowthDailyEmpty = Array.from({ length: 30 }, (_, i) => {
+  const date = new Date(_today)
+  date.setDate(date.getDate() - (29 - i))
+  return {
+    date: date.toISOString().split('T')[0],
+    targetedGain: 0,
+    growthPlusGain: 0,
+    followBackRate: 0,
+    engagementRate: 0,
+  }
+})
+
 export const mockWeeklySummary = {
   followersGained: 67,
   followBackRate: 0.12,

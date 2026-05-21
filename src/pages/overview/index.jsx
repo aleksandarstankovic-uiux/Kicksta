@@ -545,13 +545,25 @@ function FollowersGainedMetric({ data, period }) {
 // the same thresholds as the rest of the dashboard so the vocabulary
 // reads consistently wherever this metric appears.
 function FollowBackRateMetric({ data, period }) {
-  const { pct, sparkData, pill, pillClass } = useMemo(() => {
+  const { pct, sparkData, pill, pillClass, value } = useMemo(() => {
     const slice = getWindowSlice(data, period)
-    const avg = slice.length
+    // Only count days that actually had follow attempts. A series of
+    // all-zero days (empty state, first trial day) means "no data
+    // yet" — don't render a misleading 0% with a "Needs attention"
+    // pill, render an em-dash with no pill instead.
+    const nonZeroDays = slice.filter((d) => d.followBackRate > 0)
+    const hasData = nonZeroDays.length > 0
+    const avg = hasData
       ? slice.reduce((sum, d) => sum + d.followBackRate, 0) / slice.length
       : 0
     const pct = Math.round(avg * 100)
-    const pill = pct >= 10 ? 'Healthy' : pct >= 5 ? 'Average' : 'Needs attention'
+    const pill = !hasData
+      ? null
+      : pct >= 10
+        ? 'Healthy'
+        : pct >= 5
+          ? 'Average'
+          : 'Needs attention'
     const pillClass =
       pct >= 10
         ? 'bg-green-tint text-green-text'
@@ -563,6 +575,7 @@ function FollowBackRateMetric({ data, period }) {
       sparkData: slice.map((d) => ({ v: +(d.followBackRate * 100).toFixed(1) })),
       pill,
       pillClass,
+      value: hasData ? `${pct}%` : '—',
     }
   }, [data, period])
 
@@ -571,7 +584,7 @@ function FollowBackRateMetric({ data, period }) {
       icon={Activity}
       label="Follow-back rate"
       periodLabel={getPeriodLabel(period)}
-      value={`${pct}%`}
+      value={value}
       pill={pill}
       pillClass={pillClass}
       sparkData={sparkData}

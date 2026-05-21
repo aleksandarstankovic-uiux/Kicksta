@@ -4,7 +4,7 @@ import { mockTargets } from '@/mocks/targets'
 import { mockWhitelist } from '@/mocks/whitelist'
 import { mockBlacklist } from '@/mocks/blacklist'
 import { mockActivity } from '@/mocks/activity'
-import { mockGrowthDaily } from '@/mocks/growth'
+import { mockGrowthDaily, mockGrowthDailyEmpty } from '@/mocks/growth'
 
 // Helpers to anchor dates relative to "now" so the trial windows
 // stay meaningful regardless of when the dashboard is opened.
@@ -71,7 +71,7 @@ export const PRESETS = {
     whitelist: [],
     blacklist: [],
     activity: [],
-    growthDaily: mockGrowthDaily, // P4 will swap to a forecast-only variant
+    growthDaily: mockGrowthDailyEmpty,
     auditDownloadedAt: null,
     growthPlusSubscribed: false,
     growthPlusStatus: 'lapsed',
@@ -97,7 +97,7 @@ export const PRESETS = {
     whitelist: [],
     blacklist: [],
     activity: [],
-    growthDaily: mockGrowthDaily,
+    growthDaily: mockGrowthDailyEmpty,
     auditDownloadedAt: null,
     growthPlusSubscribed: false,
     growthPlusStatus: 'lapsed',
@@ -110,7 +110,7 @@ export const PRESETS = {
     whitelist: [],
     blacklist: [],
     activity: [],
-    growthDaily: mockGrowthDaily, // P3 may swap to an empty variant
+    growthDaily: mockGrowthDailyEmpty,
     auditDownloadedAt: null,
     growthPlusSubscribed: false,
     growthPlusStatus: 'lapsed',
