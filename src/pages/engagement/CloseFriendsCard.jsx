@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, Minus, Plus, Star } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
-import { mockUser } from '@/mocks/user'
+import { useUserStore } from '@/stores/useUserStore'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 import CloseFriendsProgress from './CloseFriendsProgress'
@@ -34,8 +34,9 @@ const CF_MODES = [
 
 export default function CloseFriendsCard({ onRequestUpgrade }) {
   const { config, toggleCloseFriends, setCloseFriendsMode } = useGrowthConfig()
+  const user = useUserStore((s) => s.user)
 
-  const locked = isLocked(mockUser)
+  const locked = isLocked(user)
   const cfEnabled = config.closeFriendsAdder.enabled
   const cfMode = config.closeFriendsAdder.mode
   const showCfControls = cfEnabled && !locked

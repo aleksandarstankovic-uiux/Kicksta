@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAccounts } from '@/stores/useAccounts'
-import { mockUser } from '@/mocks/user'
+import { useUserStore } from '@/stores/useUserStore'
 import { mockTargets } from '@/mocks/targets'
 import { mockGrowthConfig } from '@/mocks/growthConfig'
 
@@ -29,7 +29,7 @@ function useStatusChecks() {
   const accounts = useAccounts((s) => s.accounts)
   const activeId = useAccounts((s) => s.activeId)
   const connection = accounts.find((a) => a.id === activeId) ?? accounts[0]
-  const user = mockUser
+  const user = useUserStore((s) => s.user)
 
   const connectionConfig = {
     connected: { label: 'Connected', ok: true },

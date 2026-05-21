@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { mockUser } from '@/mocks/user'
 import { useAccounts } from '@/stores/useAccounts'
 import { useGrowthPlusSubscription } from '@/stores/useGrowthPlusSubscription'
+import { useUserStore } from '@/stores/useUserStore'
 import GrowthPlusActive from './GrowthPlusActive'
 import GrowthPlusUpsell from './GrowthPlusUpsell'
 
@@ -15,8 +15,9 @@ import GrowthPlusUpsell from './GrowthPlusUpsell'
 // GrowthPlusBanner so the banner can deep-link into the popup without
 // the popup needing app-global state.
 export default function GrowthPlusPage() {
+  const storeUser = useUserStore((s) => s.user)
   const subscribed = useGrowthPlusSubscription(
-    (s) => s.subscribed ?? mockUser.growthPlusSubscribed,
+    (s) => s.subscribed ?? storeUser.growthPlusSubscribed,
   )
   const status = useGrowthPlusSubscription((s) => s.status)
   const activeAccount = useAccounts((s) =>

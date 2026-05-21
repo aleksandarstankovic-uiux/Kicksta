@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, MessageSquare } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
-import { mockUser } from '@/mocks/user'
+import { useUserStore } from '@/stores/useUserStore'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
 import WelcomeDmModal from './WelcomeDmModal'
@@ -25,8 +25,9 @@ function isLocked(user) {
 export default function WelcomeDmCard({ onRequestUpgrade }) {
   const { config, toggleWelcomeDm } = useGrowthConfig()
   const [dmModalOpen, setDmModalOpen] = useState(false)
+  const user = useUserStore((s) => s.user)
 
-  const locked = isLocked(mockUser)
+  const locked = isLocked(user)
   const showPreview = config.welcomeDm.enabled && !locked
 
   const handleToggle = () => {

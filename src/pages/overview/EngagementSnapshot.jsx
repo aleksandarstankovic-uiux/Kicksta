@@ -1,15 +1,15 @@
 import { Link } from 'react-router-dom'
 import { ChevronRight, MessageSquare, Star } from 'lucide-react'
-import { mockUser } from '@/mocks/user'
+import { useUserStore } from '@/stores/useUserStore'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
 
 // Snapshot of the user's Engagement config. Welcome DM toggle + 1-line
 // message preview (when on); Close Friends Adder toggle + mode caption
 // (when on). Plan-locked rows render an "Advanced" pill instead. Reads
-// live from useGrowthConfig + mockUser; CTA routes to /engagement.
+// live from useGrowthConfig + useUserStore; CTA routes to /engagement.
 export default function EngagementSnapshot() {
   const config = useGrowthConfig((s) => s.config)
-  const isAdvanced = mockUser.plan === 'advanced'
+  const isAdvanced = useUserStore((s) => s.user.plan === 'advanced')
 
   const dmEnabled = config.welcomeDm.enabled && isAdvanced
   const cfaEnabled = config.closeFriendsAdder.enabled && isAdvanced

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, Megaphone, SlidersHorizontal, Target, User, Users, X } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
-import { mockUser } from '@/mocks/user'
+import { useUserStore } from '@/stores/useUserStore'
 import InfoTooltip from '@/components/InfoTooltip'
 import SettingSwitch from '@/components/SettingSwitch'
 import CardChip from '@/components/CardChip'
@@ -259,7 +259,7 @@ export default function AudienceFiltersModal({ open, onClose, onRequestUpgrade }
   const [followerCustom, setFollowerCustom] = useState(false)
   const [mediaCustom, setMediaCustom] = useState(false)
 
-  const genderLocked = mockUser.plan !== 'advanced'
+  const genderLocked = useUserStore((s) => s.user.plan !== 'advanced')
 
   useEffect(() => {
     if (!open) return

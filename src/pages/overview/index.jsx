@@ -35,7 +35,8 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { useAccounts } from '@/stores/useAccounts'
-import { mockUser, PLAN_CATALOG } from '@/mocks/user'
+import { useUserStore } from '@/stores/useUserStore'
+import { PLAN_CATALOG } from '@/mocks/user'
 import {
   mockGrowthDaily,
 } from '@/mocks/growth'
@@ -1539,20 +1540,21 @@ export default function OverviewPage() {
   const connection = accounts.find((a) => a.id === activeId) ?? accounts[0]
   const isDisconnected = connection.connectionState === 'disconnected'
 
-  // Effective G+ state — `mockUser` starts un-subscribed. After the
+  // Effective G+ state — the base user comes from useUserStore. After the
   // user upgrades through /growth-plus the `useGrowthPlusSubscription`
   // store flips to `subscribed: true` and `useGrowthConfig` records
   // their chosen tier. We compose those into an effective user so the
   // AccountCard pill + Growth+ card on this page flip from the upsell
   // state to the subscribed state without a page reload.
+  const baseUser = useUserStore((s) => s.user)
   const gpSubscribed = useGrowthPlusSubscription(
-    (s) => s.subscribed ?? mockUser.growthPlusSubscribed,
+    (s) => s.subscribed ?? baseUser.growthPlusSubscribed,
   )
   const gpStatus = useGrowthPlusSubscription((s) => s.status)
   const gpTier = useGrowthConfig((s) => s.config.growthPlusControls.tier)
   const isGrowthPlusActive = gpSubscribed && gpStatus !== 'lapsed'
   const user = {
-    ...mockUser,
+    ...baseUser,
     growthPlusSubscribed: isGrowthPlusActive,
     growthPlusTier: isGrowthPlusActive ? gpTier : null,
   }

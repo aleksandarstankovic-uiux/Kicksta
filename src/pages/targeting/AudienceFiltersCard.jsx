@@ -1,6 +1,6 @@
 import { Lightbulb, Pencil, SlidersHorizontal, User, Users } from 'lucide-react'
 import { useGrowthConfig } from '@/stores/useGrowthConfig'
-import { mockUser } from '@/mocks/user'
+import { useUserStore } from '@/stores/useUserStore'
 import { formatCount } from '@/utils/formatCount'
 import CardChip from '@/components/CardChip'
 import InfoTooltip from '@/components/InfoTooltip'
@@ -54,7 +54,7 @@ function GroupHeader({ icon: Icon, children }) {
 
 export default function AudienceFiltersCard({ onEdit }) {
   const filters = useGrowthConfig((s) => s.config.filters)
-  const genderLocked = mockUser.plan !== 'advanced'
+  const genderLocked = useUserStore((s) => s.user.plan !== 'advanced')
 
   return (
     <section className="rounded-xl border border-border bg-surface p-4 pb-3 lg:p-6">
