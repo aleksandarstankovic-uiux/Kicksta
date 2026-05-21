@@ -5,6 +5,35 @@
 
 ---
 
+## 2026-05-21 — Per-state accuracy + communication polish (Runs 1–4)
+
+Three-pass review of every preset state (Trial — First / Last / Disconnected, Active — Empty / Populated / Disconnected) with fixes applied in batches. Now each preset renders an accurate snapshot of what the dashboard should look like in that state — empty states show empty data, trial states lock the audit, disconnected states communicate disconnection through three independent indicators (page banner + sidebar strip + account-avatar red dot).
+
+### Added
+- **`mockGrowthDailyEmpty`** in `src/mocks/growth.js` — 30 zero-valued days anchored to today. Used by trial-first-day, trial-disconnected, and active-empty presets so charts and stat-card sparklines show "no data yet" instead of fabricated history.
+- **`TrialLockedBody` state in `InstagramAuditCard`** — yellow "Available after trial" pill in the header, disabled CTA with a Lock icon and "Your first audit unlocks once your trial ends — we need at least a week of activity" copy.
+- **`SidebarDisconnectStrip` in `DashboardLayout`** — compact red disconnect indicator above Settings / Dark mode / Log out. Routes to `/signup/connect-instagram`. Collapsed-sidebar variant shows just the icon.
+- **Empty state in `TargetsOverview`** (Top Targets card) — Target chip + "No targets yet" + "Add an account or hashtag…" copy + inline "Add source" link to `/targeting`. Renders whenever the targets array is empty regardless of preset.
+
+### Changed
+- **Disconnect banner** — hoisted out of `pages/overview/index.jsx` into `DashboardLayout` so it now persists on Targeting and Engagement pages too. Self-gated on `useAccounts` active account state.
+- **`AccountLiveStatus`** — gained two new phases: `disconnected` (red AlertTriangle, "Disconnected — reconnect to resume growth") and `empty` (yellow Target, "Ready — add your first source to start growing"). Priority order: disconnected > empty > paused > live engine phase. Engine-cycle copy can't display when there's nothing to cycle through.
+- **`AccountPauseCTA`** — hidden when the account is disconnected OR there are no targets. Nothing to pause in either case.
+- **`TrialBanner` (last-day variant)** — dropped the "Manage plan" CTA per the design spec; added a Dismiss X that writes to `useUiState.trialBannerDismissed`. `seedAllStores` resets the dismiss flag on every preset switch.
+- **`FollowBackRateMetric`** — distinguishes "all-zero (no data)" from "low rate". When no day in the window has a non-zero follow-back rate, renders an em-dash with no Healthy/Average/Needs-attention pill instead of misleading "0% / Needs attention".
+- **`ActivityFeed` empty copy** — differentiates "items array is fully empty" ("Activity will appear here once Kicksta starts engaging with your targets.") vs "filtered to empty in the current window" (existing copy).
+
+### Decisions (locked, don't revisit)
+- **Empty-state status copy: "Ready — add your first source to start growing"** (yellow Target icon). Drives the user toward the next step instead of showing fake engine-cycle phase text.
+- **Disconnect communication is triple-redundant.** The user sees disconnect state through (1) the top-of-page banner with Reconnect CTA, (2) the sidebar strip above Settings, (3) the red dot on the AccountSwitcher avatar. Different attention zones, same signal.
+- **Audit is locked during trial, period.** Yellow "Available after trial" pill + disabled CTA. No data → no audit, full stop.
+- **Trial banner is closeable.** Lives in `useUiState.trialBannerDismissed`; resets on preset switch.
+
+### Verified
+End-to-end DOM check across all 6 presets — every preset renders the correct combination of: widget badge (T1/T7/TX/A0/AP/AX), trial pill, period switcher vs trial-period pill, top banner, sidebar strip, audit lock state, top-targets empty state, status text, follow-back rate value, pause CTA visibility.
+
+---
+
 ## 2026-05-21 — Dashboard state switcher widget (P1 foundation)
 
 Foundation pass for the floating bottom-right widget that flips the dashboard between 6 canonical preset states (Trial — First/Last/Disconnected, Active — Empty/Populated/Disconnected). Imperative seed-on-switch architecture: `useDashboardPreset.applyPreset(name)` mutates the underlying stores so most components keep working unchanged. P2–P6 (banner system, empty states, chart forecast modes, disconnect polish) ship next.
