@@ -45,14 +45,14 @@ function SaveCancelButtons({ onCancel, onSave }) {
       <button
         type="button"
         onClick={onCancel}
-        className="inline-flex h-9 items-center justify-center rounded-lg bg-bg px-3 text-sm font-medium text-text-primary hover:opacity-90"
+        className="inline-flex h-10 items-center justify-center rounded-lg bg-bg px-4 text-sm font-medium text-text-primary hover:opacity-90"
       >
         Cancel
       </button>
       <button
         type="button"
         onClick={onSave}
-        className="inline-flex h-9 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-medium text-white transition-opacity hover:opacity-90"
+        className="inline-flex h-10 items-center justify-center rounded-lg bg-blue-base px-4 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
       >
         Save mode
       </button>
