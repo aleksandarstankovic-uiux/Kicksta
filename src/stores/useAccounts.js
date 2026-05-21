@@ -12,6 +12,16 @@ export const useAccounts = create((set) => ({
   activeId: defaultActiveAccountId,
 
   setActiveId: (id) => set({ activeId: id }),
+
+  // Flips the connectionState on the currently-active account. Used
+  // by the dashboard preset switcher so disconnected presets can be
+  // applied without touching the rest of the accounts array.
+  setConnectionState: (connectionState) =>
+    set((state) => ({
+      accounts: state.accounts.map((a) =>
+        a.id === state.activeId ? { ...a, connectionState } : a
+      ),
+    })),
 }))
 
 // Derived selector: returns the account object matching `activeId`,
