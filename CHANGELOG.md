@@ -5,6 +5,38 @@
 
 ---
 
+## 2026-05-21 — Dashboard state switcher widget (P1 foundation)
+
+Foundation pass for the floating bottom-right widget that flips the dashboard between 6 canonical preset states (Trial — First/Last/Disconnected, Active — Empty/Populated/Disconnected). Imperative seed-on-switch architecture: `useDashboardPreset.applyPreset(name)` mutates the underlying stores so most components keep working unchanged. P2–P6 (banner system, empty states, chart forecast modes, disconnect polish) ship next.
+
+### Added
+- **`src/stores/useDashboardPreset.js`** — owns the preset name + applyPreset + reset + localStorage persistence (key: `kicksta-dashboard-preset`). Synchronously reseeds all stores on module load if a non-default preset was previously selected, so there's no flash of default content on refresh.
+- **`src/stores/useUserStore.js`** — single source of truth for the dashboard user (`isOnTrial`, `plan`, `growthPlusSubscribed`, `trialEndsAt`, `createdAt`, `growthPlusTier`, etc.). Wraps the previously-direct `mockUser` imports so the preset switcher can reseed.
+- **`src/stores/useActivityFeed.js`** — wraps `mockActivity`.
+- **`src/stores/useGrowthData.js`** — wraps `mockGrowthDaily`.
+- **`src/stores/useUiState.js`** — preset-related UI flags (`trialBannerDismissed` is the first inhabitant).
+- **`src/mocks/presets.js`** — the 6 preset recipes + grouped metadata (`PRESET_GROUPS`) + abbreviation map (`PRESET_ABBREV`) for the widget badge.
+- **`src/components/DashboardPresetWidget.jsx`** — floating bottom-right widget with a collapsed circular button (`h-14 w-14 rounded-full bg-text-primary` with abbreviation badge top-right) + expanded popover (`w-72 rounded-xl` with three grouped sections + Reset link).
+
+### Changed
+- **`src/stores/useAccounts.js`** — added `setConnectionState(state)` action so presets can flip the active account's connection state without rewriting the whole accounts array.
+- **`src/components/DashboardLayout.jsx`** — mounts `<DashboardPresetWidget />` at the bottom of the layout so the widget appears on every dashboard route. Signup routes don't include DashboardLayout, so the widget naturally doesn't appear there.
+- **9 files** — direct `mockUser` reads swapped to `useUserStore`: `targetSlots.js`, `SystemStatus.jsx`, `growthPlus/index.jsx`, `AudienceFiltersCard.jsx`, `AudienceFiltersModal.jsx`, `WelcomeDmCard.jsx`, `CloseFriendsCard.jsx`, `overview/index.jsx`, `EngagementSnapshot.jsx`. `mockActivity` + `mockGrowthDaily` reads in `overview/index.jsx` swapped to `useActivityFeed` + `useGrowthData`. Files that import other named exports from `@/mocks/user` (`PLAN_CATALOG`, `mockGrowthPlusNextBillingAt`) keep those imports unchanged. `useUserProfile.js` intentionally still reads `mockUser` at module-init time for name splitting — presets don't change name/email.
+
+### Decisions (locked, don't revisit)
+- **The widget ships visible in current builds.** It's a dev / QA affordance; gated behind `import.meta.env.DEV` (or removed entirely) before the real V1 production launch.
+- **Imperative seed-on-switch, not preset overlay.** Components read from existing stores; the preset switcher mutates those stores. Only a small set of components (GrowthChart, InstagramAuditCard, TrialBanner — wired in P2–P5) will read the preset name directly when their behavior can't be expressed by data alone.
+- **`localStorage` key: `kicksta-dashboard-preset`.** Reset clears the key and returns to `active-populated`.
+
+### Verified (DOM-level)
+- All 6 presets correctly mutate the AccountCard connection dot (red for disconnected presets, green otherwise) and the Trial pill (present only for the three trial presets).
+- Widget badge updates on switch (`T1` / `T7` / `TX` / `A0` / `AP` / `AX`).
+- Toast fires per switch ("State: Trial — Last day", etc.).
+- localStorage round-trips correctly; reload boots into the saved preset.
+- Reset clears localStorage and returns to `active-populated`.
+
+---
+
 ## 2026-05-20 — Targets bulk-select polish + Overview restructure
 
 Two areas in one session. First, restyled the Targets bulk-select to match the dashboard's pill language and moved the per-row checkboxes from the right edge to the left. Second, a large Overview pass: a pause-growth confirmation modal, audit card turned into a state-aware data surface, a new Growth+ overview card with subscribed/upsell states, and a refactor of the bottom block so Audit + G+ live in a 2-col row paired with Targets + Settings/Engagement with the dashboard's bottom kept aligned.
