@@ -36,13 +36,11 @@ import {
 } from 'recharts'
 import { useAccounts } from '@/stores/useAccounts'
 import { useUserStore } from '@/stores/useUserStore'
+import { useActivityFeed } from '@/stores/useActivityFeed'
+import { useGrowthData } from '@/stores/useGrowthData'
 import { PLAN_CATALOG } from '@/mocks/user'
-import {
-  mockGrowthDaily,
-} from '@/mocks/growth'
 import { mockTargets } from '@/mocks/targets'
 import { mockGrowthConfig } from '@/mocks/growthConfig'
-import { mockActivity } from '@/mocks/activity'
 import {
   mockSystemStatus,
   mockSystemStatusFollowing,
@@ -1559,6 +1557,10 @@ export default function OverviewPage() {
     growthPlusTier: isGrowthPlusActive ? gpTier : null,
   }
 
+  // Activity feed and growth data from stores
+  const activityItems = useActivityFeed((s) => s.items)
+  const growthDaily = useGrowthData((s) => s.daily)
+
   // Effective period — 'trial' while on trial, user-selected otherwise.
   // All downstream widgets read from this so the chart / feed / metric
   // cards all tell the same time-window story.
@@ -1648,9 +1650,9 @@ export default function OverviewPage() {
             can be rearranged or reused in other dashboards without
             inheriting AccountCard chrome. */}
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <TotalFollowersMetric connection={connection} data={mockGrowthDaily} period={effectivePeriod} />
-          <FollowersGainedMetric data={mockGrowthDaily} period={effectivePeriod} />
-          <FollowBackRateMetric data={mockGrowthDaily} period={effectivePeriod} />
+          <TotalFollowersMetric connection={connection} data={growthDaily} period={effectivePeriod} />
+          <FollowersGainedMetric data={growthDaily} period={effectivePeriod} />
+          <FollowBackRateMetric data={growthDaily} period={effectivePeriod} />
         </div>
 
         {/* Warming up note */}
@@ -1680,7 +1682,7 @@ export default function OverviewPage() {
             row height and the feed scrolls within the allocated space. */}
         <div className="mt-4 grid grid-cols-1 items-stretch gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,3fr)]">
           <GrowthChart
-            data={mockGrowthDaily}
+            data={growthDaily}
             period={effectivePeriod}
             isOnTrial={user.isOnTrial}
             connection={connection}
@@ -1692,7 +1694,7 @@ export default function OverviewPage() {
           />
           <div className="lg:relative">
             <div className="lg:absolute lg:inset-0">
-              <ActivityFeed items={mockActivity} period={effectivePeriod} />
+              <ActivityFeed items={activityItems} period={effectivePeriod} />
             </div>
           </div>
         </div>
